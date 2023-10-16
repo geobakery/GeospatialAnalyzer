@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import {District} from "./entities/district.entity";
+import { District } from './entities/district.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class DistrictsService {
-    private readonly districts: District[] = [];
+  constructor(
+    @InjectRepository(District)
+    private districtRepository: Repository<District>,
+  ) {}
 
-    getall(): District[] {
-        return this.districts;
-    }
+  findAll(): Promise<District[]> {
+    return this.districtRepository.find();
+  }
+
+  findOne(id: number): Promise<District | null> {
+    return this.districtRepository.findOneBy({ id });
+  }
 }

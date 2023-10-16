@@ -8,16 +8,16 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
-      AppModule,
-      new FastifyAdapter()
+    AppModule,
+    new FastifyAdapter(),
   );
 
   const config = new DocumentBuilder()
-      .setTitle('Analyseschnittstelle')
-      .setDescription('API description')
-      .setVersion('1.0')
-      .addTag('Geobakery')
-      .build();
+    .setTitle('Analyseschnittstelle')
+    .setDescription('API description')
+    .setVersion('1.0')
+    .addTag('Geobakery')
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
