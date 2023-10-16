@@ -4,6 +4,14 @@ For example you can run following [guide](https://learn.microsoft.com/de-de/wind
 
 You also need `pnpm` as package manager. Check the installation [guide](https://pnpm.io/installation)
 
+You need a database connection, as described in the next section
+
+## Database
+You need an accessible database connection to be able to querying.
+The database requires to have the schema from the `GeoBakery` repository.
+Inside `.env` are the necessary connection parameter. They can be replaced by a local `.env.dev` file.
+This file overwrites the base settings and will be ignored by git, so your connection data stays local.
+
 ## Installation
 
 ```bash
