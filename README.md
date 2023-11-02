@@ -49,6 +49,51 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Docker
+It is possible to run and develop this project with Docker. The docker file will create an instance of the analysis-interface, 
+a postgres database with postgis and some example data will be available. To comfortably check the database state, pgAdmin4 is included.
+
+### Prerequisite 
+You need an installed and *running* docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
+
+You need to update one line in your `.env` or `.env.dev` file:
+```bash
+db_postgres_host: db
+```
+This will asure that the database is taken from the docker network and not from your computer. By default, the name of the service becomes the hostname/address of the container within the Docker network.
+
+### Run
+Then just run:
+```bash
+docker compose up
+```
+
+3 container (Nest, Postgres, PgAdmin4) will be created. \
+Navigate to [localhost:3000](localhost:3000) to check out the "Hello World" greeting.\
+
+Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
+
+
+## PgAdmin4
+Navigate to [localhost:5050](localhost:5050) to check out PgAdmin4.
+
+The credentials are:\
+User=admin@admin.com\
+Password=pgadmin4
+
+To add your local docker database :
+
+- In the left-hand sidebar, click Servers to expand the Servers menu.
+- Right-click on Servers and select Register -> Server.
+- In the General tab of the Create - Server dialog, you can give the server a name of your choice.
+- In the Connection tab, fill in the following details:
+  - Host name/address: db
+  - Port: 5432
+  - Maintenance database: postgres 
+  - Username: postgres 
+  - Password: geobakery
+- Click Save to save the server configuration.
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
