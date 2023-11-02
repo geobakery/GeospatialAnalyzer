@@ -8,7 +8,7 @@ services:
       - POSTGRES_PASSWORD=geobakery
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    container_name: postgres-demo
+    container_name: postgres
     logging:
       options:
         max-size: 10m
@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nest-docker-postgres
+    container_name: nest
     environment:
       - WDS_SOCKET_HOST=127.0.0.1
       - CHOKIDAR_USEPOLLING=true
@@ -40,7 +40,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     restart: always
-    container_name: nest-pgadmin4-demo
+    container_name: pgadmin4
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=pgadmin4
