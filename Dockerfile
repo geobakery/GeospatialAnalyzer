@@ -17,8 +17,8 @@ RUN npm install --global pnpm \
 
 ENV PNPM_HOME=/usr/local/bin
 
-COPY src app/src
-
+COPY src /app/src
+CMD [ "cd", "/app" ]
 RUN pnpm install
 
 

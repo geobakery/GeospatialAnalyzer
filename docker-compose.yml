@@ -26,6 +26,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nest-docker-postgres
+    environment:
+      - WDS_SOCKET_HOST=127.0.0.1
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     ports:
       - '3000:3000'
     depends_on:
