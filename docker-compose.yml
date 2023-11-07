@@ -18,6 +18,8 @@ services:
       - ./sql/psql.sh:/docker-entrypoint-initdb.d/psql.sh
       - ./sql/kreis.txt:/docker-entrypoint-initdb.d/kreis.txt
       - ./sql/address.txt:/docker-entrypoint-initdb.d/address.txt
+      - ./sql/gemeinde.txt:/docker-entrypoint-initdb.d/gemeinde.txt
+      - ./sql/land.txt:/docker-entrypoint-initdb.d/land.txt
     ports:
       - '5432:5432'
 
