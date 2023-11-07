@@ -28,7 +28,7 @@ export class IntersectController {
     type: String,
   })
   @Post('intersect')
-  intersect(): GeoJSON | EsriJSON | ErrorResponse {
-    return this.intersectService.calculateIntersect();
+  async intersect(): Promise<GeoJSON | EsriJSON | ErrorResponse | any[]> {
+    return await this.intersectService.calculateIntersect();
   }
 }

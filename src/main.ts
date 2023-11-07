@@ -19,7 +19,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Analyseschnittstelle')
     .setDescription('API description')
-    .setVersion('v1')
+    .setVersion('1.2.15')
     .addTag('Geobakery')
     .build();
   const document = SwaggerModule.createDocument(app, config);

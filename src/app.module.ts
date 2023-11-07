@@ -10,6 +10,7 @@ import { IntersectService } from './intersect/intersect.service';
 import { IntersectController } from './intersect/intersect.controller';
 import { IntersectModule } from './intersect/intersect.module';
 import { GeneralService } from './general/general.service';
+import { LandEntity } from './general/entities/land.entity';
 
 @Module({
   imports: [
@@ -23,15 +24,15 @@ import { GeneralService } from './general/general.service';
       database: process.env.db_postgres_database,
       synchronize: JSON.parse(process.env.db_postgres_synchronize),
       logging: JSON.parse(process.env.db_postgres_logging),
-      entities: [District],
+      entities: [District, LandEntity],
       subscribers: [],
       migrations: [],
     } as TypeOrmModule),
     DistrictsModule,
     IntersectModule,
   ],
-  controllers: [AppController, IntersectController],
-  providers: [AppService, IntersectService, GeneralService],
+  controllers: [AppController],
+  providers: [AppService, GeneralService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
