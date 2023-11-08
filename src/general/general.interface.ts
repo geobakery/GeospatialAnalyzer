@@ -1,3 +1,5 @@
+import { GeoJSON } from 'typeorm';
+
 export interface Geometry {}
 export interface EsriGeometry {}
 export interface EsriJSON {
@@ -8,4 +10,9 @@ export interface EsriJSON {
 export interface ErrorResponse {
   status: number;
   error: string;
+}
+
+// artur -- WIP
+export interface DBResponse {
+  response: GeoJSON;
 }

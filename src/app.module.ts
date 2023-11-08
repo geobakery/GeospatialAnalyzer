@@ -6,11 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { District } from './districts/entities/district.entity';
 import { ConfigModule } from '@nestjs/config';
-import { IntersectService } from './intersect/intersect.service';
-import { IntersectController } from './intersect/intersect.controller';
 import { IntersectModule } from './intersect/intersect.module';
-import { GeneralService } from './general/general.service';
 import { LandEntity } from './general/entities/land.entity';
+import { GeneralModule } from './general/general.module';
 
 @Module({
   imports: [
@@ -30,9 +28,10 @@ import { LandEntity } from './general/entities/land.entity';
     } as TypeOrmModule),
     DistrictsModule,
     IntersectModule,
+    GeneralModule,
   ],
   controllers: [AppController],
-  providers: [AppService, GeneralService],
+  providers: [AppService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
