@@ -1,8 +1,17 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { IntersectService } from './intersect.service';
 import { GeoJSON } from 'typeorm';
 import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import { ParameterDto } from '../general/dto/parameter.dto';
 
 @Controller({
   version: '1',
@@ -27,8 +36,34 @@ export class IntersectController {
     description: 'Calculate the intersections',
     type: String,
   })
+  @HttpCode(200)
   @Post('intersect')
-  async intersect(): Promise<GeoJSON | EsriJSON | ErrorResponse | any[]> {
-    return await this.intersectService.calculateIntersect();
+  async intersect(
+    @Body() args: ParameterDto,
+  ): Promise<GeoJSON | EsriJSON | ErrorResponse | any[]> {
+    try {
+      if (this._checkIntersectParameter(args)) {
+        return await this.intersectService.calculateIntersect(args);
+      }
+    } catch (e) {
+      //just an example error
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'This is a custom message',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: e,
+        },
+      );
+    }
+  }
+
+  _checkIntersectParameter(args: ParameterDto): boolean {
+    if (args.timeout >= 1) {
+      throw new HttpException('Bad Value for ', HttpStatus.BAD_REQUEST);
+    }
+    return true;
   }
 }

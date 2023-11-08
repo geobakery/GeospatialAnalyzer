@@ -1,6 +1,6 @@
-import { GeoJSON } from 'typeorm';
+import { GeoJSON, Geometry } from 'typeorm';
 import { DBResponse, ErrorResponse } from './general.interface';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GeneralService {
@@ -8,13 +8,17 @@ export class GeneralService {
     if (response.length === 1) {
       return response[0].response;
     } else {
-      return this.errorResponse(500, 'No FeatureCollection found');
+      throw new HttpException(
+        'Unexpected formate error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-  errorResponse(status, message): ErrorResponse {
-    return {
-      status: status,
-      error: message,
-    };
+
+  getGeometryTypeGeoJSON(geometry: Geometry): string {
+    return geometry.type;
+  }
+  getPointCoordinatesGeoJSON(geometry: Geometry): string {
+    return geometry.type;
   }
 }
