@@ -32,7 +32,7 @@ $ pnpm run start:prod
 ```
 
 ## Browser
-Navigate to [localhost:3000](localhost:3000) to check out the "Hello World" greeting.
+Navigate to [localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.
 
 Navigate to [localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
 
