@@ -61,9 +61,9 @@ export class IntersectController {
   }
 
   _checkIntersectParameter(args: ParameterDto): boolean {
-    if (args.timeout >= 1) {
-      throw new HttpException('Bad Value for ', HttpStatus.BAD_REQUEST);
-    }
+    // if (args.timeout >= 1) {
+    //   throw new HttpException('Bad Value for ', HttpStatus.BAD_REQUEST);
+    // }
     return true;
   }
 }

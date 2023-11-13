@@ -1,5 +1,13 @@
 import { Geometry } from 'typeorm';
-import { IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import { outputFormatEnum, TOPICS } from '../general.constants';
 
 export class ParameterDto {
@@ -22,5 +30,7 @@ export class ParameterDto {
   @IsOptional()
   outSRS: string;
   @IsOptional()
+  @Min(5000)
+  @Max(100000)
   timeout: number;
 }
