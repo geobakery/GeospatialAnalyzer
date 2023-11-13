@@ -73,13 +73,8 @@ export class IntersectService {
     sqlQueries: string[],
     sqlParameter: string[],
   ): Promise<any> {
-    // const inputGeos = args.inputGeometries;
-    // const sqlQueryBuilderArray: SelectQueryBuilder<unknown>[] = [];
-    console.log('fuck you', sqlQueries);
-
     // Merge all the parameters from the other queries into a single object. You'll need to make sure that all your parameters have unique names
     const queries = sqlQueries.map((q, index) => {
-      console.log('!!!', { q, index });
       return q.replace('$1', '$' + (index + 1));
     });
     console.log('test SQL', queries);
@@ -87,14 +82,12 @@ export class IntersectService {
     const unionedQuery = '(' + queries.join(') UNION ALL (') + ')';
 
     // Create a new querybuilder with the joined SQL string as a FROM subquery
-    const result = await this.dataSource.query(unionedQuery, sqlParameter);
-    console.log('result', result);
-    return result;
+    return await this.dataSource.query(unionedQuery, sqlParameter);
   }
 
   async calculateIntersect(
     args: ParameterDto,
-  ): Promise<GeoJSON | ErrorResponse> {
+  ): Promise<GeoJSON[] | ErrorResponse> {
     const geoInput = args.inputGeometries as GeoJSON[];
     let geo: GeoJSON;
     if (Array.isArray(geoInput)) {
@@ -107,36 +100,37 @@ export class IntersectService {
     const query2 = await this.createSelectQueries2(KreisEntity, geo.geometry);
     query1.push(query2);
     //Sowas von TODO
-    console.log('query1', query1);
-    console.log('query2', query2);
+    // console.log('query1', query1);
+    // console.log('query2', query2);
     const queries: string[] = [];
     const parameter: any[] = [];
     queries.push(query1[0]);
     queries.push(query2[0]);
     parameter.push(query1[1][0]);
     parameter.push(query2[1][0]);
-    const query = await this.calculateIntersectUnion(queries, parameter);
-    console.log('test', query);
-    console.log('test result', query[0].response.features);
+    const query = (await this.calculateIntersectUnion(
+      queries,
+      parameter,
+    )) as DBResponse[];
+    // console.log('test', query);
+    // console.log('test result', query[0].response.features);
 
-    const featureCollection = (await this.landRepository
-      .createQueryBuilder('land') //TODO topic specifc call
-      .select(
-        'json_build_object(\n' +
-          "    'type', 'FeatureCollection',\n" +
-          "    'features', json_agg(ST_AsGeoJSON(l.*)::json)\n" +
-          '  ) as response',
-      ) // TODO db specific version
-      .from(LandEntity, 'l')
-      .where('ST_intersects(land.geom, :x::geometry)', {
-        x: this._buildGeometry(geo.geometry),
-      }) // TODO db specific version
-      .limit(100) // just for testing
-      .getRawMany()) as DBResponse[];
+    // const featureCollection = (await this.landRepository
+    //   .createQueryBuilder('land') //TODO topic specifc call
+    //   .select(
+    //     'json_build_object(\n' +
+    //       "    'type', 'FeatureCollection',\n" +
+    //       "    'features', json_agg(ST_AsGeoJSON(l.*)::json)\n" +
+    //       '  ) as response',
+    //   ) // TODO db specific version
+    //   .from(LandEntity, 'l')
+    //   .where('ST_intersects(land.geom, :x::geometry)', {
+    //     x: this._buildGeometry(geo.geometry),
+    //   }) // TODO db specific version
+    //   .limit(100) // just for testing
+    //   .getRawMany()) as DBResponse[];
 
-    //x: 'SRID=25833;POINT(377234 5658210)'
-
-    return this.generalService.dbToGeoJSON(featureCollection);
+    return this.generalService.dbToGeoJSON(query);
   }
 
   _buildGeometry(geo: Geometry): string {

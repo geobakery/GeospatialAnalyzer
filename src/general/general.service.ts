@@ -4,9 +4,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GeneralService {
-  dbToGeoJSON(response: DBResponse[]): GeoJSON | ErrorResponse {
-    if (response.length === 1) {
-      return response[0].response;
+  dbToGeoJSON(response: DBResponse[]): GeoJSON[] | ErrorResponse {
+    if (response.length) {
+      return response.map((r) => r.response);
     } else {
       throw new HttpException(
         'Unexpected formate error',

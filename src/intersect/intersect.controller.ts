@@ -40,7 +40,7 @@ export class IntersectController {
   @Post('intersect')
   async intersect(
     @Body() args: ParameterDto,
-  ): Promise<GeoJSON | EsriJSON | ErrorResponse | any[]> {
+  ): Promise<GeoJSON[] | EsriJSON | ErrorResponse | any[]> {
     try {
       if (this._checkIntersectParameter(args)) {
         return await this.intersectService.calculateIntersect(args);
