@@ -47,23 +47,14 @@ export class IntersectController {
       }
     } catch (e) {
       //just an example error
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'This is a custom message',
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: e,
-        },
-      );
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   _checkIntersectParameter(args: ParameterDto): boolean {
-    // if (args.timeout >= 1) {
-    //   throw new HttpException('Bad Value for ', HttpStatus.BAD_REQUEST);
-    // }
+    if (args.timeout <= 1) {
+      throw new HttpException('Bad Value for timeout', HttpStatus.BAD_REQUEST);
+    }
     return true;
   }
 }
