@@ -42,19 +42,10 @@ export class IntersectController {
     @Body() args: ParameterDto,
   ): Promise<GeoJSON[] | EsriJSON | ErrorResponse | any[]> {
     try {
-      if (this._checkIntersectParameter(args)) {
-        return await this.intersectService.calculateIntersect(args);
-      }
+      return await this.intersectService.calculateIntersect(args);
     } catch (e) {
       //just an example error
       throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  _checkIntersectParameter(args: ParameterDto): boolean {
-    if (args.timeout <= 1) {
-      throw new HttpException('Bad Value for timeout', HttpStatus.BAD_REQUEST);
-    }
-    return true;
   }
 }
