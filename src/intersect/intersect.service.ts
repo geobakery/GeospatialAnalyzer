@@ -15,10 +15,6 @@ import { KreisEntity } from '../general/entities/kreis.entity';
 @Injectable()
 export class IntersectService {
   constructor(
-    @InjectRepository(LandEntity)
-    private landRepository: Repository<LandEntity>,
-    @InjectRepository(KreisEntity)
-    private kreisRepository: Repository<KreisEntity>,
     @InjectDataSource()
     private dataSource: DataSource,
     private generalService: GeneralService,
@@ -28,18 +24,18 @@ export class IntersectService {
   }
 
   _getRepository(top: topic): Repository<any> {
+    let entity;
     switch (top) {
       case topic.land: {
-        return this.landRepository;
+        entity = LandEntity;
+        break;
       }
       case topic.kreis: {
-        return this.kreisRepository;
-      }
-      case topic.gemeinde: {
-        return null;
+        entity = KreisEntity;
+        break;
       }
     }
-    return null;
+    return this.dataSource.getRepository(entity);
   }
 
   async createSelectQueries(
