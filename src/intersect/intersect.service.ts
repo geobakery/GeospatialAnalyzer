@@ -4,9 +4,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { LandEntity } from '../general/entities/land.entity';
 import { DBResponse, ErrorResponse } from '../general/general.interface';
 import { GeneralService } from '../general/general.service';
-import { geojsonToPostGis } from '../general/general.constants';
+import { geojsonToPostGis, topic } from '../general/general.constants';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { KreisEntity } from '../general/entities/kreis.entity';
 
 @Injectable()
@@ -24,45 +23,34 @@ export class IntersectService {
     return [''];
   }
 
-  async createSelectQueries(
-    entity: EntityClassOrSchema,
-    geo: Geometry,
-  ): Promise<[string, any[]]> {
-    return (
-      this.landRepository
-        // .createQueryBuilder('table1')
-        // .select('table1.id')
-        // .where('table1.id = :input_id', { input_id: 10 })
-        // .getQueryAndParameters();
-        .createQueryBuilder('table1')
-        .select(
-          'json_build_object(\n' +
-            "    'type', 'FeatureCollection',\n" +
-            "    'features', json_agg(ST_AsGeoJSON(l.*)::json)\n" +
-            '  ) as response',
-        ) // TODO db specific version
-        .from(entity, 'l')
-        .where('ST_intersects(table1.geom, :x::geometry)', {
-          x: this._buildGeometry(geo),
-        }) // TODO db specific version
-        .limit(100) // just for testing
-        .getQueryAndParameters()
-    );
+  _getRepository(top: topic): Repository<any> {
+    switch (top) {
+      case topic.land: {
+        return this.landRepository;
+      }
+      case topic.kreis: {
+        return this.kreisRepository;
+      }
+      case topic.gemeinde: {
+        return null;
+      }
+    }
+    return null;
   }
-  async createSelectQueries2(
-    entity: EntityClassOrSchema,
+
+  async createSelectQueries(
+    top: topic,
     geo: Geometry,
   ): Promise<[string, any[]]> {
-    return this.kreisRepository
-      .createQueryBuilder('table2')
+    return this._getRepository(top)
+      .createQueryBuilder('table1')
       .select(
         'json_build_object(\n' +
           "    'type', 'FeatureCollection',\n" +
-          "    'features', json_agg(ST_AsGeoJSON(k.*)::json)\n" +
+          "    'features', json_agg(ST_AsGeoJSON(table1.*)::json)\n" +
           '  ) as response',
       ) // TODO db specific version
-      .from(entity, 'k')
-      .where('ST_intersects(table2.geom, :x::geometry)', {
+      .where('ST_intersects(table1.geom, :x::geometry)', {
         x: this._buildGeometry(geo),
       }) // TODO db specific version
       .limit(100) // just for testing
@@ -96,8 +84,8 @@ export class IntersectService {
     if (geo.type !== 'Feature') {
       return undefined;
     }
-    const query1 = await this.createSelectQueries(LandEntity, geo.geometry);
-    const query2 = await this.createSelectQueries2(KreisEntity, geo.geometry);
+    const query1 = await this.createSelectQueries(topic.land, geo.geometry);
+    const query2 = await this.createSelectQueries(topic.kreis, geo.geometry);
     query1.push(query2);
     //Sowas von TODO
     // console.log('query1', query1);
@@ -112,23 +100,6 @@ export class IntersectService {
       queries,
       parameter,
     )) as DBResponse[];
-    // console.log('test', query);
-    // console.log('test result', query[0].response.features);
-
-    // const featureCollection = (await this.landRepository
-    //   .createQueryBuilder('land') //TODO topic specifc call
-    //   .select(
-    //     'json_build_object(\n' +
-    //       "    'type', 'FeatureCollection',\n" +
-    //       "    'features', json_agg(ST_AsGeoJSON(l.*)::json)\n" +
-    //       '  ) as response',
-    //   ) // TODO db specific version
-    //   .from(LandEntity, 'l')
-    //   .where('ST_intersects(land.geom, :x::geometry)', {
-    //     x: this._buildGeometry(geo.geometry),
-    //   }) // TODO db specific version
-    //   .limit(100) // just for testing
-    //   .getRawMany()) as DBResponse[];
 
     return this.generalService.dbToGeoJSON(query);
   }
