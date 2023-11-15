@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, GeoJSON, Geometry, Point, Repository } from 'typeorm';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { LandEntity } from '../general/entities/land.entity';
+import { DataSource, GeoJSON, Geometry } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import {
   DBResponse,
   ErrorResponse,
   QueryAndParameter,
 } from '../general/general.interface';
 import { GeneralService } from '../general/general.service';
-import { geojsonToPostGis, topic } from '../general/general.constants';
+import {
+  DB_LIMIT,
+  QUERY_TABLE_NAME,
+  topic,
+} from '../general/general.constants';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { KreisEntity } from '../general/entities/kreis.entity';
 
 @Injectable()
 export class IntersectService {
@@ -23,37 +25,19 @@ export class IntersectService {
     return [''];
   }
 
-  _getRepository(top: topic): Repository<any> {
-    let entity;
-    switch (top) {
-      case topic.land: {
-        entity = LandEntity;
-        break;
-      }
-      case topic.kreis: {
-        entity = KreisEntity;
-        break;
-      }
-    }
-    return this.dataSource.getRepository(entity);
-  }
-
   async createSelectQueries(
     top: topic,
     geo: Geometry,
+    crs: number,
   ): Promise<[string, any[]]> {
-    return this._getRepository(top)
-      .createQueryBuilder('table1')
-      .select(
-        'json_build_object(\n' +
-          "    'type', 'FeatureCollection',\n" +
-          "    'features', json_agg(ST_AsGeoJSON(table1.*)::json)\n" +
-          '  ) as response',
-      ) // TODO db specific version
+    return this.generalService
+      .getRepository(top)
+      .createQueryBuilder(QUERY_TABLE_NAME)
+      .select(this.generalService.getDBSpecificSelect())
       .where('ST_intersects(table1.geom, :x::geometry)', {
-        x: this._buildGeometry(geo),
-      }) // TODO db specific version
-      .limit(100) // just for testing
+        x: this.generalService._buildGeometry(geo, crs),
+      })
+      .limit(DB_LIMIT) // just for testing
       .getQueryAndParameters();
   }
 
@@ -75,6 +59,7 @@ export class IntersectService {
   async _collectQueries(
     topicsString: string[],
     geo: Geometry,
+    crs: number,
   ): Promise<QueryAndParameter> {
     const topics: topic[] = [];
     const query: string[] = [];
@@ -84,7 +69,7 @@ export class IntersectService {
     });
 
     for await (const t of topics) {
-      const q = await this.createSelectQueries(t, geo);
+      const q = await this.createSelectQueries(t, geo, crs);
       if (q.length === 2) {
         query.push(q[0]);
         parameter.push(String(q[1]));
@@ -108,28 +93,16 @@ export class IntersectService {
       return undefined;
     }
 
-    const queryData = await this._collectQueries(args.topics, geo.geometry);
+    const queryData = await this._collectQueries(
+      args.topics,
+      geo.geometry,
+      25833, //TODO
+    );
     const query = (await this.calculateIntersectUnion(
       queryData.query,
       queryData.parameter,
     )) as DBResponse[];
 
     return this.generalService.dbToGeoJSON(query);
-  }
-
-  _buildGeometry(geo: Geometry): string {
-    let result = 'SRID=25833;';
-    const geoType = geojsonToPostGis.get(geo.type);
-    result += geoType;
-    const coordinates = this._buildCoordinatesFromDBType(geo);
-    result += '(' + coordinates + ')';
-    return result;
-  }
-  _buildCoordinatesFromDBType(geo: Geometry): string {
-    if (geo.type === 'Point') {
-      const point = geo as Point;
-      return '' + point.coordinates[0] + ' ' + point.coordinates[1];
-    }
-    return '';
   }
 }
