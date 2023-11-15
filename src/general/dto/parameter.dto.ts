@@ -1,5 +1,7 @@
 import { Geometry } from 'typeorm';
 import {
+  ArrayContains,
+  IsArray,
   IsEnum,
   IsIn,
   IsInt,
@@ -7,6 +9,7 @@ import {
   IsOptional,
   Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { outputFormatEnum, TOPICS } from '../general.constants';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,7 +21,7 @@ export class ParameterDto {
     description: 'the topic name to check for',
   })
   @IsNotEmpty()
-  @IsIn(TOPICS)
+  @IsIn(TOPICS, { each: true })
   topics: string[];
 
   @ApiProperty({

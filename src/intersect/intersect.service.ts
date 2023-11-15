@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, GeoJSON, Geometry, Point, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { LandEntity } from '../general/entities/land.entity';
-import { DBResponse, ErrorResponse } from '../general/general.interface';
+import {
+  DBResponse,
+  ErrorResponse,
+  QueryAndParameter,
+} from '../general/general.interface';
 import { GeneralService } from '../general/general.service';
 import { geojsonToPostGis, topic } from '../general/general.constants';
 import { ParameterDto } from '../general/dto/parameter.dto';
@@ -65,12 +69,35 @@ export class IntersectService {
     const queries = sqlQueries.map((q, index) => {
       return q.replace('$1', '$' + (index + 1));
     });
-    console.log('test SQL', queries);
     // Join all your queries into a single SQL string
     const unionedQuery = '(' + queries.join(') UNION ALL (') + ')';
 
     // Create a new querybuilder with the joined SQL string as a FROM subquery
     return await this.dataSource.query(unionedQuery, sqlParameter);
+  }
+
+  async _collectQueries(
+    topicsString: string[],
+    geo: Geometry,
+  ): Promise<QueryAndParameter> {
+    const topics: topic[] = [];
+    const query: string[] = [];
+    const parameter: string[] = [];
+    topicsString.forEach((s) => {
+      topics.push(s as topic);
+    });
+
+    for await (const t of topics) {
+      const q = await this.createSelectQueries(t, geo);
+      if (q.length === 2) {
+        query.push(q[0]);
+        parameter.push(String(q[1]));
+      }
+    }
+    return {
+      query: query,
+      parameter: parameter,
+    };
   }
 
   async calculateIntersect(
@@ -84,21 +111,11 @@ export class IntersectService {
     if (geo.type !== 'Feature') {
       return undefined;
     }
-    const query1 = await this.createSelectQueries(topic.land, geo.geometry);
-    const query2 = await this.createSelectQueries(topic.kreis, geo.geometry);
-    query1.push(query2);
-    //Sowas von TODO
-    // console.log('query1', query1);
-    // console.log('query2', query2);
-    const queries: string[] = [];
-    const parameter: any[] = [];
-    queries.push(query1[0]);
-    queries.push(query2[0]);
-    parameter.push(query1[1][0]);
-    parameter.push(query2[1][0]);
+
+    const queryData = await this._collectQueries(args.topics, geo.geometry);
     const query = (await this.calculateIntersectUnion(
-      queries,
-      parameter,
+      queryData.query,
+      queryData.parameter,
     )) as DBResponse[];
 
     return this.generalService.dbToGeoJSON(query);

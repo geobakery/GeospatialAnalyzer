@@ -16,3 +16,8 @@ export interface ErrorResponse {
 export interface DBResponse {
   response: GeoJSON;
 }
+
+export interface QueryAndParameter {
+  query: string[];
+  parameter: string[];
+}
