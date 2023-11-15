@@ -10,6 +10,7 @@ import { IntersectService } from './intersect/intersect.service';
 import { IntersectController } from './intersect/intersect.controller';
 import { IntersectModule } from './intersect/intersect.module';
 import { GeneralService } from './general/general.service';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { GeneralService } from './general/general.service';
     } as TypeOrmModule),
     DistrictsModule,
     IntersectModule,
+    HealthModule,
   ],
   controllers: [AppController, IntersectController],
   providers: [AppService, IntersectService, GeneralService],

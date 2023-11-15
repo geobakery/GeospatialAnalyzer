@@ -29,12 +29,13 @@
     "@nestjs/swagger": "^7.1.13",
     "@nestjs/typeorm": "^10.0.0",
     "pg": "^8.11.3",
+    "pnpm": "^8.10.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.0.0",
+    "@nestjs/cli": "^10.1.18",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@swc/cli": "^0.1.62",
