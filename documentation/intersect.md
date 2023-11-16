@@ -64,7 +64,7 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 }
 ```
 
-### Polyline
+### Line
 ```json
 {
   "inputGeometries": [{
@@ -93,6 +93,7 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
   - GeometryCollection
 - Only a single input geometry is accepted
 - Only `EPSG:25833` is supported
+- Only `verw_kreis_f` & `verw_land_f` are considered as topic
 - Only `inputGeometries` & `topics` are considered as parameter
 - Response GeoJSON has no "clear" indicator of the asked topic
   - By looking at the `properties` field, the given topic should be clear 
