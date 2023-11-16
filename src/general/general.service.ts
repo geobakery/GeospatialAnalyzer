@@ -97,7 +97,6 @@ export class GeneralService {
         if (result.length) {
           result = result.slice(0, -1);
         }
-        console.log('polyline', result);
         return result;
       }
       case 'Polygon': {
@@ -109,24 +108,19 @@ export class GeneralService {
             result += '' + c2.join(' ') + ',';
           });
           if (result.length) {
+            // remove last comma for segment
             result = result.slice(0, -1);
           }
           result += '),';
         });
 
         if (result.length) {
+          // remove last comma for polygon
           result = result.slice(0, -1);
         }
         return result;
       }
     }
     return '';
-  }
-
-  getGeometryTypeGeoJSON(geometry: Geometry): string {
-    return geometry.type;
-  }
-  getPointCoordinatesGeoJSON(geometry: Geometry): string {
-    return geometry.type;
   }
 }
