@@ -1,4 +1,12 @@
-import { DataSource, GeoJSON, Geometry, Point, Repository } from 'typeorm';
+import {
+  DataSource,
+  GeoJSON,
+  Geometry,
+  LineString,
+  Point,
+  Polygon,
+  Repository,
+} from 'typeorm';
 import { DBResponse } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { geojsonToPostGis, QUERY_SELECT, topic } from './general.constants';
@@ -53,9 +61,49 @@ export class GeneralService {
     return result;
   }
   _buildCoordinatesFromDBType(geo: Geometry): string {
-    if (geo.type === 'Point') {
-      const point = geo as Point;
-      return '' + point.coordinates[0] + ' ' + point.coordinates[1];
+    switch (geo.type) {
+      case 'Point': {
+        const point = geo as Point;
+        return '' + point.coordinates[0] + ' ' + point.coordinates[1];
+      }
+      case 'GeometryCollection':
+      case 'MultiPolygon':
+      case 'MultiLineString':
+      case 'MultiPoint': {
+        //TODO
+        return '';
+      }
+      case 'LineString': {
+        const line = geo as LineString;
+        let result: string = '';
+        line.coordinates.forEach((c) => {
+          result += '' + c.join(' ') + ',';
+        });
+        if (result.length) {
+          result = result.slice(0, -1);
+        }
+        console.log('polyline', result);
+        return result;
+      }
+      case 'Polygon': {
+        const polygon = geo as Polygon;
+        let result: string = '';
+        polygon.coordinates.forEach((c) => {
+          result += '(';
+          c.forEach((c2) => {
+            result += '' + c2.join(' ') + ',';
+          });
+          if (result.length) {
+            result = result.slice(0, -1);
+          }
+          result += '),';
+        });
+
+        if (result.length) {
+          result = result.slice(0, -1);
+        }
+        return result;
+      }
     }
     return '';
   }

@@ -9,6 +9,9 @@ import {
 import { GeneralService } from '../general/general.service';
 import {
   DB_LIMIT,
+  PARAMETER_ARRAY_POSITION,
+  QUERY_ARRAY_POSITION,
+  QUERY_PARAMETER_LENGTH,
   QUERY_TABLE_NAME,
   topic,
 } from '../general/general.constants';
@@ -70,9 +73,9 @@ export class IntersectService {
 
     for await (const t of topics) {
       const q = await this.createSelectQueries(t, geo, crs);
-      if (q.length === 2) {
-        query.push(q[0]);
-        parameter.push(String(q[1]));
+      if (q.length === QUERY_PARAMETER_LENGTH) {
+        query.push(<string>q[QUERY_ARRAY_POSITION]);
+        parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
       }
     }
     return {
