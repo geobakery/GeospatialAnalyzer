@@ -7,9 +7,15 @@ import {
   Polygon,
   Repository,
 } from 'typeorm';
-import { DBResponse } from './general.interface';
+import { CrsGeometry, DBResponse } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { geojsonToPostGis, QUERY_SELECT, topic } from './general.constants';
+import {
+  EPSG_REGEX,
+  geojsonToPostGis,
+  QUERY_SELECT,
+  STANDARD_CRS,
+  topic,
+} from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { LandEntity } from './entities/land.entity';
 import { KreisEntity } from './entities/kreis.entity';
@@ -122,5 +128,18 @@ export class GeneralService {
       }
     }
     return '';
+  }
+
+  getCoordinateSystem(geo: any): number {
+    if (geo?.crs) {
+      const name = geo.crs.properties?.name;
+      if (name) {
+        const match = name.match(EPSG_REGEX);
+        if (match.length === 1) {
+          return Number(match[0]);
+        }
+      }
+    }
+    return STANDARD_CRS;
   }
 }

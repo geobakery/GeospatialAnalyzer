@@ -30,3 +30,8 @@ export const QUERY_SELECT =
 export const QUERY_PARAMETER_LENGTH = 2;
 export const QUERY_ARRAY_POSITION = 0;
 export const PARAMETER_ARRAY_POSITION = 1;
+
+export const STANDARD_CRS = 4326;
+export const DATABASE_CRS = 25833;
+
+export const EPSG_REGEX = /\d+$/g;

@@ -12,7 +12,6 @@ export interface ErrorResponse {
   error: string;
 }
 
-// artur -- WIP
 export interface DBResponse {
   response: GeoJSON;
 }
@@ -20,4 +19,17 @@ export interface DBResponse {
 export interface QueryAndParameter {
   query: string[];
   parameter: string[];
+}
+
+export interface CrsGeometryElementProperty {
+  name: string;
+}
+export interface CrsGeometryElement {
+  type: string;
+  properties: CrsGeometryElementProperty;
+}
+export interface CrsGeometry {
+  type: string;
+  crs?: CrsGeometryElement;
+  coordinates: any;
 }

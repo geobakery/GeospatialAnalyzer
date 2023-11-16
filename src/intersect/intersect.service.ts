@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DataSource, GeoJSON, Geometry } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import {
+  CrsGeometry,
   DBResponse,
   ErrorResponse,
   QueryAndParameter,
 } from '../general/general.interface';
 import { GeneralService } from '../general/general.service';
 import {
+  DATABASE_CRS,
   DB_LIMIT,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
@@ -95,11 +97,19 @@ export class IntersectService {
     if (geo.type !== 'Feature') {
       return undefined;
     }
+    const crs = this.generalService.getCoordinateSystem(geo.geometry);
+    if (crs != DATABASE_CRS) {
+      // TODO transform points
+      throw new HttpException(
+        'Currently only EPSG:25833 is supported',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     const queryData = await this._collectQueries(
       args.topics,
       geo.geometry,
-      25833, //TODO
+      crs,
     );
     const query = (await this.calculateIntersectUnion(
       queryData.query,
