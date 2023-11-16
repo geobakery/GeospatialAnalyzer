@@ -71,6 +71,21 @@ export class GeneralService {
       case 'MultiLineString':
       case 'MultiPoint': {
         //TODO
+        // Example GEOMETRYCOLLECTION(POINT(2 0),POLYGON((0 0, 1 0, 1 1, 0 1, 0 0)))');
+        switch (geo.type) {
+          case 'MultiLineString': {
+            break;
+          }
+          case 'MultiPoint': {
+            break;
+          }
+          case 'GeometryCollection': {
+            break;
+          }
+          case 'MultiPolygon': {
+            break;
+          }
+        }
         return '';
       }
       case 'LineString': {

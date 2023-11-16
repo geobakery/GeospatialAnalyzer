@@ -13,6 +13,10 @@ export const geojsonToPostGis = new Map<string, string>([
   ['Point', 'POINT'],
   ['LineString', 'LINESTRING'],
   ['Polygon', 'POLYGON'],
+  ['GeometryCollection', 'GEOMETRYCOLLECTION'],
+  ['MultiPoint', 'GEOMETRYCOLLECTION'],
+  ['MultiLineString', 'GEOMETRYCOLLECTION'],
+  ['MultiPolygon', 'GEOMETRYCOLLECTION'],
 ]);
 
 export const DB_LIMIT = 100;
