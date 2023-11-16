@@ -1,4 +1,4 @@
-#Intersect - API Call
+# Intersect - API Call
 In this document, we will describe important and good-to-know facts about the intersection service
 
 ## Examples
