@@ -177,13 +177,16 @@ export class GeneralService {
     index: number,
     requestParams: any,
   ): void {
-    if (!geoArray.length) {
+    if (!geoArray?.length) {
       return;
     }
     const id = this.getAndSetGeoID(inputGeo, index);
     geoArray.forEach((geo) => {
       if (geo.type === 'FeatureCollection') {
         const features = geo.features;
+        if (!features?.length) {
+          return;
+        }
         features.forEach((feature) => {
           feature.properties[GEO_IDENTIFIER] = id;
           feature.properties[REQUESTPARAMS] = requestParams;

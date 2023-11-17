@@ -8,6 +8,7 @@ import { IntersectModule } from './intersect/intersect.module';
 import { LandEntity } from './general/entities/land.entity';
 import { GeneralModule } from './general/general.module';
 import { KreisEntity } from './general/entities/kreis.entity';
+import { WithinModule } from './within/within.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { KreisEntity } from './general/entities/kreis.entity';
     } as TypeOrmModule),
     IntersectModule,
     GeneralModule,
+    WithinModule,
   ],
   controllers: [AppController],
   providers: [AppService],
