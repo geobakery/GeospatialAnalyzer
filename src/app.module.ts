@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DistrictsModule } from './districts/districts.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { District } from './districts/entities/district.entity';
 import { ConfigModule } from '@nestjs/config';
 import { IntersectModule } from './intersect/intersect.module';
 import { LandEntity } from './general/entities/land.entity';
@@ -23,11 +21,10 @@ import { KreisEntity } from './general/entities/kreis.entity';
       database: process.env.db_postgres_database,
       synchronize: JSON.parse(process.env.db_postgres_synchronize),
       logging: JSON.parse(process.env.db_postgres_logging),
-      entities: [District, LandEntity, KreisEntity],
+      entities: [LandEntity, KreisEntity],
       subscribers: [],
       migrations: [],
     } as TypeOrmModule),
-    DistrictsModule,
     IntersectModule,
     GeneralModule,
   ],
