@@ -11,6 +11,12 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
     "type": "Feature",
     "geometry": {
       "type": "Polygon",
+      "crs": {
+        "type": "name",
+        "properties": {
+          "name": "EPSG:25833"
+        }
+      },
       "coordinates": [[
         [
           414719.40307246643,
@@ -52,6 +58,12 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
     "type": "Feature",
     "geometry": {
       "type": "Point",
+      "crs": {
+        "type": "name",
+        "properties": {
+          "name": "EPSG:25833"
+        }
+      },
       "coordinates": [411967, 5659861]
     },
     "properties": {
@@ -71,6 +83,12 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
     "type": "Feature",
     "geometry": {
       "type": "LineString",
+      "crs": {
+        "type": "name",
+        "properties": {
+          "name": "EPSG:25833"
+        }
+      }
       "coordinates": [ [414872.2774347855, 5651434.304929351],[426184.9802464067, 5655256.163987332] ]
     },
     "properties": {
@@ -85,18 +103,16 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 
 ## Known Limitations
 - Only GeoJSON input will be accepted
-  - Only with a single feature, no feature collections 
+  - Only with a single feature, no feature collections
+  - Only a single input geometry is accepted
 - Unsupported geo-types
   - MultiPolygon
   - MultiLineString
   - MultiPoint
   - GeometryCollection
-- Only a single input geometry is accepted
 - Only `EPSG:25833` is supported
 - Only `verw_kreis_f` & `verw_land_f` are considered as topic
 - Only `inputGeometries` & `topics` are considered as parameter
-- Response GeoJSON has no "clear" indicator of the asked topic
-  - By looking at the `properties` field, the given topic should be clear 
 
 ## Work In Progress
 - implement most known limitations
