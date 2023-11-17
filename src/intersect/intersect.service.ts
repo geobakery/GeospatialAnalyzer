@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DataSource, GeoJSON, Geometry } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import {
-  CrsGeometry,
   DBResponse,
   ErrorResponse,
   QueryAndParameter,
@@ -86,16 +85,13 @@ export class IntersectService {
     };
   }
 
-  async calculateIntersect(
-    args: ParameterDto,
-  ): Promise<GeoJSON[] | ErrorResponse> {
-    const geoInput = args.inputGeometries as GeoJSON[];
-    let geo: GeoJSON;
-    if (Array.isArray(geoInput)) {
-      geo = geoInput[0];
-    }
+  async generateQuery(geo: GeoJSON, args: ParameterDto): Promise<any> {
     if (geo.type !== 'Feature') {
-      return undefined;
+      // TODO support Feature collection
+      throw new HttpException(
+        'Currently only GeoJSON Features are supported',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
     const crs = this.generalService.getCoordinateSystem(geo.geometry);
     if (crs != DATABASE_CRS) {
@@ -111,11 +107,46 @@ export class IntersectService {
       geo.geometry,
       crs,
     );
-    const query = (await this.calculateIntersectUnion(
+    return (await this.calculateIntersectUnion(
       queryData.query,
       queryData.parameter,
     )) as DBResponse[];
+  }
 
-    return this.generalService.dbToGeoJSON(query);
+  async calculateIntersect(
+    args: ParameterDto,
+  ): Promise<GeoJSON[] | ErrorResponse> {
+    const geoInput = args.inputGeometries;
+
+    const requestParams: any =
+      this.generalService.setRequestParameterForResponse(args);
+
+    let result = [];
+    // iterate through all geometries
+    let index = 0;
+    for await (const geo of geoInput) {
+      const query = await this.generateQuery(geo, args);
+      const tmpResult = this.generalService.dbToGeoJSON(query);
+      this.generalService.addGeoIdentifier(
+        tmpResult,
+        geo,
+        index,
+        requestParams,
+      );
+      //ensure that the result is an GeoJSON[] and not GeoJSON[][]
+      if (!result.length) {
+        result = tmpResult;
+      } else {
+        result.push(tmpResult);
+      }
+      index++;
+    }
+    if (!result.length) {
+      throw new HttpException(
+        'No result calculated!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return result;
   }
 }

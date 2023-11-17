@@ -34,4 +34,7 @@ export const PARAMETER_ARRAY_POSITION = 1;
 export const STANDARD_CRS = 4326;
 export const DATABASE_CRS = 25833;
 
+export const GEO_IDENTIFIER = '__geometryIdentifier__';
+export const REQUESTPARAMS = '__requestParams';
+
 export const EPSG_REGEX = /\d+$/g;

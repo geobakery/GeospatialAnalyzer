@@ -1,6 +1,6 @@
-import { Geometry } from 'typeorm';
+import { GeoJSON } from 'typeorm';
 import {
-  ArrayContains,
+  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsIn,
@@ -9,7 +9,6 @@ import {
   IsOptional,
   Max,
   Min,
-  ValidateNested,
 } from 'class-validator';
 import { outputFormatEnum, TOPICS } from '../general.constants';
 import { ApiProperty } from '@nestjs/swagger';
@@ -39,8 +38,9 @@ export class ParameterDto {
     ],
     description: 'the input geometry',
   })
-  @IsNotEmpty()
-  inputGeometries: Geometry[];
+  @IsArray()
+  @ArrayNotEmpty()
+  inputGeometries: GeoJSON[];
 
   @ApiProperty()
   @IsOptional()

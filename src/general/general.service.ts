@@ -11,14 +11,17 @@ import { CrsGeometry, DBResponse } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   EPSG_REGEX,
+  GEO_IDENTIFIER,
   geojsonToPostGis,
   QUERY_SELECT,
+  REQUESTPARAMS,
   STANDARD_CRS,
   topic,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { LandEntity } from './entities/land.entity';
 import { KreisEntity } from './entities/kreis.entity';
+import { ParameterDto } from './dto/parameter.dto';
 
 @Injectable()
 export class GeneralService {
@@ -141,5 +144,51 @@ export class GeneralService {
       }
     }
     return STANDARD_CRS;
+  }
+
+  getGeometryIdentifier(geo: GeoJSON): string {
+    if (geo.type === 'Feature') {
+      return geo.properties[GEO_IDENTIFIER];
+    }
+    return undefined;
+  }
+
+  getAndSetGeoID(geo: GeoJSON, index: number): string {
+    const id = this.getGeometryIdentifier(geo);
+    if (!id) {
+      return '__ID:' + index;
+    }
+    return id;
+  }
+  addGeoIdentifier(
+    geoArray: GeoJSON[],
+    inputGeo: GeoJSON,
+    index: number,
+    requestParams: any,
+  ): void {
+    if (!geoArray.length) {
+      return;
+    }
+    const id = this.getAndSetGeoID(inputGeo, index);
+    geoArray.forEach((geo) => {
+      if (geo.type === 'FeatureCollection') {
+        const features = geo.features;
+        features.forEach((feature) => {
+          feature.properties[GEO_IDENTIFIER] = id;
+          feature.properties[REQUESTPARAMS] = requestParams;
+        });
+      } else if (geo.type === 'Feature') {
+        geo.properties[GEO_IDENTIFIER] = id;
+        geo.properties[REQUESTPARAMS] = requestParams;
+      }
+    });
+  }
+
+  setRequestParameterForResponse(args: ParameterDto): any {
+    return {
+      topics: args.topics,
+      outputFormat: args.outputFormat,
+      returnGeometry: args.returnGeometry,
+    };
   }
 }
