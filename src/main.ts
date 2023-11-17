@@ -17,7 +17,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Analyseschnittstelle')
+    .setTitle('GeospatialAnalyzer')
     .setDescription('API description')
     .setVersion('1.2.15')
     .addTag('Geobakery')
