@@ -10,10 +10,12 @@ import {
 import {
   CrsGeometry,
   DBResponse,
+  ErrorResponse,
   QueryAndParameter,
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  DATABASE_CRS,
   DB_LIMIT,
   EPSG_REGEX,
   GEO_IDENTIFIER,
@@ -284,5 +286,87 @@ export class GeneralService {
     this.addGeoIdentifier(tmpResult, geo, index, requestParams);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
     return this.setGeoJSONArray(tmpResult, result);
+  }
+
+  async generateQuery(
+    geo: GeoJSON,
+    args: ParameterDto,
+    intersectWhereClause: string,
+    intersectWhereClauseParameter: string,
+  ): Promise<any> {
+    if (geo.type !== 'Feature') {
+      // TODO support Feature collection
+      throw new HttpException(
+        'Currently only GeoJSON Features are supported',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    const crs = this.getCoordinateSystem(geo.geometry);
+    if (crs != DATABASE_CRS) {
+      // TODO transform points
+      throw new HttpException(
+        'Currently only EPSG:25833 is supported',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const queryData = await this.collectQueries(
+      args.topics,
+      geo.geometry,
+      crs,
+      intersectWhereClause,
+      intersectWhereClauseParameter,
+      this.createSelectQueries,
+    );
+    return (await this.buildUnionStatement(
+      queryData.query,
+      queryData.parameter,
+    )) as DBResponse[];
+  }
+
+  async buildUnionStatement(
+    sqlQueries: string[],
+    sqlParameter: string[],
+  ): Promise<any> {
+    // Merge all the parameters from the other queries into a single object. You'll need to make sure that all your parameters have unique names
+    const queries = sqlQueries.map((q, index) => {
+      return q.replace('$1', '$' + (index + 1));
+    });
+    // Join all your queries into a single SQL string
+    const unionedQuery = '(' + queries.join(') UNION ALL (') + ')';
+
+    // Create a new querybuilder with the joined SQL string as a FROM subquery
+    return await this.dataSource.query(unionedQuery, sqlParameter);
+  }
+
+  async calculateMethode(
+    args: ParameterDto,
+    whereClause: string,
+    whereClauseParameter: string,
+  ): Promise<GeoJSON[]> {
+    const geoInput = args.inputGeometries;
+
+    const requestParams: any = this.setRequestParameterForResponse(args);
+
+    let result: GeoJSON[] = [];
+    // iterate through all geometries
+    let index = 0;
+    for await (const geo of geoInput) {
+      const query = await this.generateQuery(
+        geo,
+        args,
+        whereClause,
+        whereClauseParameter,
+      );
+      result = this.prepareDBResponse(query, geo, index, requestParams, result);
+      index++;
+    }
+    if (!result.length) {
+      throw new HttpException(
+        'No result calculated!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return result;
   }
 }
