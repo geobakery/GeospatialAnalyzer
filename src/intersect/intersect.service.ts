@@ -9,11 +9,9 @@ import {
 import { GeneralService } from '../general/general.service';
 import {
   DATABASE_CRS,
-  DB_LIMIT,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
-  QUERY_TABLE_NAME,
   topic,
 } from '../general/general.constants';
 import { ParameterDto } from '../general/dto/parameter.dto';
@@ -27,22 +25,6 @@ export class IntersectService {
   ) {}
   getTopics(): string[] {
     return [''];
-  }
-
-  async createSelectQueries(
-    top: topic,
-    geo: Geometry,
-    crs: number,
-  ): Promise<[string, any[]]> {
-    return this.generalService
-      .getRepository(top)
-      .createQueryBuilder(QUERY_TABLE_NAME)
-      .select(this.generalService.getDBSpecificSelect())
-      .where('ST_intersects(table1.geom, :x::geometry)', {
-        x: this.generalService._buildGeometry(geo, crs),
-      })
-      .limit(DB_LIMIT) // just for testing
-      .getQueryAndParameters();
   }
 
   async calculateIntersectUnion(
@@ -60,30 +42,36 @@ export class IntersectService {
     return await this.dataSource.query(unionedQuery, sqlParameter);
   }
 
-  async _collectQueries(
-    topicsString: string[],
-    geo: Geometry,
-    crs: number,
-  ): Promise<QueryAndParameter> {
-    const topics: topic[] = [];
-    const query: string[] = [];
-    const parameter: string[] = [];
-    topicsString.forEach((s) => {
-      topics.push(s as topic);
-    });
-
-    for await (const t of topics) {
-      const q = await this.createSelectQueries(t, geo, crs);
-      if (q.length === QUERY_PARAMETER_LENGTH) {
-        query.push(<string>q[QUERY_ARRAY_POSITION]);
-        parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
-      }
-    }
-    return {
-      query: query,
-      parameter: parameter,
-    };
-  }
+  // async _collectQueries(
+  //   topicsString: string[],
+  //   geo: Geometry,
+  //   crs: number,
+  //   customFunction: (
+  //     service: any,
+  //     top: topic,
+  //     geo: Geometry,
+  //     crs: number,
+  //   ) => Promise<[string, any[]]>,
+  // ): Promise<QueryAndParameter> {
+  //   const topics: topic[] = [];
+  //   const query: string[] = [];
+  //   const parameter: string[] = [];
+  //   topicsString.forEach((s) => {
+  //     topics.push(s as topic);
+  //   });
+  //
+  //   for await (const t of topics) {
+  //     const q = await customFunction(this.generalService, t, geo, crs);
+  //     if (q.length === QUERY_PARAMETER_LENGTH) {
+  //       query.push(<string>q[QUERY_ARRAY_POSITION]);
+  //       parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
+  //     }
+  //   }
+  //   return {
+  //     query: query,
+  //     parameter: parameter,
+  //   };
+  // }
 
   async generateQuery(geo: GeoJSON, args: ParameterDto): Promise<any> {
     if (geo.type !== 'Feature') {
@@ -102,10 +90,13 @@ export class IntersectService {
       );
     }
 
-    const queryData = await this._collectQueries(
+    const queryData = await this.generalService.collectQueries(
       args.topics,
       geo.geometry,
       crs,
+      'ST_intersects(table1.geom, :x::geometry)',
+      'x',
+      this.generalService.createSelectQueries,
     );
     return (await this.calculateIntersectUnion(
       queryData.query,
@@ -121,24 +112,18 @@ export class IntersectService {
     const requestParams: any =
       this.generalService.setRequestParameterForResponse(args);
 
-    let result = [];
+    let result: GeoJSON[] = [];
     // iterate through all geometries
     let index = 0;
     for await (const geo of geoInput) {
       const query = await this.generateQuery(geo, args);
-      const tmpResult = this.generalService.dbToGeoJSON(query);
-      this.generalService.addGeoIdentifier(
-        tmpResult,
+      result = this.generalService.prepareDBResponse(
+        query,
         geo,
         index,
         requestParams,
+        result,
       );
-      //ensure that the result is an GeoJSON[] and not GeoJSON[][]
-      if (!result.length) {
-        result = tmpResult;
-      } else {
-        result.push(tmpResult);
-      }
       index++;
     }
     if (!result.length) {

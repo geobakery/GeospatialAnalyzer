@@ -7,13 +7,22 @@ import {
   Polygon,
   Repository,
 } from 'typeorm';
-import { CrsGeometry, DBResponse } from './general.interface';
+import {
+  CrsGeometry,
+  DBResponse,
+  QueryAndParameter,
+} from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  DB_LIMIT,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
+  PARAMETER_ARRAY_POSITION,
+  QUERY_ARRAY_POSITION,
+  QUERY_PARAMETER_LENGTH,
   QUERY_SELECT,
+  QUERY_TABLE_NAME,
   REQUESTPARAMS,
   STANDARD_CRS,
   topic,
@@ -190,5 +199,90 @@ export class GeneralService {
       outputFormat: args.outputFormat,
       returnGeometry: args.returnGeometry,
     };
+  }
+
+  setGeoJSONArray(result: GeoJSON[], resultArray: GeoJSON[]): GeoJSON[] {
+    if (!resultArray.length) {
+      resultArray = result;
+    } else {
+      result.forEach((r) => {
+        resultArray.push(r);
+      });
+    }
+    return resultArray;
+  }
+
+  async createSelectQueries(
+    service: any,
+    top: topic,
+    geo: Geometry,
+    crs: number,
+    whereClause: string,
+    whereClauseParameter: string,
+  ): Promise<[string, any[]]> {
+    const whereParameter = {};
+    whereParameter[whereClauseParameter] = service._buildGeometry(geo, crs);
+    return service
+      .getRepository(top)
+      .createQueryBuilder(QUERY_TABLE_NAME)
+      .select(service.getDBSpecificSelect())
+      .where(whereClause, whereParameter)
+      .limit(DB_LIMIT) // just for testing
+      .getQueryAndParameters();
+  }
+
+  async collectQueries(
+    topicsString: string[],
+    geo: Geometry,
+    crs: number,
+    whereClause: string,
+    whereClauseParameter: string,
+    customFunction: (
+      service: any,
+      top: topic,
+      geo: Geometry,
+      crs: number,
+      whereClause: string,
+      whereClauseParameter: string,
+    ) => Promise<[string, any[]]>,
+  ): Promise<QueryAndParameter> {
+    const topics: topic[] = [];
+    const query: string[] = [];
+    const parameter: string[] = [];
+    topicsString.forEach((s) => {
+      topics.push(s as topic);
+    });
+
+    for await (const t of topics) {
+      const q = await customFunction(
+        this,
+        t,
+        geo,
+        crs,
+        whereClause,
+        whereClauseParameter,
+      );
+      if (q.length === QUERY_PARAMETER_LENGTH) {
+        query.push(<string>q[QUERY_ARRAY_POSITION]);
+        parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
+      }
+    }
+    return {
+      query: query,
+      parameter: parameter,
+    };
+  }
+
+  prepareDBResponse(
+    query: any,
+    geo: GeoJSON,
+    index: number,
+    requestParams: ParameterDto,
+    result: GeoJSON[],
+  ): GeoJSON[] {
+    const tmpResult = this.dbToGeoJSON(query);
+    this.addGeoIdentifier(tmpResult, geo, index, requestParams);
+    //ensure that the result is an GeoJSON[] and not GeoJSON[][]
+    return this.setGeoJSONArray(tmpResult, result);
   }
 }
