@@ -9,6 +9,7 @@ import { LandEntity } from './general/entities/land.entity';
 import { GeneralModule } from './general/general.module';
 import { KreisEntity } from './general/entities/kreis.entity';
 import { WithinModule } from './within/within.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { WithinModule } from './within/within.module';
     IntersectModule,
     GeneralModule,
     WithinModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
