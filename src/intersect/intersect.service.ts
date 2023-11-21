@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { GeoJSON } from 'typeorm';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
+import { dbRequestBuilderSample } from '../general/general.interface';
 
 const INTERSECT_WHERE_CLAUSE = 'ST_intersects(table1.geom, :x::geometry)';
 const INTERSECT_WHERE_CLAUSE_PARAMETER = 'x';
@@ -13,10 +14,12 @@ export class IntersectService {
   }
 
   async calculateIntersect(args: ParameterDto): Promise<GeoJSON[]> {
-    return this.generalService.calculateMethode(
-      args,
-      INTERSECT_WHERE_CLAUSE,
-      INTERSECT_WHERE_CLAUSE_PARAMETER,
-    );
+    const dbBuilderParameter: dbRequestBuilderSample = {
+      select: false,
+      where: true,
+      whereStatement: INTERSECT_WHERE_CLAUSE,
+      whereStatementParameter: INTERSECT_WHERE_CLAUSE_PARAMETER,
+    };
+    return this.generalService.calculateMethode(args, dbBuilderParameter);
   }
 }

@@ -8,15 +8,16 @@ import {
   Repository,
 } from 'typeorm';
 import {
-  CrsGeometry,
+  dbRequestBuilderSample,
   DBResponse,
-  ErrorResponse,
   QueryAndParameter,
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   DATABASE_CRS,
   DB_LIMIT,
+  DB_NAME,
+  dbDirection,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
@@ -25,6 +26,7 @@ import {
   QUERY_PARAMETER_LENGTH,
   QUERY_SELECT,
   QUERY_TABLE_NAME,
+  ReplaceStringType,
   REQUESTPARAMS,
   STANDARD_CRS,
   topic,
@@ -67,8 +69,11 @@ export class GeneralService {
     }
   }
 
-  getDBSpecificSelect(): string {
+  getDBSpecificSelect(customSelect: string = undefined): string {
     // TODO other DB's
+    if (customSelect) {
+      return QUERY_SELECT.replace(QUERY_TABLE_NAME, 'q');
+    }
     return QUERY_SELECT;
   }
 
@@ -217,38 +222,94 @@ export class GeneralService {
     return resultArray;
   }
 
+  createRawQuery(
+    dbBuilderParameter: dbRequestBuilderSample,
+    top: topic,
+    geo: Geometry,
+    crs: number,
+    count: number,
+  ): [string, any[]] {
+    let result: string = '';
+    if (dbBuilderParameter.selectStatement) {
+      result += dbBuilderParameter.selectStatement;
+    }
+    if (dbBuilderParameter.fromStatement) {
+      let replacedString = dbBuilderParameter.fromStatement;
+      if (dbBuilderParameter.fromStatementParameter.size) {
+        dbBuilderParameter.fromStatementParameter.forEach((value, key) => {
+          switch (value) {
+            case ReplaceStringType.TABLE: {
+              const table = DB_NAME + '.' + top;
+              replacedString = replacedString.replace(key, table);
+              break;
+            }
+            case ReplaceStringType.GEOMETRY: {
+              const geoString = this._buildGeometry(geo, crs);
+              replacedString = replacedString.replace(key, geoString);
+              break;
+            }
+            case ReplaceStringType.COUNT: {
+              if (count) {
+                const countElement = String(count);
+                replacedString = replacedString.replace(key, countElement);
+              }
+              break;
+            }
+          }
+        });
+      }
+      result += ' ' + replacedString;
+    }
+    return [result, []];
+  }
+
   async createSelectQueries(
     service: any,
     top: topic,
     geo: Geometry,
     crs: number,
-    whereClause: string,
-    whereClauseParameter: string,
+    count: number,
+    dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<[string, any[]]> {
     const whereParameter = {};
-    whereParameter[whereClauseParameter] = service._buildGeometry(geo, crs);
-    return service
+
+    if (dbBuilderParameter.customStatement) {
+      return service.createRawQuery(dbBuilderParameter, top, geo, crs, count);
+    }
+
+    const dbRequest = service
       .getRepository(top)
-      .createQueryBuilder(QUERY_TABLE_NAME)
-      .select(service.getDBSpecificSelect())
-      .where(whereClause, whereParameter)
-      .limit(DB_LIMIT) // just for testing
-      .getQueryAndParameters();
+      .createQueryBuilder(QUERY_TABLE_NAME);
+
+    dbRequest.select(service.getDBSpecificSelect());
+
+    if (dbBuilderParameter.where) {
+      whereParameter[dbBuilderParameter.whereStatementParameter] =
+        service._buildGeometry(geo, crs);
+      dbRequest.where(dbBuilderParameter.whereStatement, whereParameter);
+    }
+    if (dbBuilderParameter.orderBy) {
+      dbRequest.orderBy(dbBuilderParameter.orderByDirection);
+    }
+    if (dbBuilderParameter.limit) {
+      dbRequest.limit(DB_LIMIT);
+    }
+    return dbRequest.getQueryAndParameters();
   }
 
   async collectQueries(
     topicsString: string[],
     geo: Geometry,
     crs: number,
-    whereClause: string,
-    whereClauseParameter: string,
+    count: number,
+    dbBuilderParameter: dbRequestBuilderSample,
     customFunction: (
       service: any,
       top: topic,
       geo: Geometry,
       crs: number,
-      whereClause: string,
-      whereClauseParameter: string,
+      count: number,
+      dbBuilderParameter: dbRequestBuilderSample,
     ) => Promise<[string, any[]]>,
   ): Promise<QueryAndParameter> {
     const topics: topic[] = [];
@@ -264,8 +325,8 @@ export class GeneralService {
         t,
         geo,
         crs,
-        whereClause,
-        whereClauseParameter,
+        count,
+        dbBuilderParameter,
       );
       if (q.length === QUERY_PARAMETER_LENGTH) {
         query.push(<string>q[QUERY_ARRAY_POSITION]);
@@ -294,8 +355,7 @@ export class GeneralService {
   async generateQuery(
     geo: GeoJSON,
     args: ParameterDto,
-    intersectWhereClause: string,
-    intersectWhereClauseParameter: string,
+    dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<any> {
     if (geo.type !== 'Feature') {
       // TODO support Feature collection
@@ -317,8 +377,8 @@ export class GeneralService {
       args.topics,
       geo.geometry,
       crs,
-      intersectWhereClause,
-      intersectWhereClauseParameter,
+      args.count,
+      dbBuilderParameter,
       this.createSelectQueries,
     );
     return (await this.buildUnionStatement(
@@ -337,15 +397,16 @@ export class GeneralService {
     });
     // Join all your queries into a single SQL string
     const unionedQuery = '(' + queries.join(') UNION ALL (') + ')';
-
     // Create a new querybuilder with the joined SQL string as a FROM subquery
-    return await this.dataSource.query(unionedQuery, sqlParameter);
+    if (sqlParameter.length && sqlParameter[0]) {
+      return await this.dataSource.query(unionedQuery, sqlParameter);
+    }
+    return await this.dataSource.query(unionedQuery);
   }
 
   async calculateMethode(
     args: ParameterDto,
-    whereClause: string,
-    whereClauseParameter: string,
+    dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSON[]> {
     const geoInput = args.inputGeometries;
 
@@ -355,12 +416,7 @@ export class GeneralService {
     // iterate through all geometries
     let index = 0;
     for await (const geo of geoInput) {
-      const query = await this.generateQuery(
-        geo,
-        args,
-        whereClause,
-        whereClauseParameter,
-      );
+      const query = await this.generateQuery(geo, args, dbBuilderParameter);
       result = this.prepareDBResponse(query, geo, index, requestParams, result);
       index++;
     }

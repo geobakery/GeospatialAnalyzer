@@ -1,5 +1,7 @@
 export const TOPICS = ['verw_land_f', 'verw_kreis_f', 'verw_gem_f'];
 
+export const DB_NAME = 'spatialyzer_demo';
+
 export enum topic {
   land = 'verw_land_f',
   kreis = 'verw_kreis_f',
@@ -38,3 +40,14 @@ export const GEO_IDENTIFIER = '__geometryIdentifier__';
 export const REQUESTPARAMS = '__requestParams';
 
 export const EPSG_REGEX = /\d+$/g;
+
+export enum dbDirection {
+  asc = 'asc',
+  desc = 'desc',
+}
+
+export enum ReplaceStringType {
+  TABLE,
+  COUNT,
+  GEOMETRY,
+}

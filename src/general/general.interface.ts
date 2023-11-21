@@ -1,4 +1,5 @@
 import { GeoJSON } from 'typeorm';
+import { dbDirection, ReplaceStringType } from './general.constants';
 
 export interface Geometry {}
 export interface EsriGeometry {}
@@ -32,4 +33,21 @@ export interface CrsGeometry {
   type: string;
   crs?: CrsGeometryElement;
   coordinates: any;
+}
+
+export interface dbRequestBuilderSample {
+  select: boolean;
+  where: boolean;
+  from?: boolean;
+  fromStatement?: string;
+  fromStatementParameter?: Map<string, ReplaceStringType>;
+  customStatement?: boolean;
+  selectStatement?: string;
+  selectStatementParameter?: string;
+  whereStatement?: string;
+  whereStatementParameter?: string;
+  limit?: number;
+  count?: number;
+  orderBy?: string;
+  orderByDirection?: dbDirection;
 }

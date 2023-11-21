@@ -10,6 +10,7 @@ import { GeneralModule } from './general/general.module';
 import { KreisEntity } from './general/entities/kreis.entity';
 import { WithinModule } from './within/within.module';
 import { HealthModule } from './health/health.module';
+import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { HealthModule } from './health/health.module';
     GeneralModule,
     WithinModule,
     HealthModule,
+    NearestNeighbourModule,
   ],
   controllers: [AppController],
   providers: [AppService],
