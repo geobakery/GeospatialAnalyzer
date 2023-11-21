@@ -5,10 +5,6 @@ import { GeoJSON } from 'typeorm';
 import { dbRequestBuilderSample } from '../general/general.interface';
 import { dbDirection, ReplaceStringType } from '../general/general.constants';
 
-// const NEIGHBOUR_SELECT_CLAUSE = 'ST_Distance(x::geometry, table1.geom) as dist';
-// const NEIGHBOUR_SELECT_CLAUSE =
-//   "'distance', ST_Distance(x::geometry, table1.geom)";
-// const NEIGHBOUR_SELECT_CLAUSE_PARAMETER = 'x';
 const NEIGHBOUR_SELECT_CLAUSE =
   'SELECT json_build_object(\n' +
   "    'type', 'FeatureCollection',\n" +
@@ -28,7 +24,7 @@ export class NearestNeighbourService {
   }
 
   async calculateNearestNeighbour(args: ParameterDto): Promise<GeoJSON[]> {
-    // TODO validate Input
+    // TODO validate Input, custom ParameterDto?
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: true,
       customStatement: true,

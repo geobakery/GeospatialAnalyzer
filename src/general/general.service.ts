@@ -17,7 +17,6 @@ import {
   DATABASE_CRS,
   DB_LIMIT,
   DB_NAME,
-  dbDirection,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
@@ -149,6 +148,11 @@ export class GeneralService {
     return '';
   }
 
+  /*
+  We read the crs from coordinate from geojson
+  REMINDER: GEOJSON doesnt support crs, but postgis automatically adds crs in the response
+  We currently use this bridge to support 25833, the database crs, till the transformer is available
+   */
   getCoordinateSystem(geo: any): number {
     if (geo?.crs) {
       const name = geo.crs.properties?.name;
@@ -176,6 +180,11 @@ export class GeneralService {
     }
     return id;
   }
+  /*
+  Helper to add the identifier to the db
+  Alternative: change From table statement to a From (SELECT ...) statement parallel to nearestNeoghbour
+  Drawback: we would always use raw sql statements
+   */
   addGeoIdentifier(
     geoArray: GeoJSON[],
     inputGeo: GeoJSON,
@@ -211,6 +220,9 @@ export class GeneralService {
     };
   }
 
+  /*
+  assures that the result is always a GeoJSON[]
+   */
   setGeoJSONArray(result: GeoJSON[], resultArray: GeoJSON[]): GeoJSON[] {
     if (!resultArray.length) {
       resultArray = result;
@@ -222,6 +234,9 @@ export class GeneralService {
     return resultArray;
   }
 
+  /*
+  Creates a custom raw sql statement from given Parameter
+   */
   createRawQuery(
     dbBuilderParameter: dbRequestBuilderSample,
     top: topic,
@@ -263,6 +278,9 @@ export class GeneralService {
     return [result, []];
   }
 
+  /*
+  Creates a single query for typeOrm (query as string, parameter as array)
+   */
   async createSelectQueries(
     service: any,
     top: topic,
@@ -297,6 +315,10 @@ export class GeneralService {
     return dbRequest.getQueryAndParameters();
   }
 
+  /*
+  Iterate over all queries to create a single Query:
+  (a) UNION (b) UNION (c) ...
+   */
   async collectQueries(
     topicsString: string[],
     geo: Geometry,
