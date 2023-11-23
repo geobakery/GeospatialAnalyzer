@@ -88,7 +88,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
         "properties": {
           "name": "EPSG:25833"
         }
-      }
+      },
       "coordinates": [ [414872.2774347855, 5651434.304929351],[426184.9802464067, 5655256.163987332] ]
     },
     "properties": {
