@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { IntersectModule } from './intersect/intersect.module';
+import { GeneralService } from './general/general.service';
+import { TransformModule } from './transform/transform.module';
+import { ValuesAtPointModule } from './values-at-point/values-at-point.module';
 import { LandEntity } from './general/entities/land.entity';
 import { GeneralModule } from './general/general.module';
 import { KreisEntity } from './general/entities/kreis.entity';
@@ -29,6 +32,8 @@ import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.mo
       migrations: [],
     } as TypeOrmModule),
     IntersectModule,
+    TransformModule,
+    ValuesAtPointModule,
     GeneralModule,
     WithinModule,
     HealthModule,
