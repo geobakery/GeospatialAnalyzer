@@ -8,7 +8,8 @@ describe('ValuesAtPointService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ValuesAtPointService],
     }).compile();
-
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     service = module.get<ValuesAtPointService>(ValuesAtPointService);
   });
 

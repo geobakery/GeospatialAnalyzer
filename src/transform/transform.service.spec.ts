@@ -8,7 +8,8 @@ describe('TransformService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [TransformService],
     }).compile();
-
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     service = module.get<TransformService>(TransformService);
   });
 

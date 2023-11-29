@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GeneralService } from './general.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { STANDARD_CRS, topic } from './general.constants';
+import { STANDARD_CRS } from './general.constants';
 
 describe('GeneralService', () => {
   let service: GeneralService;
