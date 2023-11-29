@@ -30,16 +30,16 @@ Press "p" and insert "general" to only watch and test testcases that contain the
 ```bash
 $ pnpm test:watch
 ```
-Testing menu:
+Testing menu: \
 <img src="images/testing_menu.png" alt="Screenshot test menu" width="360"/>
 
-Testing success:
+Testing success: \
 <img src="images/testing_success.png" alt="Screenshot test success"/>
 
-Testing failure:
+Testing failure: \
 <img src="images/testing_failure.png" alt="Screenshot test failure"/>
 
-Testing failure detail:
+Testing failure detail: \
 <img src="images/testing_failure_detail.png" alt="Screenshot test failure detail"/>
 
 
@@ -59,7 +59,7 @@ To run and watch:
 $ pnpm test:e2e:watch
 ```
 
-##Examples
+## Examples
 
 Basic examples for unit tests are in all modules and can be found with the `.spec.` file extension.
 The most examples with comments are currently in `general.service.spec.ts`.
