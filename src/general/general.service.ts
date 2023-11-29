@@ -5,7 +5,6 @@ import {
   LineString,
   Point,
   Polygon,
-  Repository,
 } from 'typeorm';
 import {
   dbRequestBuilderSample,
@@ -15,7 +14,6 @@ import {
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   DATABASE_CRS,
-  DB_LIMIT,
   DB_NAME,
   EPSG_REGEX,
   GEO_IDENTIFIER,
@@ -24,15 +22,12 @@ import {
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
   QUERY_SELECT,
-  QUERY_TABLE_NAME,
   ReplaceStringType,
   REQUESTPARAMS,
   STANDARD_CRS,
   topic,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { LandEntity } from './entities/land.entity';
-import { KreisEntity } from './entities/kreis.entity';
 import { ParameterDto } from './dto/parameter.dto';
 
 @Injectable()
@@ -41,21 +36,6 @@ export class GeneralService {
     @InjectDataSource()
     private dataSource: DataSource,
   ) {}
-
-  getRepository(top: topic): Repository<any> {
-    let entity;
-    switch (top) {
-      case topic.land: {
-        entity = LandEntity;
-        break;
-      }
-      case topic.kreis: {
-        entity = KreisEntity;
-        break;
-      }
-    }
-    return this.dataSource.getRepository(entity);
-  }
 
   dbToGeoJSON(response: DBResponse[]): GeoJSON[] {
     if (response.length) {
@@ -66,14 +46,6 @@ export class GeneralService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  getDBSpecificSelect(customSelect: string = undefined): string {
-    // TODO other DB's
-    if (customSelect) {
-      return QUERY_SELECT.replace(QUERY_TABLE_NAME, 'q');
-    }
-    return QUERY_SELECT;
   }
 
   _buildGeometry(geo: Geometry, crs: number): string {
@@ -252,7 +224,7 @@ export class GeneralService {
     }
     if (dbBuilderParameter.fromStatement) {
       let replacedString = dbBuilderParameter.fromStatement;
-      if (dbBuilderParameter.fromStatementParameter.size) {
+      if (dbBuilderParameter.fromStatementParameter?.size) {
         dbBuilderParameter.fromStatementParameter.forEach((value, key) => {
           switch (value) {
             case ReplaceStringType.TABLE: {
@@ -277,7 +249,7 @@ export class GeneralService {
       }
       result += ' ' + replacedString;
     }
-    if (dbBuilderParameter.whereStatementParameter.size) {
+    if (dbBuilderParameter.whereStatementParameter?.size) {
       let replacedString = dbBuilderParameter.whereStatement;
       //TODO generalize
       dbBuilderParameter.whereStatementParameter.forEach((value, key) => {
@@ -317,30 +289,15 @@ export class GeneralService {
     count: number,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<[string, any[]]> {
-    const whereParameter = {};
-
+    // To replace Repositories, we only create raw sql statements
     if (dbBuilderParameter.customStatement) {
       return service.createRawQuery(dbBuilderParameter, top, geo, crs, count);
     }
 
-    const dbRequest = service
-      .getRepository(top)
-      .createQueryBuilder(QUERY_TABLE_NAME);
-
-    dbRequest.select(service.getDBSpecificSelect());
-
-    // if (dbBuilderParameter.where) {
-    //   whereParameter[dbBuilderParameter.whereStatementParameter] =
-    //     service._buildGeometry(geo, crs);
-    //   dbRequest.where(dbBuilderParameter.whereStatement, whereParameter);
-    // }
-    if (dbBuilderParameter.orderBy) {
-      dbRequest.orderBy(dbBuilderParameter.orderByDirection);
-    }
-    if (dbBuilderParameter.limit) {
-      dbRequest.limit(DB_LIMIT);
-    }
-    return dbRequest.getQueryAndParameters();
+    throw new HttpException(
+      'Unsupported route parameter configuration',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 
   /*
