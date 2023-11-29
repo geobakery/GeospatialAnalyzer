@@ -5,7 +5,7 @@ describe('ValuesAtPointService', () => {
   let service: ValuesAtPointService;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ValuesAtPointService],
     }).compile();

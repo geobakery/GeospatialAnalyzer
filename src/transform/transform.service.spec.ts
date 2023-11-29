@@ -5,7 +5,7 @@ describe('TransformService', () => {
   let service: TransformService;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [TransformService],
     }).compile();

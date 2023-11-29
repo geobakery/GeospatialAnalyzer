@@ -8,7 +8,7 @@ describe('WithinController', () => {
   let controller: WithinController;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WithinController],
       imports: [

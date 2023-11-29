@@ -6,7 +6,7 @@ describe('TransformController', () => {
   let controller: TransformController;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransformController],
       providers: [TransformService],

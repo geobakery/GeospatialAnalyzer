@@ -8,7 +8,7 @@ describe('IntersectController', () => {
   let controller: IntersectController;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
       imports: [

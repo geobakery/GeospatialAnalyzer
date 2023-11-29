@@ -5,7 +5,8 @@ import { HealthService } from './health.service';
 describe('HealthController', () => {
   let controller: HealthController;
   let mod: TestingModule;
-  beforeEach(async () => {
+
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
       providers: [HealthService],

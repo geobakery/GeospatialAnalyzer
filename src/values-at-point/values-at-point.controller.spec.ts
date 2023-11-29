@@ -6,7 +6,7 @@ describe('ValuesAtPointController', () => {
   let controller: ValuesAtPointController;
   let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ValuesAtPointController],
       providers: [ValuesAtPointService],
