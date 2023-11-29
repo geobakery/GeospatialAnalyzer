@@ -247,6 +247,8 @@ export class GeneralService {
     let result: string = '';
     if (dbBuilderParameter.selectStatement) {
       result += dbBuilderParameter.selectStatement;
+    } else {
+      result += QUERY_SELECT;
     }
     if (dbBuilderParameter.fromStatement) {
       let replacedString = dbBuilderParameter.fromStatement;
