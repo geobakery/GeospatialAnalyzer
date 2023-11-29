@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('IntersectController', () => {
   let controller: IntersectController;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +30,11 @@ describe('IntersectController', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     controller = module.get<IntersectController>(IntersectController);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

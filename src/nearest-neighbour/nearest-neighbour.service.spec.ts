@@ -5,6 +5,7 @@ import { GeneralModule } from '../general/general.module';
 
 describe('NearestNeighbourService', () => {
   let service: NearestNeighbourService;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,6 +27,11 @@ describe('NearestNeighbourService', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     service = module.get<NearestNeighbourService>(NearestNeighbourService);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

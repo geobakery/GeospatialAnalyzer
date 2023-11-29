@@ -5,8 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('IntersectService', () => {
   let service: IntersectService;
+  let mod: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [IntersectService],
       imports: [
@@ -27,6 +28,11 @@ describe('IntersectService', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     service = module.get<IntersectService>(IntersectService);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

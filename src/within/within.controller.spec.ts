@@ -6,6 +6,7 @@ import { GeneralModule } from '../general/general.module';
 
 describe('WithinController', () => {
   let controller: WithinController;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +29,11 @@ describe('WithinController', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     controller = module.get<WithinController>(WithinController);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

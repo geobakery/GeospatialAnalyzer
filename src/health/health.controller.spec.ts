@@ -4,14 +4,21 @@ import { HealthService } from './health.service';
 
 describe('HealthController', () => {
   let controller: HealthController;
-
+  let mod: TestingModule;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
       providers: [HealthService],
     }).compile();
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     controller = module.get<HealthController>(HealthController);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

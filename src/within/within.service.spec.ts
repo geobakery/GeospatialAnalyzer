@@ -5,6 +5,7 @@ import { GeneralModule } from '../general/general.module';
 
 describe('WithinService', () => {
   let service: WithinService;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,6 +27,11 @@ describe('WithinService', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     service = module.get<WithinService>(WithinService);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

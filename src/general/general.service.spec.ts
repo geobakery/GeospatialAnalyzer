@@ -5,6 +5,7 @@ import { STANDARD_CRS } from './general.constants';
 
 describe('GeneralService', () => {
   let service: GeneralService;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,6 +26,11 @@ describe('GeneralService', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     service = module.get<GeneralService>(GeneralService);
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {

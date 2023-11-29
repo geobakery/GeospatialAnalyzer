@@ -6,6 +6,7 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
 
 describe('NearestNeighbourController', () => {
   let controller: NearestNeighbourController;
+  let mod: TestingModule;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,6 +31,11 @@ describe('NearestNeighbourController', () => {
     controller = module.get<NearestNeighbourController>(
       NearestNeighbourController,
     );
+    mod = module;
+  });
+
+  afterAll(async () => {
+    await mod.close();
   });
 
   it('should be defined', () => {
