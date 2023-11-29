@@ -10,7 +10,7 @@ const INTERSECT_WHERE_CLAUSE_PARAMETER = 'x';
 export class IntersectService {
   constructor(private generalService: GeneralService) {}
   getTopics(): string[] {
-    return [''];
+    return ['testTopic'];
   }
 
   async calculateIntersect(args: ParameterDto): Promise<GeoJSON[]> {
