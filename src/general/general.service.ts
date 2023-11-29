@@ -277,6 +277,32 @@ export class GeneralService {
       }
       result += ' ' + replacedString;
     }
+    if (dbBuilderParameter.whereStatementParameter.size) {
+      let replacedString = dbBuilderParameter.whereStatement;
+      //TODO generalize
+      dbBuilderParameter.whereStatementParameter.forEach((value, key) => {
+        switch (value) {
+          case ReplaceStringType.TABLE: {
+            const table = DB_NAME + '.' + top;
+            replacedString = replacedString.replace(key, table);
+            break;
+          }
+          case ReplaceStringType.GEOMETRY: {
+            const geoString = this._buildGeometry(geo, crs);
+            replacedString = replacedString.replace(key, geoString);
+            break;
+          }
+          case ReplaceStringType.COUNT: {
+            if (count) {
+              const countElement = String(count);
+              replacedString = replacedString.replace(key, countElement);
+            }
+            break;
+          }
+        }
+      });
+      result += ' ' + replacedString;
+    }
     return [result, []];
   }
 
@@ -303,11 +329,11 @@ export class GeneralService {
 
     dbRequest.select(service.getDBSpecificSelect());
 
-    if (dbBuilderParameter.where) {
-      whereParameter[dbBuilderParameter.whereStatementParameter] =
-        service._buildGeometry(geo, crs);
-      dbRequest.where(dbBuilderParameter.whereStatement, whereParameter);
-    }
+    // if (dbBuilderParameter.where) {
+    //   whereParameter[dbBuilderParameter.whereStatementParameter] =
+    //     service._buildGeometry(geo, crs);
+    //   dbRequest.where(dbBuilderParameter.whereStatement, whereParameter);
+    // }
     if (dbBuilderParameter.orderBy) {
       dbRequest.orderBy(dbBuilderParameter.orderByDirection);
     }

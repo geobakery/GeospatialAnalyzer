@@ -24,9 +24,9 @@ export const geojsonToPostGis = new Map<string, string>([
 export const DB_LIMIT = 100;
 export const QUERY_TABLE_NAME = 'table1';
 export const QUERY_SELECT =
-  'json_build_object(\n' +
+  'SELECT json_build_object(\n' +
   "    'type', 'FeatureCollection',\n" +
-  "    'features', json_agg(ST_AsGeoJSON(table1.*)::json)\n" +
+  "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   '  ) as response';
 
 export const QUERY_PARAMETER_LENGTH = 2;

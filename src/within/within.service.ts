@@ -14,12 +14,13 @@ export class WithinService {
   }
 
   async calculateWithin(args: ParameterDto): Promise<GeoJSON[]> {
-    const dbBuilderParameter: dbRequestBuilderSample = {
-      select: false,
-      where: true,
-      whereStatement: WITHIN_WHERE_CLAUSE,
-      whereStatementParameter: WITHIN_WHERE_CLAUSE_PARAMETER,
-    };
-    return this.generalService.calculateMethode(args, dbBuilderParameter);
+    return Promise.resolve([]);
+    // const dbBuilderParameter: dbRequestBuilderSample = {
+    //   select: false,
+    //   where: true,
+    //   whereStatement: WITHIN_WHERE_CLAUSE,
+    //   whereStatementParameter: WITHIN_WHERE_CLAUSE_PARAMETER,
+    // };
+    // return this.generalService.calculateMethode(args, dbBuilderParameter);
   }
 }

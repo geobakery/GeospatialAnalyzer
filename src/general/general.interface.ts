@@ -45,7 +45,7 @@ export interface dbRequestBuilderSample {
   selectStatement?: string;
   selectStatementParameter?: string;
   whereStatement?: string;
-  whereStatementParameter?: string;
+  whereStatementParameter?: Map<string, ReplaceStringType>;
   limit?: number;
   count?: number;
   orderBy?: string;

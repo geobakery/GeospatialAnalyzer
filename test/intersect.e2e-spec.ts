@@ -60,45 +60,45 @@ describe('IntersectController (e2e)', () => {
   // mocking for this e2e test seems not to be useful in my opinion
   // alternative: remove repositories and use raw sql statements similar to nearestNeighbour
 
-  // it('/POST Intersect', () => {
-  //   const body = {
-  //     inputGeometries: [
-  //       {
-  //         type: 'Feature',
-  //         geometry: {
-  //           type: 'Point',
-  //           coordinates: [411967, 5659861],
-  //           crs: {
-  //             type: 'name',
-  //             properties: {
-  //               name: 'EPSG:25833',
-  //             },
-  //           },
-  //         },
-  //         properties: {
-  //           name: 'Dinagat Islands',
-  //         },
-  //       },
-  //     ],
-  //     topics: ['verw_kreis_f'],
-  //     error: '',
-  //     count: 2,
-  //     timeout: 60000,
-  //   };
-  //   return app
-  //     .inject({
-  //       method: 'POST',
-  //       url: '/intersect',
-  //       payload: body,
-  //       headers: {
-  //         'content-type': 'application/json; charset=utf-8',
-  //       },
-  //     })
-  //     .then((result) => {
-  //       console.log('yolo', result);
-  //       expect(result.statusCode).toEqual(200);
-  //       expect(result.statusMessage).toEqual('OK');
-  //       // expect(JSON.parse(result.body)).toEqual(['testTopic']);
-  //     });
-  // });
+  it('/POST Intersect', () => {
+    const body = {
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [411967, 5659861],
+            crs: {
+              type: 'name',
+              properties: {
+                name: 'EPSG:25833',
+              },
+            },
+          },
+          properties: {
+            name: 'Dinagat Islands',
+          },
+        },
+      ],
+      topics: ['verw_kreis_f'],
+      error: '',
+      count: 2,
+      timeout: 60000,
+    };
+    return app
+      .inject({
+        method: 'POST',
+        url: '/intersect',
+        payload: body,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+        },
+      })
+      .then((result) => {
+        console.log('result response', result);
+        expect(result.statusCode).toEqual(200);
+        expect(result.statusMessage).toEqual('OK');
+        // expect(JSON.parse(result.body)).toEqual(['testTopic']);
+      });
+  });
 });
