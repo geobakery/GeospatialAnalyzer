@@ -158,7 +158,7 @@ export class GeneralService {
 
   /*
   We read the crs from coordinate from geojson
-  REMINDER: GEOJSON doesnt support crs, but postgis automatically adds crs in the response
+  REMINDER: GEOJSON doesn't support crs, but postgis automatically adds crs in the response
   We currently use this bridge to support 25833, the database crs, till the transformer is available
    */
   getCoordinateSystem(geo: any): number {
@@ -190,7 +190,7 @@ export class GeneralService {
   }
   /*
   Helper to add the identifier to the db
-  Alternative: change From table statement to a From (SELECT ...) statement parallel to nearestNeoghbour
+  Alternative: change From table statement to a From (SELECT ...) statement parallel to nearestNeighbour
   Drawback: we would always use raw sql statements
    */
   addGeoIdentifier(
@@ -263,59 +263,66 @@ export class GeneralService {
       result += QUERY_SELECT;
     }
     if (dbBuilderParameter.fromStatement) {
-      let replacedString = dbBuilderParameter.fromStatement;
-      if (dbBuilderParameter.fromStatementParameter?.size) {
-        dbBuilderParameter.fromStatementParameter.forEach((value, key) => {
-          switch (value) {
-            case ReplaceStringType.TABLE: {
-              const table = this.getDBName() + '.' + top;
-              replacedString = replacedString.replace(key, table);
-              break;
-            }
-            case ReplaceStringType.GEOMETRY: {
-              const geoString = this._buildGeometry(geo, crs);
-              replacedString = replacedString.replace(key, geoString);
-              break;
-            }
-            case ReplaceStringType.COUNT: {
-              if (count) {
-                const countElement = String(count);
-                replacedString = replacedString.replace(key, countElement);
-              }
-              break;
-            }
-          }
-        });
-      }
+      const replacedString = this._replaceHelper(
+        dbBuilderParameter.fromStatementParameter,
+        dbBuilderParameter.fromStatement,
+        top,
+        geo,
+        crs,
+        count,
+      );
       result += ' ' + replacedString;
     }
     if (dbBuilderParameter.whereStatementParameter?.size) {
-      let replacedString = dbBuilderParameter.whereStatement;
-      //TODO generalize
-      dbBuilderParameter.whereStatementParameter.forEach((value, key) => {
-        switch (value) {
-          case ReplaceStringType.TABLE: {
-            const table = this.getDBName() + '.' + top;
-            replacedString = replacedString.replace(key, table);
-            break;
-          }
-          case ReplaceStringType.GEOMETRY: {
-            const geoString = this._buildGeometry(geo, crs);
-            replacedString = replacedString.replace(key, geoString);
-            break;
-          }
-          case ReplaceStringType.COUNT: {
-            if (count) {
-              const countElement = String(count);
-              replacedString = replacedString.replace(key, countElement);
-            }
-            break;
-          }
-        }
-      });
+      const replacedString = this._replaceHelper(
+        dbBuilderParameter.whereStatementParameter,
+        dbBuilderParameter.whereStatement,
+        top,
+        geo,
+        crs,
+        count,
+      );
+
       result += ' ' + replacedString;
     }
     return [result, []];
+  }
+
+  _replaceHelper(
+    statementParameter: Map<string, ReplaceStringType>,
+    parameterString: string,
+    top: string,
+    geo: Geometry,
+    crs: number,
+    count: number,
+  ): string {
+    if (!statementParameter.size) {
+      return '';
+    }
+
+    let replacedString = parameterString;
+    statementParameter.forEach((value, key) => {
+      switch (value) {
+        case ReplaceStringType.TABLE: {
+          const table = this.getDBName() + '.' + top;
+          replacedString = replacedString.replace(key, table);
+          break;
+        }
+        case ReplaceStringType.GEOMETRY: {
+          const geoString = this._buildGeometry(geo, crs);
+          replacedString = replacedString.replace(key, geoString);
+          break;
+        }
+        case ReplaceStringType.COUNT: {
+          if (count) {
+            const countElement = String(count);
+            replacedString = replacedString.replace(key, countElement);
+          }
+          break;
+        }
+      }
+    });
+    return replacedString;
   }
 
   /*
@@ -443,12 +450,12 @@ export class GeneralService {
       return q.replace('$1', '$' + (index + 1));
     });
     // Join all your queries into a single SQL string
-    const unionedQuery = '(' + queries.join(') UNION ALL (') + ')';
+    const unionQuery = '(' + queries.join(') UNION ALL (') + ')';
     // Create a new querybuilder with the joined SQL string as a FROM subquery
     if (sqlParameter.length && sqlParameter[0]) {
-      return await this.dataSource.query(unionedQuery, sqlParameter);
+      return await this.dataSource.query(unionQuery, sqlParameter);
     }
-    return await this.dataSource.query(unionedQuery);
+    return await this.dataSource.query(unionQuery);
   }
 
   async calculateMethode(
