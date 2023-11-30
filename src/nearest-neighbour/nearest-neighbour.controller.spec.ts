@@ -3,6 +3,8 @@ import { NearestNeighbourController } from './nearest-neighbour.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../general/general.module';
 import { NearestNeighbourService } from './nearest-neighbour.service';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../config/configuration';
 
 describe('NearestNeighbourController', () => {
   let controller: NearestNeighbourController;
@@ -22,6 +24,11 @@ describe('NearestNeighbourController', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
       providers: [NearestNeighbourService],

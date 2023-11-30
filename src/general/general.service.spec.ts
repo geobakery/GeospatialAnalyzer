@@ -3,6 +3,8 @@ import { GeneralService } from './general.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { STANDARD_CRS } from './general.constants';
 import { Geometry } from 'typeorm';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../config/configuration';
 
 describe('GeneralService', () => {
   let service: GeneralService;
@@ -22,6 +24,11 @@ describe('GeneralService', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
       ],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NearestNeighbourService } from './nearest-neighbour.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../general/general.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../config/configuration';
 
 describe('NearestNeighbourService', () => {
   let service: NearestNeighbourService;
@@ -21,6 +23,11 @@ describe('NearestNeighbourService', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
     }).compile();

@@ -75,9 +75,6 @@ The e2e tests are saved in `test/` with the extension `.e2e-spec.`.
 
 ## Known Limitations
 - Currently, only basic test cases
-- Database operations with repositories are not supported
-  - database response can be mocked or raw sql statements can be used
 
 ## Work In Progress
 - implement more test cases
-- Replace repository dependency for complete testing possibilities

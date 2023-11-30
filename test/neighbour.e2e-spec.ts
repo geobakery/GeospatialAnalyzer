@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../src/general/general.module';
 import { NearestNeighbourController } from '../src/nearest-neighbour/nearest-neighbour.controller';
 import { NearestNeighbourService } from '../src/nearest-neighbour/nearest-neighbour.service';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../src/config/configuration';
 
 describe('IntersectController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -26,6 +28,11 @@ describe('IntersectController (e2e)', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
       providers: [NearestNeighbourService],

@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WithinService } from './within.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../general/general.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../config/configuration';
 
 describe('WithinService', () => {
   let service: WithinService;
@@ -21,6 +23,11 @@ describe('WithinService', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
     }).compile();

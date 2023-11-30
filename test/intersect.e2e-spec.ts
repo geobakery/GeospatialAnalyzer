@@ -8,6 +8,8 @@ import { IntersectController } from '../src/intersect/intersect.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../src/general/general.module';
 import { IntersectService } from '../src/intersect/intersect.service';
+import configuration from '../src/config/configuration';
+import { ConfigModule } from '@nestjs/config';
 
 describe('IntersectController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -26,6 +28,11 @@ describe('IntersectController (e2e)', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
       providers: [IntersectService],
@@ -54,11 +61,6 @@ describe('IntersectController (e2e)', () => {
         expect(JSON.parse(result.body)).toEqual(['testTopic']);
       });
   });
-
-  // TODO post response currently gives a 500 error, because of the missing Entities dataSource, which cannot be loaded in testing
-  // TypeOrmModule.forFeature([LandEntity, KreisEntity]) in GeneralModule will not be filled and has to be mocked
-  // mocking for this e2e test seems not to be useful in my opinion
-  // alternative: remove repositories and use raw sql statements similar to nearestNeighbour
 
   it('/POST Intersect', () => {
     const body = {

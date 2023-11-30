@@ -3,6 +3,8 @@ import { IntersectController } from './intersect.controller';
 import { GeneralModule } from '../general/general.module';
 import { IntersectService } from './intersect.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../config/configuration';
 
 describe('IntersectController', () => {
   let controller: IntersectController;
@@ -22,6 +24,11 @@ describe('IntersectController', () => {
           synchronize: JSON.parse(process.env.db_postgres_synchronize),
           logging: JSON.parse(process.env.db_postgres_logging),
         } as TypeOrmModule),
+        ConfigModule.forRoot({
+          envFilePath: ['.env.dev', '.env'],
+          load: [configuration],
+          isGlobal: true,
+        }),
         GeneralModule,
       ],
       providers: [IntersectService],
