@@ -13,7 +13,9 @@ import {
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  ARRAY_SEPERATOR_CONFIG,
   DATABASE_CRS,
+  DATABASE_NAME_CONFIG,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
@@ -38,9 +40,14 @@ export class GeneralService {
     private dataSource: DataSource,
     private configService: ConfigService,
   ) {
-    this.topicsArray = this.configService.get<string[]>('topics');
-    const databaseObject = this.configService.get<any>('database');
-    this.dbName = databaseObject?.db_name || '';
+    // configService seems to always return strings and not arrays
+    const topicsArrayString = this.configService.get<string>(
+      'topics',
+    ) as string;
+    this.topicsArray = topicsArrayString.split(
+      ARRAY_SEPERATOR_CONFIG,
+    ) as string[];
+    this.dbName = this.configService.get<string>(DATABASE_NAME_CONFIG);
   }
 
   getTopics(): string[] {
@@ -50,12 +57,18 @@ export class GeneralService {
   checkTopics(args: ParameterDto): boolean {
     return !!args.topics.every((val) => this.topicsArray.includes(val));
   }
-  dynamicValidation(args: ParameterDto): boolean {
-    if (this.checkTopics(args)) {
-      return true;
+  async dynamicValidation(args: ParameterDto): Promise<boolean> {
+    if (this.checkTopics(args) && this.getDBName()) {
+      return Promise.resolve(true);
+    }
+    if (!this.getDBName()) {
+      throw new HttpException(
+        'Server DB configuration is malformed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
     throw new HttpException(
-      'Unsupported topic. Supported topics are: ' + this.topicsArray.join(', '),
+      'Unsupported topic. Supported topics are: ' + this.getTopics().join(', '),
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
@@ -442,7 +455,7 @@ export class GeneralService {
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSON[]> {
-    this.dynamicValidation(args);
+    await this.dynamicValidation(args);
     const geoInput = args.inputGeometries;
 
     const requestParams: any = this.setRequestParameterForResponse(args);

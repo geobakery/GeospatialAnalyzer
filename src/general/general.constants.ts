@@ -2,6 +2,8 @@ export enum outputFormatEnum {
   geojson = 'geojson',
   esrijson = 'esrijson',
 }
+export const ARRAY_SEPERATOR_CONFIG = ', ';
+export const DATABASE_NAME_CONFIG = 'database.db_name';
 export const geojsonToPostGis = new Map<string, string>([
   ['Point', 'POINT'],
   ['LineString', 'LINESTRING'],
