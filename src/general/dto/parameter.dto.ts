@@ -19,7 +19,6 @@ export class ParameterDto {
     description: 'the topic name to check for',
   })
   @IsNotEmpty()
-  // @IsIn(TOPICS, { each: true })
   topics: string[];
 
   @ApiProperty({

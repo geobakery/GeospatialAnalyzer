@@ -24,7 +24,6 @@ import {
   ReplaceStringType,
   REQUESTPARAMS,
   STANDARD_CRS,
-  topic,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
@@ -239,7 +238,7 @@ export class GeneralService {
    */
   createRawQuery(
     dbBuilderParameter: dbRequestBuilderSample,
-    top: topic,
+    top: string,
     geo: Geometry,
     crs: number,
     count: number,
@@ -311,7 +310,7 @@ export class GeneralService {
    */
   async createSelectQueries(
     service: any,
-    top: topic,
+    top: string,
     geo: Geometry,
     crs: number,
     count: number,
@@ -340,18 +339,18 @@ export class GeneralService {
     dbBuilderParameter: dbRequestBuilderSample,
     customFunction: (
       service: any,
-      top: topic,
+      top: string,
       geo: Geometry,
       crs: number,
       count: number,
       dbBuilderParameter: dbRequestBuilderSample,
     ) => Promise<[string, any[]]>,
   ): Promise<QueryAndParameter> {
-    const topics: topic[] = [];
+    const topics: string[] = [];
     const query: string[] = [];
     const parameter: string[] = [];
     topicsString.forEach((s) => {
-      topics.push(s as topic);
+      topics.push(s);
     });
 
     for await (const t of topics) {
