@@ -1,7 +1,3 @@
-export const TOPICS = ['verw_land_f', 'verw_kreis_f', 'verw_gem_f'];
-
-export const DB_NAME = 'spatialyzer_demo';
-
 export enum topic {
   land = 'verw_land_f',
   kreis = 'verw_kreis_f',

@@ -14,7 +14,6 @@ import {
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   DATABASE_CRS,
-  DB_NAME,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
@@ -26,7 +25,6 @@ import {
   REQUESTPARAMS,
   STANDARD_CRS,
   topic,
-  TOPICS,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
@@ -35,12 +33,15 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class GeneralService {
   topicsArray: string[] = [];
+  dbName: string;
   constructor(
     @InjectDataSource()
     private dataSource: DataSource,
     private configService: ConfigService,
   ) {
     this.topicsArray = this.configService.get<string[]>('topics');
+    const databaseObject = this.configService.get<any>('database');
+    this.dbName = databaseObject?.db_name || '';
   }
 
   getTopics(): string[] {
@@ -229,6 +230,10 @@ export class GeneralService {
     return resultArray;
   }
 
+  getDBName(): string {
+    return this.dbName;
+  }
+
   /*
   Creates a custom raw sql statement from given Parameter
    */
@@ -251,7 +256,7 @@ export class GeneralService {
         dbBuilderParameter.fromStatementParameter.forEach((value, key) => {
           switch (value) {
             case ReplaceStringType.TABLE: {
-              const table = DB_NAME + '.' + top;
+              const table = this.getDBName() + '.' + top;
               replacedString = replacedString.replace(key, table);
               break;
             }
@@ -278,7 +283,7 @@ export class GeneralService {
       dbBuilderParameter.whereStatementParameter.forEach((value, key) => {
         switch (value) {
           case ReplaceStringType.TABLE: {
-            const table = DB_NAME + '.' + top;
+            const table = this.getDBName() + '.' + top;
             replacedString = replacedString.replace(key, table);
             break;
           }
