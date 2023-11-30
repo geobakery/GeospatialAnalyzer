@@ -3,14 +3,13 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
-  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
   Max,
   Min,
 } from 'class-validator';
-import { outputFormatEnum, TOPICS } from '../general.constants';
+import { outputFormatEnum } from '../general.constants';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ParameterDto {
@@ -20,7 +19,7 @@ export class ParameterDto {
     description: 'the topic name to check for',
   })
   @IsNotEmpty()
-  @IsIn(TOPICS, { each: true })
+  // @IsIn(TOPICS, { each: true })
   topics: string[];
 
   @ApiProperty({

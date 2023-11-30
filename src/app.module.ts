@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { IntersectModule } from './intersect/intersect.module';
-import { GeneralService } from './general/general.service';
 import { TransformModule } from './transform/transform.module';
 import { ValuesAtPointModule } from './values-at-point/values-at-point.module';
 import { LandEntity } from './general/entities/land.entity';
@@ -14,10 +13,15 @@ import { KreisEntity } from './general/entities/kreis.entity';
 import { WithinModule } from './within/within.module';
 import { HealthModule } from './health/health.module';
 import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.module';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: ['.env.dev', '.env'], isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: ['.env.dev', '.env'],
+      load: [configuration],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: process.env.db_postgres_type,
       host: process.env.db_postgres_host,

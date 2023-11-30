@@ -26,16 +26,39 @@ import {
   REQUESTPARAMS,
   STANDARD_CRS,
   topic,
+  TOPICS,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GeneralService {
+  topicsArray: string[] = [];
   constructor(
     @InjectDataSource()
     private dataSource: DataSource,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.topicsArray = this.configService.get<string[]>('topics');
+  }
+
+  getTopics(): string[] {
+    return this.topicsArray;
+  }
+
+  checkTopics(args: ParameterDto): boolean {
+    return !!args.topics.every((val) => this.topicsArray.includes(val));
+  }
+  dynamicValidation(args: ParameterDto): boolean {
+    if (this.checkTopics(args)) {
+      return true;
+    }
+    throw new HttpException(
+      'Unsupported topic. Supported topics are: ' + this.topicsArray.join(', '),
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
 
   dbToGeoJSON(response: DBResponse[]): GeoJSON[] {
     if (response.length) {
@@ -415,6 +438,7 @@ export class GeneralService {
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSON[]> {
+    this.dynamicValidation(args);
     const geoInput = args.inputGeometries;
 
     const requestParams: any = this.setRequestParameterForResponse(args);
