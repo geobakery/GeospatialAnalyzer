@@ -220,11 +220,16 @@ export class GeneralService {
     });
   }
 
-  setRequestParameterForResponse(args: ParameterDto): any {
+  setRequestParameterForResponse(args: ParameterDto, geo: GeoJSON): any {
+    let props = {};
+    if (geo.type === 'Feature') {
+      props = geo.properties;
+    }
     return {
       topics: args.topics,
       outputFormat: args.outputFormat,
       returnGeometry: args.returnGeometry,
+      properties: props,
     };
   }
 
@@ -465,12 +470,11 @@ export class GeneralService {
     await this.dynamicValidation(args);
     const geoInput = args.inputGeometries;
 
-    const requestParams: any = this.setRequestParameterForResponse(args);
-
     let result: GeoJSON[] = [];
     // iterate through all geometries
     let index = 0;
     for await (const geo of geoInput) {
+      const requestParams: any = this.setRequestParameterForResponse(args, geo);
       const query = await this.generateQuery(geo, args, dbBuilderParameter);
       result = this.prepareDBResponse(query, geo, index, requestParams, result);
       index++;
