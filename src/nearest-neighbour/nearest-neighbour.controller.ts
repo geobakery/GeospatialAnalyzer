@@ -12,6 +12,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
 import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 @Controller({
   version: '1',
@@ -36,7 +37,8 @@ export class NearestNeighbourController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the nearest NEIGHBOUR',
-    type: String,
+    type: [GeoJsonDto],
+    isArray: true,
   })
   @HttpCode(200)
   @Post('nearestNeighbour')

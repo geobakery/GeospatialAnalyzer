@@ -15,7 +15,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ParameterDto {
   //https://github.com/typestack/class-validator#validation-decorators
   @ApiProperty({
-    example: 'ver_land_f',
+    example: ['verw_kreis_f'],
     description: 'the topic name to check for',
   })
   @IsNotEmpty()
@@ -28,9 +28,15 @@ export class ParameterDto {
         geometry: {
           type: 'Point',
           coordinates: [411967, 5659861],
+          crs: {
+            type: 'name',
+            properties: {
+              name: 'EPSG:25833',
+            },
+          },
         },
         properties: {
-          name: 'Dinagat Islands',
+          name: 'test_name',
         },
       },
     ],
@@ -40,29 +46,49 @@ export class ParameterDto {
   @ArrayNotEmpty()
   inputGeometries: GeoJSON[];
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'geojson',
+    description: '',
+  })
   @IsOptional()
   @IsEnum(outputFormatEnum)
   outputFormat: string;
 
+  @ApiProperty({
+    example: true,
+    description: '',
+  })
   @ApiProperty()
   @IsOptional()
   returnGeometry: boolean;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 3,
+    description: '',
+  })
   @IsOptional()
   @IsInt()
   count: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 10000,
+    description: '',
+  })
   @IsOptional()
   maxDistanceToNeighbour: number;
 
+  @ApiProperty({
+    example: 4326,
+    description: '',
+  })
   @ApiProperty()
   @IsOptional()
   outSRS: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 60000,
+    description: '',
+  })
   @IsOptional()
   @Min(5000)
   @Max(100000)

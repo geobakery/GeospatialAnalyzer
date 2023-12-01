@@ -12,6 +12,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
 import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 @Controller({
   version: '1',
@@ -34,7 +35,8 @@ export class WithinController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the within',
-    type: String,
+    type: [GeoJsonDto],
+    isArray: true,
   })
   @HttpCode(200)
   @Post('within')

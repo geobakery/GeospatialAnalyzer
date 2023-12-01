@@ -103,8 +103,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
 
 ## Known Limitations
 - Only GeoJSON input will be accepted
-  - Only with a single feature, no feature collections
-  - Only a single input geometry is accepted
+  - Multiple single feature, but no feature collections
 - Unsupported geo-types
   - MultiPolygon
   - MultiLineString

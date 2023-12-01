@@ -12,6 +12,7 @@ import { IntersectService } from './intersect.service';
 import { GeoJSON } from 'typeorm';
 import { ErrorResponse, EsriJSON } from '../general/general.interface';
 import { ParameterDto } from '../general/dto/parameter.dto';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 @Controller({
   version: '1',
@@ -34,7 +35,8 @@ export class IntersectController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the intersections',
-    type: String,
+    type: [GeoJsonDto],
+    isArray: true,
   })
   @HttpCode(200)
   @Post('intersect')
