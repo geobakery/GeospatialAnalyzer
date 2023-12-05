@@ -40,6 +40,11 @@ export class GeneralService {
     private dataSource: DataSource,
     private configService: ConfigService,
   ) {
+    /**
+     * Explanation:
+     * in the constructor we will set all dynamic settings from the env file.
+     * This will be done once at the start of the service
+     */
     // configService seems to always return strings and not arrays
     const topicsArrayString = this.configService.get<string>(
       'topics',
@@ -57,6 +62,12 @@ export class GeneralService {
   checkTopics(args: ParameterDto): boolean {
     return !!args.topics.every((val) => this.topicsArray.includes(val));
   }
+
+  /**
+   * Explanation:
+   * Check if the dynamic service settings are set correctly
+   * Improvement: Only once at the start and not on every start up
+   */
   async dynamicValidation(args: ParameterDto): Promise<boolean> {
     if (this.checkTopics(args) && this.getDBName()) {
       return Promise.resolve(true);
@@ -73,6 +84,10 @@ export class GeneralService {
     );
   }
 
+  /**
+   * Explanation:
+   * the database response has the attribute "response". Inside the response attribute is the defined geojson structure.
+   */
   dbToGeoJSON(response: DBResponse[]): GeoJSON[] {
     if (response.length) {
       return response.map((r) => r.response);
@@ -84,6 +99,11 @@ export class GeneralService {
     }
   }
 
+  /**
+   * Explanation:
+   * transform the geometry to the needed postgis formate
+   * e.g.:'SRID=4326;POINT(411967 5659861)'::geometry
+   */
   _buildGeometry(geo: Geometry, crs: number): string {
     let result = 'SRID=' + crs + ';';
     const geoType = geojsonToPostGis.get(geo.type);
@@ -92,6 +112,11 @@ export class GeneralService {
     result += '(' + coordinates + ')';
     return result;
   }
+
+  /**
+   * Explanation:
+   * helper function to transform geojson types to coordinate strings
+   */
   _buildCoordinatesFromDBType(geo: Geometry): string {
     switch (geo.type) {
       case 'Point': {
@@ -174,26 +199,33 @@ export class GeneralService {
     return STANDARD_CRS;
   }
 
-  getGeometryIdentifier(geo: GeoJSON): string {
+  /**
+   * Explanation:
+   * Helper function: Returns the ID of the single geo feature, that was set by the user or automated generated if not
+   */
+  _getGeometryIdentifier(geo: GeoJSON): string {
     if (geo.type === 'Feature') {
       return geo.properties[GEO_IDENTIFIER];
     }
     return undefined;
   }
-
+  /**
+   * Explanation:
+   * Returns the ID of the single geo feature if set and generates it if not
+   */
   getAndSetGeoID(geo: GeoJSON, index: number): string {
-    const id = this.getGeometryIdentifier(geo);
+    const id = this._getGeometryIdentifier(geo);
     if (!id) {
       return '__ID:' + index;
     }
     return id;
   }
-  /*
-  Helper to add the identifier to the db
-  Alternative: change From table statement to a From (SELECT ...) statement parallel to nearestNeighbour
-  Drawback: we would always use raw sql statements
+
+  /**
+   * Explanation:
+   * Adds the user input in the response for the user
    */
-  addGeoIdentifier(
+  addUserInputToResponse(
     geoArray: GeoJSON[],
     inputGeo: GeoJSON,
     index: number,
@@ -220,6 +252,10 @@ export class GeneralService {
     });
   }
 
+  /**
+   * Explanation:
+   * collects which input parameter should be included in the response
+   */
   setRequestParameterForResponse(args: ParameterDto, geo: GeoJSON): any {
     let props = {};
     if (geo.type === 'Feature') {
@@ -233,8 +269,9 @@ export class GeneralService {
     };
   }
 
-  /*
-  assures that the result is always a GeoJSON[]
+  /**
+   * Explanation:
+   * assures that the result is always a GeoJSON[] formate
    */
   setGeoJSONArray(result: GeoJSON[], resultArray: GeoJSON[]): GeoJSON[] {
     if (!resultArray.length) {
@@ -251,8 +288,11 @@ export class GeneralService {
     return this.dbName;
   }
 
-  /*
-  Creates a custom raw sql statement from given Parameter
+  /**
+   * Explanation:
+   * Creates a custom raw sql statement from given Parameter
+   * TypeORM has an array formate of:
+   * ['SQL string to execute with parameter $1 $2 $3',[Intparameter, Stringparameter, otherTypeParameter ]]
    */
   createRawQuery(
     dbBuilderParameter: dbRequestBuilderSample,
@@ -293,6 +333,11 @@ export class GeneralService {
     return [result, []];
   }
 
+  /**
+   * Explanation:
+   * Helperfunction to replace place marker in string for their true value
+   * e.g.: "SELECT * from __a" => [__a => "tablename1"] => ""SELECT * from tablename1"
+   */
   _replaceHelper(
     statementParameter: Map<string, ReplaceStringType>,
     parameterString: string,
@@ -352,9 +397,8 @@ export class GeneralService {
     );
   }
 
-  /*
-  Iterate over all queries to create a single Query:
-  (a) UNION (b) UNION (c) ...
+  /**
+  Collect all single Queries and put their data together
    */
   async collectQueries(
     topicsString: string[],
@@ -406,11 +450,15 @@ export class GeneralService {
     result: GeoJSON[],
   ): GeoJSON[] {
     const tmpResult = this.dbToGeoJSON(query);
-    this.addGeoIdentifier(tmpResult, geo, index, requestParams);
+    this.addUserInputToResponse(tmpResult, geo, index, requestParams);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
     return this.setGeoJSONArray(tmpResult, result);
   }
 
+  /**
+   * Explanation:
+   * generates the db query and waits for the response
+   */
   async generateQuery(
     geo: GeoJSON,
     args: ParameterDto,
@@ -446,6 +494,12 @@ export class GeneralService {
     )) as DBResponse[];
   }
 
+  /**
+   * Explanation:
+   *  Iterate over all queries to create a single Query:
+   *   (a) UNION (b) UNION (c) ...
+   *   Send the single complete request to the db
+   */
   async buildUnionStatement(
     sqlQueries: string[],
     sqlParameter: string[],
@@ -463,6 +517,10 @@ export class GeneralService {
     return await this.dataSource.query(unionQuery);
   }
 
+  /**
+   * Explanation:
+   * Prepares User input and send it to helper functions
+   */
   async calculateMethode(
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
