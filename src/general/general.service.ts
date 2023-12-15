@@ -10,12 +10,13 @@ import {
   dbRequestBuilderSample,
   DBResponse,
   QueryAndParameter,
+  SupportedTopics,
+  topicDefinition,
+  topicDefinitionOutside,
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
-  ARRAY_SEPERATOR_CONFIG,
   DATABASE_CRS,
-  DATABASE_NAME_CONFIG,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   geojsonToPostGis,
@@ -34,7 +35,13 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class GeneralService {
   topicsArray: string[] = [];
-  dbName: string;
+  topicsDatabaseName: Map<string, string> = new Map<string, string>();
+  topicsDatabaseAttributes: Map<string, string[]> = new Map<string, string[]>();
+  methodeTopicSupport: SupportedTopics = {
+    intersect: [],
+    within: [],
+    nearestNeighbour: [],
+  };
   constructor(
     @InjectDataSource()
     private dataSource: DataSource,
@@ -45,14 +52,58 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    // configService seems to always return strings and not arrays
-    const topicsArrayString = this.configService.get<string>(
-      'topics',
-    ) as string;
-    this.topicsArray = topicsArrayString.split(
-      ARRAY_SEPERATOR_CONFIG,
-    ) as string[];
-    this.dbName = this.configService.get<string>(DATABASE_NAME_CONFIG);
+    const t = this.configService.get<string>('__topicsConfig__');
+    const topicDef = JSON.parse(t);
+    this._setDynamicTopicsConfigurations(topicDef as topicDefinition[]);
+  }
+
+  getTopicsInformationForOutsideSpecific(
+    methode: string,
+  ): topicDefinitionOutside[] {
+    const supportedTopics = this.methodeTopicSupport[
+      methode
+    ] as topicDefinitionOutside[];
+    if (supportedTopics && supportedTopics.length) {
+      return supportedTopics;
+    }
+    throw new HttpException(
+      'Malformed topics configuration',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  _setDynamicTopicsConfigurations(td: topicDefinition[]) {
+    //TODO check if td is valid
+    if (!td.length) {
+      // error handling ?
+      console.error('No topic definition set');
+      return;
+    }
+
+    td.forEach((t) => {
+      this.topicsArray.push(t.identifier);
+
+      const definition = {
+        identifier: t.identifier,
+        title: t.title,
+        description: t.description,
+      } as topicDefinitionOutside;
+
+      this.topicsDatabaseName.set(t.identifier, t.__source__);
+      if (t.__attributes__) {
+        this.topicsDatabaseAttributes.set(t.identifier, t.__attributes__);
+      } else {
+        this.topicsDatabaseAttributes.set(t.identifier, ['*']);
+      }
+
+      Object.entries(this.methodeTopicSupport).forEach(([key, value]) => {
+        if (!t.__supports__.length) {
+          value.push(definition);
+        } else if (t.__supports__.includes(key)) {
+          value.push(definition);
+        }
+      });
+    });
   }
 
   getTopics(): string[] {
@@ -69,17 +120,26 @@ export class GeneralService {
    * Improvement: Only once at the start and not on every start up
    */
   async dynamicValidation(args: ParameterDto): Promise<boolean> {
-    if (this.checkTopics(args) && this.getDBName()) {
-      return Promise.resolve(true);
+    if (this.checkTopics(args)) {
+      if (args.topics.every((t) => this.topicsArray.includes(t))) {
+        return Promise.resolve(true);
+      } else {
+        throw new HttpException(
+          'Malformed database configuration in topics',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
-    if (!this.getDBName()) {
+
+    if (this.getTopics()) {
       throw new HttpException(
-        'Server DB configuration is malformed',
+        'Unsupported topic. Supported topics are: ' +
+          this.getTopics().join(', '),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
     throw new HttpException(
-      'Unsupported topic. Supported topics are: ' + this.getTopics().join(', '),
+      'Unsupported topics. No topics were found.',
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
@@ -284,8 +344,8 @@ export class GeneralService {
     return resultArray;
   }
 
-  getDBName(): string {
-    return this.dbName;
+  getDBName(top: string): string {
+    return this.topicsDatabaseName.get(top);
   }
 
   /**
@@ -354,7 +414,7 @@ export class GeneralService {
     statementParameter.forEach((value, key) => {
       switch (value) {
         case ReplaceStringType.TABLE: {
-          const table = this.getDBName() + '.' + top;
+          const table = this.getDBName(top);
           replacedString = replacedString.replace(key, table);
           break;
         }

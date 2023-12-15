@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
-import { dbRequestBuilderSample } from '../general/general.interface';
+import {
+  dbRequestBuilderSample,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { ReplaceStringType } from '../general/general.constants';
 
 const WITHIN_WHERE_CLAUSE =
@@ -11,8 +14,8 @@ const WITHIN_FROM = 'FROM __b customFromSelect';
 @Injectable()
 export class WithinService {
   constructor(private generalService: GeneralService) {}
-  getTopics(): string[] {
-    return [''];
+  getTopics(): topicDefinitionOutside[] {
+    return this.generalService.getTopicsInformationForOutsideSpecific('within');
   }
 
   async calculateWithin(args: ParameterDto): Promise<GeoJSON[]> {

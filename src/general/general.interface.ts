@@ -51,3 +51,25 @@ export interface dbRequestBuilderSample {
   orderBy?: string;
   orderByDirection?: dbDirection;
 }
+
+export interface topicDefinition {
+  identifier: string;
+  title: string;
+  description?: string;
+  __source__: string;
+  __attributes__?: string[];
+  __supports__?: string[];
+}
+
+export interface topicDefinitionOutside {
+  identifier: string;
+  title: string;
+  description?: string;
+  supports?: string[];
+}
+
+export interface SupportedTopics {
+  intersect: topicDefinitionOutside[];
+  within: topicDefinitionOutside[];
+  nearestNeighbour: topicDefinitionOutside[];
+}

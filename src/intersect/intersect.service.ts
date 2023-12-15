@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { GeoJSON } from 'typeorm';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { dbRequestBuilderSample } from '../general/general.interface';
+import {
+  dbRequestBuilderSample,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { ReplaceStringType } from '../general/general.constants';
 
 const INTERSECT_WHERE_CLAUSE =
@@ -11,8 +14,10 @@ const INTERSECT_FROM = 'FROM __a customFromSelect';
 @Injectable()
 export class IntersectService {
   constructor(private generalService: GeneralService) {}
-  getTopics(): string[] {
-    return ['testTopic'];
+  getTopics(): topicDefinitionOutside[] {
+    return this.generalService.getTopicsInformationForOutsideSpecific(
+      'intersect',
+    );
   }
 
   async calculateIntersect(args: ParameterDto): Promise<GeoJSON[]> {

@@ -10,7 +10,11 @@ import {
 import { ApiResponse } from '@nestjs/swagger';
 import { IntersectService } from './intersect.service';
 import { GeoJSON } from 'typeorm';
-import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import {
+  ErrorResponse,
+  EsriJSON,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
@@ -28,7 +32,7 @@ export class IntersectController {
     isArray: true,
   })
   @Get('intersect/topics')
-  topic(): string[] {
+  topic(): topicDefinitionOutside[] {
     return this.intersectService.getTopics();
   }
 

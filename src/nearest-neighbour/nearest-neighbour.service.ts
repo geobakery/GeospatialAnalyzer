@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
-import { dbRequestBuilderSample } from '../general/general.interface';
+import {
+  dbRequestBuilderSample,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { dbDirection, ReplaceStringType } from '../general/general.constants';
 
 const NEIGHBOUR_SELECT_CLAUSE =
@@ -19,8 +22,10 @@ const NEIGHBOUR_FROM_CLAUSE =
 export class NearestNeighbourService {
   constructor(private generalService: GeneralService) {}
 
-  getTopics(): string[] {
-    return [''];
+  getTopics(): topicDefinitionOutside[] {
+    return this.generalService.getTopicsInformationForOutsideSpecific(
+      'nearestNeighbour',
+    );
   }
 
   async calculateNearestNeighbour(args: ParameterDto): Promise<GeoJSON[]> {

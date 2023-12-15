@@ -1,6 +1,3 @@
 export default () => ({
-  database: {
-    db_name: process.env.db_name,
-  },
-  topics: process.env.topics.split(', '),
+  __topicsConfig__: JSON.parse(process.env.__topicsConfig__),
 });
