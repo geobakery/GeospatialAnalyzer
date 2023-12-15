@@ -11,7 +11,11 @@ import { WithinService } from './within.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
-import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import {
+  ErrorResponse,
+  EsriJSON,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 @Controller({
@@ -28,7 +32,7 @@ export class WithinController {
     isArray: true,
   })
   @Get('within/topics')
-  topic(): string[] {
+  topic(): topicDefinitionOutside[] {
     return this.withinService.getTopics();
   }
 

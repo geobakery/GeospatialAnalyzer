@@ -11,7 +11,11 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSON } from 'typeorm';
-import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import {
+  ErrorResponse,
+  EsriJSON,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 @Controller({
@@ -30,7 +34,7 @@ export class NearestNeighbourController {
     isArray: true,
   })
   @Get('nearestNeighbour/topics')
-  topic(): string[] {
+  topic(): topicDefinitionOutside[] {
     return this.nearestNeighbourService.getTopics();
   }
 
