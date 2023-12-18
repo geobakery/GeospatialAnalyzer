@@ -41,6 +41,7 @@ export class GeneralService {
     intersect: [],
     within: [],
     nearestNeighbour: [],
+    valuesAtPoint: [],
   };
   constructor(
     @InjectDataSource()

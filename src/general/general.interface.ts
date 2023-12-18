@@ -72,4 +72,5 @@ export interface SupportedTopics {
   intersect: topicDefinitionOutside[];
   within: topicDefinitionOutside[];
   nearestNeighbour: topicDefinitionOutside[];
+  valuesAtPoint: topicDefinitionOutside[];
 }

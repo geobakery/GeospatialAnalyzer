@@ -10,14 +10,18 @@ import {
 import { ValuesAtPointService } from './values-at-point.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { GeoJSON } from 'typeorm';
-import { ErrorResponse, EsriJSON } from '../general/general.interface';
+import {
+  ErrorResponse,
+  EsriJSON,
+  topicDefinitionOutside,
+} from '../general/general.interface';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 import { ParameterDto } from '../general/dto/parameter.dto';
 
 @Controller({
   version: '1',
 })
-@Controller('values-at-point')
+@Controller('valuesAtPoint')
 export class ValuesAtPointController {
   constructor(private readonly valuesAtPointService: ValuesAtPointService) {}
 
@@ -28,7 +32,7 @@ export class ValuesAtPointController {
     isArray: true,
   })
   @Get('valuesAtPoint/topics')
-  topic(): string[] {
+  topic(): topicDefinitionOutside[] {
     return this.valuesAtPointService.getTopics();
   }
 
