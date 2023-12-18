@@ -14,12 +14,9 @@ services:
         max-size: 10m
         max-file: "3"
     volumes:
-      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./sql/create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
       - ./sql/psql.sh:/docker-entrypoint-initdb.d/psql.sh
-      - ./sql/kreis.txt:/docker-entrypoint-initdb.d/kreis.txt
-      - ./sql/address.txt:/docker-entrypoint-initdb.d/address.txt
-      - ./sql/gemeinde.txt:/docker-entrypoint-initdb.d/gemeinde.txt
-      - ./sql/land.txt:/docker-entrypoint-initdb.d/land.txt
+      - ./sql/data:/docker-entrypoint-initdb.d/data
     ports:
       - '5432:5432'
 
