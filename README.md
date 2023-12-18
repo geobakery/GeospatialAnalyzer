@@ -59,6 +59,7 @@ You need an installed and *running* docker service. For example [Docker Desktop 
 You need to update one line in your `.env` or `.env.dev` file:
 ```bash
 db_postgres_host: db
+db_postgres_password: geobakery
 ```
 This will asure that the database is taken from the docker network and not from your computer. By default, the name of the service becomes the hostname/address of the container within the Docker network.
 
@@ -73,6 +74,15 @@ Navigate to [localhost:3000](localhost:3000) to check out the "Hello World" gree
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 
+### Troubleshooting
+If you update your `package.json`, change your docker files, have down changes to your database, or other problems that lead to a problematic
+start of your docker container; do following: \
+(<b> Beware this will delete all your database data <b>) 
+
+```bash
+docker compose down -v
+docker compose up --build
+```
 
 ## PgAdmin4
 Navigate to [localhost:5050](localhost:5050) to check out PgAdmin4.
