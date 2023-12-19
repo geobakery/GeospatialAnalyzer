@@ -1,11 +1,4 @@
-import {
-  DataSource,
-  GeoJSON,
-  Geometry,
-  LineString,
-  Point,
-  Polygon,
-} from 'typeorm';
+import { DataSource, GeoJSON, Geometry } from 'typeorm';
 import {
   dbRequestBuilderSample,
   DBResponse,
@@ -19,7 +12,6 @@ import {
   DATABASE_CRS,
   EPSG_REGEX,
   GEO_IDENTIFIER,
-  geojsonToPostGis,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
@@ -32,6 +24,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
 import { ConfigService } from '@nestjs/config';
 import { geojsonToWKT } from '@terraformer/wkt';
+import { TransformService } from '../transform/transform.service';
 
 @Injectable()
 export class GeneralService {
@@ -48,6 +41,7 @@ export class GeneralService {
     @InjectDataSource()
     private dataSource: DataSource,
     private configService: ConfigService,
+    private transformService: TransformService,
   ) {
     /**
      * Explanation:
@@ -519,6 +513,12 @@ export class GeneralService {
   ): Promise<GeoJSON[]> {
     await this.dynamicValidation(args);
     const geoInput = args.inputGeometries;
+    console.log('test####');
+    debugger;
+    const test = this.transformService.convertEsriJSONToGeoJSON({
+      esriJsonArray: geoInput,
+    });
+    console.log('test', test);
 
     let result: GeoJSON[] = [];
     // iterate through all geometries
