@@ -84,6 +84,13 @@ docker compose down -v
 docker compose up --build
 ```
 
+### Common Errors
+```bash
+/bin/bash^M: bad interpreter: No such file or directory
+```
+check the corresponding file, e.g. `psql.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
+a linux system. Specially for the database, other line ending can lead to execution errors :)
+
 ## PgAdmin4
 Navigate to [localhost:5050](localhost:5050) to check out PgAdmin4.
 
