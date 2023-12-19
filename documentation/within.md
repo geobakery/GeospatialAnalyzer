@@ -110,7 +110,6 @@ Post-call http://localhost:3000/v1/within with JSON body:
   - MultiPoint
   - GeometryCollection
 - Only `EPSG:25833` is supported
-- Only `verw_kreis_f` & `verw_land_f` are considered as topic
 - Only `inputGeometries` & `topics` are considered as parameter
 
 ## Work In Progress
