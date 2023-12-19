@@ -32,6 +32,9 @@ dependencies:
   '@terraformer/arcgis':
     specifier: ^2.1.2
     version: 2.1.2
+  '@terraformer/wkt':
+    specifier: ^2.2.0
+    version: 2.2.0
   '@types/proj4':
     specifier: ^2.5.5
     version: 2.5.5
@@ -1465,6 +1468,10 @@ packages:
 
   /@terraformer/common@2.1.2:
     resolution: {integrity: sha512-cwPdTFzIpekZhZRrgDEkqLKNPoqbyCBQHiemaovnGIeUx0Pl336MY/eCxzJ5zXkrQLVo9zPalq/vYW5HnyKevQ==}
+    dev: false
+
+  /@terraformer/wkt@2.2.0:
+    resolution: {integrity: sha512-i33rTSqPtmO4sRdeznI0IEc9gpIZZIXN5kGhZ4rTwVtDccDKL3h4uia9cmWdRJlJMlG4Febxatw5b9ylI5YYuA==}
     dev: false
 
   /@tokenizer/token@0.3.0:
