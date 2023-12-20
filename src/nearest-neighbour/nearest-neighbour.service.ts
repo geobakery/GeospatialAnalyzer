@@ -6,7 +6,11 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { dbDirection, ReplaceStringType } from '../general/general.constants';
+import {
+  dbDirection,
+  ReplaceStringType,
+  STANDARD_CRS,
+} from '../general/general.constants';
 
 const NEIGHBOUR_SELECT_CLAUSE =
   'SELECT json_build_object(\n' +
@@ -14,7 +18,9 @@ const NEIGHBOUR_SELECT_CLAUSE =
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   ') as response';
 const NEIGHBOUR_FROM_CLAUSE =
-  'FROM ( SELECT "customFrom".*, ST_Distance(\'__a\'::geometry, "customFrom".geom) as __dist\n' +
+  'FROM ( SELECT __d, ST_Distance(\'__a\'::geometry, ST_Transform("customFrom".geom,' +
+  STANDARD_CRS +
+  ')) as __dist\n' +
   '        FROM __b "customFrom"\n' +
   '        ORDER BY __dist asc ' +
   'LIMIT __c) as customFromSelect';
@@ -41,6 +47,7 @@ export class NearestNeighbourService {
         ['__a', ReplaceStringType.GEOMETRY],
         ['__b', ReplaceStringType.TABLE],
         ['__c', ReplaceStringType.COUNT],
+        ['__d', ReplaceStringType.ATTRIBUTE],
       ]),
       count: args.count,
       orderBy: 'dist',

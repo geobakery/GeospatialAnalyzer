@@ -10,7 +10,7 @@ import { ReplaceStringType } from '../general/general.constants';
 
 const WITHIN_WHERE_CLAUSE =
   "WHERE ST_Within('__a'::geometry, customFromSelect.geom)";
-const WITHIN_FROM = 'FROM __b customFromSelect';
+const WITHIN_FROM = 'FROM (SELECT __b FROM __a ) AS customFromSelect';
 @Injectable()
 export class WithinService {
   constructor(private generalService: GeneralService) {}
@@ -29,7 +29,8 @@ export class WithinService {
       ]),
       fromStatement: WITHIN_FROM,
       fromStatementParameter: new Map<string, ReplaceStringType>([
-        ['__b', ReplaceStringType.TABLE],
+        ['__a', ReplaceStringType.TABLE],
+        ['__b', ReplaceStringType.ATTRIBUTE],
       ]),
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);

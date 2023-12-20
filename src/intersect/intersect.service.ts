@@ -6,11 +6,14 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { ReplaceStringType } from '../general/general.constants';
+import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
 
 const INTERSECT_WHERE_CLAUSE =
-  "WHERE ST_intersects(customFromSelect.geom, '__b'::geometry)";
-const INTERSECT_FROM = 'FROM __a customFromSelect';
+  'WHERE ST_intersects(ST_Transform(customFromSelect.geom,' +
+  STANDARD_CRS +
+  "), '__c'::geometry)";
+const INTERSECT_FROM = 'FROM (SELECT __b FROM __a ) AS customFromSelect';
+
 @Injectable()
 export class IntersectService {
   constructor(private generalService: GeneralService) {}
@@ -27,11 +30,12 @@ export class IntersectService {
       where: true,
       whereStatement: INTERSECT_WHERE_CLAUSE,
       whereStatementParameter: new Map<string, ReplaceStringType>([
-        ['__b', ReplaceStringType.GEOMETRY],
+        ['__c', ReplaceStringType.GEOMETRY],
       ]),
       fromStatement: INTERSECT_FROM,
       fromStatementParameter: new Map<string, ReplaceStringType>([
         ['__a', ReplaceStringType.TABLE],
+        ['__b', ReplaceStringType.ATTRIBUTE],
       ]),
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);

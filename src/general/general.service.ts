@@ -9,7 +9,6 @@ import {
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
-  DATABASE_CRS,
   EPSG_REGEX,
   GEO_IDENTIFIER,
   PARAMETER_ARRAY_POSITION,
@@ -19,6 +18,7 @@ import {
   ReplaceStringType,
   REQUESTPARAMS,
   STANDARD_CRS,
+  STANDARD_SRID,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
@@ -160,11 +160,9 @@ export class GeneralService {
    * transform the geometry to the needed postgis formate
    * e.g.:'SRID=4326;POINT(411967 5659861)'::geometry
    */
-  _buildGeometry(geo: Geometry, crs: number): string {
-    let result = 'SRID=' + crs + ';';
+  _buildGeometry(geo: Geometry): string {
     const coordinates = geojsonToWKT(geo);
-    result += coordinates;
-    return result;
+    return STANDARD_SRID + coordinates;
   }
 
   /*
@@ -284,8 +282,7 @@ export class GeneralService {
     dbBuilderParameter: dbRequestBuilderSample,
     top: string,
     geo: Geometry,
-    crs: number,
-    count: number,
+    args: ParameterDto,
   ): [string, any[]] {
     let result: string = '';
     if (dbBuilderParameter.selectStatement) {
@@ -293,14 +290,20 @@ export class GeneralService {
     } else {
       result += QUERY_SELECT;
     }
+    // TODO ordentlicher :/
+    if (!args.returnGeometry) {
+      result = result.replace(
+        'json_agg(ST_AsGeoJSON(customFromSelect.*)::json',
+        "json_agg(ST_AsGeoJSON(customFromSelect.*)::jsonb - 'geometry'",
+      );
+    }
     if (dbBuilderParameter.fromStatement) {
       const replacedString = this._replaceHelper(
         dbBuilderParameter.fromStatementParameter,
         dbBuilderParameter.fromStatement,
         top,
         geo,
-        crs,
-        count,
+        args,
       );
       result += ' ' + replacedString;
     }
@@ -310,8 +313,7 @@ export class GeneralService {
         dbBuilderParameter.whereStatement,
         top,
         geo,
-        crs,
-        count,
+        args,
       );
 
       result += ' ' + replacedString;
@@ -329,8 +331,7 @@ export class GeneralService {
     parameterString: string,
     top: string,
     geo: Geometry,
-    crs: number,
-    count: number,
+    args: ParameterDto,
   ): string {
     if (!statementParameter.size) {
       return '';
@@ -345,15 +346,26 @@ export class GeneralService {
           break;
         }
         case ReplaceStringType.GEOMETRY: {
-          const geoString = this._buildGeometry(geo, crs);
+          const geoString = this._buildGeometry(geo);
           replacedString = replacedString.replace(key, geoString);
           break;
         }
         case ReplaceStringType.COUNT: {
-          if (count) {
-            const countElement = String(count);
+          if (args.count) {
+            const countElement = String(args.count);
             replacedString = replacedString.replace(key, countElement);
           }
+          break;
+        }
+        case ReplaceStringType.ATTRIBUTE: {
+          let attr = 'ST_Transform(geom,' + STANDARD_CRS + ') as geom';
+          const topicAttributes = this.topicsDatabaseAttributes.get(top);
+          if (topicAttributes.length) {
+            topicAttributes.forEach((a) => {
+              attr += ',' + a;
+            });
+          }
+          replacedString = replacedString.replace(key, attr);
           break;
         }
       }
@@ -368,13 +380,12 @@ export class GeneralService {
     service: any,
     top: string,
     geo: Geometry,
-    crs: number,
-    count: number,
+    args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<[string, any[]]> {
     // To replace Repositories, we only create raw sql statements
     if (dbBuilderParameter.customStatement) {
-      return service.createRawQuery(dbBuilderParameter, top, geo, crs, count);
+      return service.createRawQuery(dbBuilderParameter, top, geo, args);
     }
 
     throw new HttpException(
@@ -387,36 +398,26 @@ export class GeneralService {
   Collect all single Queries and put their data together
    */
   async collectQueries(
-    topicsString: string[],
+    args: ParameterDto,
     geo: Geometry,
-    crs: number,
-    count: number,
     dbBuilderParameter: dbRequestBuilderSample,
     customFunction: (
       service: any,
       top: string,
       geo: Geometry,
-      crs: number,
-      count: number,
+      args: ParameterDto,
       dbBuilderParameter: dbRequestBuilderSample,
     ) => Promise<[string, any[]]>,
   ): Promise<QueryAndParameter> {
     const topics: string[] = [];
     const query: string[] = [];
     const parameter: string[] = [];
-    topicsString.forEach((s) => {
+    args.topics.forEach((s) => {
       topics.push(s);
     });
 
     for await (const t of topics) {
-      const q = await customFunction(
-        this,
-        t,
-        geo,
-        crs,
-        count,
-        dbBuilderParameter,
-      );
+      const q = await customFunction(this, t, geo, args, dbBuilderParameter);
       if (q.length === QUERY_PARAMETER_LENGTH) {
         query.push(<string>q[QUERY_ARRAY_POSITION]);
         parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
@@ -457,20 +458,10 @@ export class GeneralService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    const crs = this.getCoordinateSystem(geo.geometry);
-    if (crs != DATABASE_CRS) {
-      // TODO transform points
-      throw new HttpException(
-        'Currently only EPSG:25833 is supported',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
 
     const queryData = await this.collectQueries(
-      args.topics,
+      args,
       geo.geometry,
-      crs,
-      args.count,
       dbBuilderParameter,
       this.createSelectQueries,
     );
@@ -512,13 +503,15 @@ export class GeneralService {
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSON[]> {
     await this.dynamicValidation(args);
-    const geoInput = args.inputGeometries;
-    console.log('test####');
-    debugger;
-    const test = this.transformService.convertEsriJSONToGeoJSON({
-      esriJsonArray: geoInput,
-    });
-    console.log('test', test);
+    let geoInput = args.inputGeometries;
+
+    if (this.transformService.isEsriJSON(geoInput)) {
+      geoInput = this.transformService.convertEsriJSONToGeoJSON({
+        esriJsonArray: geoInput,
+      }) as GeoJSON[];
+    } else if (!this.transformService.isGeoJSON(geoInput)) {
+      //TODO error handling
+    }
 
     let result: GeoJSON[] = [];
     // iterate through all geometries

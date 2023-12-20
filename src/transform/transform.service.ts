@@ -5,6 +5,12 @@ import * as epsg from 'proj4-list';
 import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSON } from 'typeorm';
+import {
+  STANDARD_CRS,
+  STANDARD_CRS_STRING,
+  STANDARD_EPSG,
+} from '../general/general.constants';
 
 @Injectable()
 export class TransformService {
@@ -54,7 +60,8 @@ export class TransformService {
     const geoJsonArray = new Array<GeoJsonDto>();
 
     for (const esriJSON of args.esriJsonArray) {
-      const epsgString = 'EPSG:' + esriJSON.geometry.spatialReference.wkid;
+      const epsgString =
+        STANDARD_EPSG + esriJSON.geometry.spatialReference.wkid;
       try {
         proj4.defs([epsg[epsgString]]);
       } catch (e) {
@@ -83,7 +90,7 @@ export class TransformService {
           const convertedCoordinates = this.transformSimpleCoordinates(
             simpleCoordinates,
             epsgString,
-            'EPSG:4326',
+            STANDARD_CRS_STRING,
           );
 
           esriJSON.geometry.x = convertedCoordinates[0];
@@ -101,21 +108,21 @@ export class TransformService {
           this.transformCoordinates(
             esriJSON.geometry.paths,
             epsgString,
-            'EPSG:4326',
+            STANDARD_CRS_STRING,
           );
         }
         if (esriJSON.geometry.rings) {
           this.transformCoordinates(
             esriJSON.geometry.rings,
             epsgString,
-            'EPSG:4326',
+            STANDARD_CRS_STRING,
           );
         }
         if (esriJSON.geometry.points) {
           this.transformCoordinates(
             esriJSON.geometry.points,
             epsgString,
-            'EPSG:4326',
+            STANDARD_CRS_STRING,
           );
         }
       } catch (e) {
@@ -126,6 +133,11 @@ export class TransformService {
       }
 
       try {
+        // this will remove the "non standard wkid" warning
+        // The coordinates are already transformed at this point
+        if (esriJSON?.geometry?.spatialReference?.wkid) {
+          esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
+        }
         const geoJson: GeoJsonDto = arcgisToGeoJSON(esriJSON);
         geoJsonArray.push(geoJson);
       } catch (e) {
@@ -158,5 +170,12 @@ export class TransformService {
 
   transformSimpleCoordinates(coordinates, fromEpsgString, toEpsgString) {
     return proj4(fromEpsgString, toEpsgString, coordinates);
+  }
+
+  isGeoJSON(geoArray: any[]): boolean {
+    return !!geoArray.every((geo) => geo['type'] && geo['geometry']);
+  }
+  isEsriJSON(geoArray: any[]): boolean {
+    return !!geoArray.every((geo) => geo['attributes'] && geo['geometry']);
   }
 }
