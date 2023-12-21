@@ -141,6 +141,8 @@ translated typescript code in source. You can set breakpoints and debug like you
 Nodejs dev tools: \
 <img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
 
+Also you can call the rest API on your common way as long as you connected to the nodejs-dev tools.
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
