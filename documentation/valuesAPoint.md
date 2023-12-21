@@ -22,17 +22,24 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
 ```
 
 
-## Known Limitations
-- Only GeoJSON input will be accepted
-  - Multiple single feature, but no feature collections
-- Unsupported geo-types (not planned)
+## Known Limitations - Work in progres
+
+- GeoJSON feature collections aren't supported (currently array of single feature)
+- Currently, unsupported user parameter
+  - timeout
+  - outSRS
+  - outputFormat
+  - buffer
+  - maxDistanceToNeighbour
+- Complete parameter validation
+- add different database support
+- Currently, only basic Testcases
+- API token authentication
+
+
+## Known Limitations - Not planned to implement
+- Unsupported geo-types in GeoJSON
   - MultiPolygon
   - MultiLineString
   - MultiPoint
   - GeometryCollection
-- Only `EPSG:25833` is supported
-- Only `inputGeometries` & `topics` are considered as parameter
-
-## Work In Progress
-- implement most known limitations
-- add different database support than PostGIS
