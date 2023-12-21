@@ -6,7 +6,7 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { ReplaceStringType } from '../general/general.constants';
+import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
 
 const VALUE_SELECT_CLAUSE =
   'SELECT json_build_object(\n' +
@@ -14,7 +14,9 @@ const VALUE_SELECT_CLAUSE =
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   ') as response';
 const VALUE_FROM_CLAUSE =
-  "FROM ( SELECT ST_Envelope(rast) as geom, ST_VALUE(rast, '__a'::geometry) as __height\n" +
+  "FROM ( SELECT ('SRID=4326;POINT (0 0)'::geometry) as geom, ST_VALUE(ST_Transform(rast," +
+  STANDARD_CRS +
+  "), '__a'::geometry) as __height\n" +
   '        FROM __b  ) as customFromSelect';
 
 @Injectable()

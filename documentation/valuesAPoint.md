@@ -11,20 +11,13 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
     "type": "Feature",
     "geometry": {
       "type": "Point",
-      "coordinates": [417929, 5651849],
-      "crs": {
-        "type": "name",
-        "properties": {
-          "name": "EPSG:25833"
-        }
-      }
+      "coordinates": [13.819230850782265, 51.02066601255865]
     },
     "properties": {
-      "name": "Dinagat Islands"
+      "name": "example"
     }
   }],
-  "topics": ["hoehe2m_r"],
-  "timeout": 60000
+  "topics": ["hoehe2m_r"]
 }
 ```
 
