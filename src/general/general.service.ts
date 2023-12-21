@@ -505,7 +505,7 @@ export class GeneralService {
   async calculateMethode(
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<GeoJsonDto[]> {
+  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     await this.dynamicValidation(args);
     let geoInput = args.inputGeometries;
 
@@ -519,26 +519,16 @@ export class GeneralService {
     } else if (!this.transformService.isGeoJSON(geoInput)) {
       //TODO error handling
     }
-
+    // Force Type
+    geoInput = geoInput as GeoJsonDto[];
     let result: GeoJsonDto[] = [];
     // iterate through all geometries
     let index = 0;
     for await (const geo of geoInput) {
-      if (geo.type) {
-        const requestParams: any = this.setRequestParameterForResponse(
-          args,
-          geo,
-        );
-        const query = await this.generateQuery(geo, args, dbBuilderParameter);
-        result = this.prepareDBResponse(
-          query,
-          geo,
-          index,
-          requestParams,
-          result,
-        );
-        index++;
-      }
+      const requestParams: any = this.setRequestParameterForResponse(args, geo);
+      const query = await this.generateQuery(geo, args, dbBuilderParameter);
+      result = this.prepareDBResponse(query, geo, index, requestParams, result);
+      index++;
     }
     if (!result.length) {
       throw new HttpException(

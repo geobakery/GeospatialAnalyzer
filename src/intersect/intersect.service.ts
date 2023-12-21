@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { GeoJSON } from 'typeorm';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import {
@@ -7,6 +6,8 @@ import {
   topicDefinitionOutside,
 } from '../general/general.interface';
 import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 const INTERSECT_WHERE_CLAUSE =
   'WHERE ST_intersects(ST_Transform(customFromSelect.geom,' +
@@ -23,7 +24,9 @@ export class IntersectService {
     );
   }
 
-  async calculateIntersect(args: ParameterDto): Promise<GeoJSON[]> {
+  async calculateIntersect(
+    args: ParameterDto,
+  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: false,
       customStatement: true,

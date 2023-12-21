@@ -108,7 +108,7 @@ export class TransformService {
           }
         } else if (geo.paths || geo.rings || geo.points) {
           this.transformCoordinates(
-            geo.paths | geo.rings | geo.points,
+            geo.paths ? geo.paths : geo.rings ? geo.rings : geo.points,
             epsgString,
             STANDARD_CRS_STRING,
           );
@@ -139,7 +139,11 @@ export class TransformService {
     return geoJsonArray;
   }
 
-  transformCoordinates(coordinates, fromEpsgString, toEpsgString) {
+  transformCoordinates(
+    coordinates: any,
+    fromEpsgString: string,
+    toEpsgString: string,
+  ) {
     if (Array.isArray(coordinates[0])) {
       coordinates.map((coordinate) =>
         this.transformCoordinates(coordinate, fromEpsgString, toEpsgString),

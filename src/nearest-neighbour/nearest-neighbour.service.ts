@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { GeoJSON } from 'typeorm';
 import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
@@ -11,6 +10,8 @@ import {
   ReplaceStringType,
   STANDARD_CRS,
 } from '../general/general.constants';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 const NEIGHBOUR_SELECT_CLAUSE =
   'SELECT json_build_object(\n' +
@@ -34,7 +35,9 @@ export class NearestNeighbourService {
     );
   }
 
-  async calculateNearestNeighbour(args: ParameterDto): Promise<GeoJSON[]> {
+  async calculateNearestNeighbour(
+    args: ParameterDto,
+  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     // TODO validate Input, custom ParameterDto?
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: true,

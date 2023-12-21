@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralService } from '../general/general.service';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { GeoJSON } from 'typeorm';
 import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
 import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
+import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
 
 const VALUE_SELECT_CLAUSE =
   'SELECT json_build_object(\n' +
@@ -28,7 +29,9 @@ export class ValuesAtPointService {
     );
   }
 
-  async calculateValuesAtPoint(args: ParameterDto): Promise<GeoJSON[]> {
+  async calculateValuesAtPoint(
+    args: ParameterDto,
+  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: true,
       customStatement: true,
