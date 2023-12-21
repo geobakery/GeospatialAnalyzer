@@ -78,7 +78,9 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
     }
   }],
   "topics": ["verw_kreis_f"],
-  "returnGeometry": true
+  "returnGeometry": true,
+  "outputFormat": "esrijson",
+  "outSRS": "25833"
 }
 ```
 
@@ -87,10 +89,13 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 - GeoJSON feature collections aren't supported (currently array of single feature)
 - Currently, unsupported user parameter
   - timeout
-  - outSRS
-  - outputFormat
   - buffer
   - maxDistanceToNeighbour
+- Currently, user parameter with known bugs
+  - outSRS
+    - returnGeometry has to be true, or transfer throws error of valid coordinates
+  - outputFormat
+    - returnGeometry has to be true, or transfer throws error of valid coordinates
 - Complete parameter validation
 - add different database support
 - Currently, only basic Testcases
