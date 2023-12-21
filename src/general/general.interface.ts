@@ -1,5 +1,6 @@
 import { GeoJSON } from 'typeorm';
 import { dbDirection, ReplaceStringType } from './general.constants';
+import { GeoJsonDto } from './dto/geo-json.dto';
 
 export interface Geometry {}
 export interface EsriGeometry {}
@@ -14,7 +15,7 @@ export interface ErrorResponse {
 }
 
 export interface DBResponse {
-  response: GeoJSON;
+  response: GeoJsonDto;
 }
 
 export interface QueryAndParameter {

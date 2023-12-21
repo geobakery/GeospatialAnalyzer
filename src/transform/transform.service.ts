@@ -5,33 +5,26 @@ import * as epsg from 'proj4-list';
 import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
-import { GeoJSON } from 'typeorm';
 import {
   STANDARD_CRS,
   STANDARD_CRS_STRING,
   STANDARD_EPSG,
 } from '../general/general.constants';
+import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
 
 @Injectable()
 export class TransformService {
   convertGeoJSONToEsriJSON(args): EsriJsonDto[] {
-    const epsgString = 'EPSG:' + args.epsg;
-    try {
-      proj4.defs([epsg[epsgString]]);
-    } catch (e) {
-      throw new HttpException(
-        'EPSG code is not valid',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const epsgString = STANDARD_EPSG + args.epsg;
+    this.checkCRS(epsgString);
 
     const esriJsonArray = new Array<EsriJsonDto>();
 
-    for (const geoJSON of args.geoJsonArray) {
+    for (const geoJSON of args.input) {
       try {
         this.transformCoordinates(
           geoJSON.geometry.coordinates,
-          'EPSG:4326',
+          STANDARD_CRS_STRING,
           epsgString,
         );
       } catch (e) {
@@ -56,71 +49,46 @@ export class TransformService {
     return esriJsonArray;
   }
 
-  convertEsriJSONToGeoJSON(args): GeoJsonDto[] {
-    const geoJsonArray = new Array<GeoJsonDto>();
+  checkCRS(epsgString: string): boolean {
+    try {
+      proj4.defs([epsg[epsgString]]);
+    } catch (e) {
+      throw new HttpException(
+        'EPSG code is not valid',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return true;
+  }
 
-    for (const esriJSON of args.esriJsonArray) {
+  convertEsriJSONToGeoJSON(args: TransformEsriToGeoDto): GeoJsonDto[] {
+    const geoJsonArray = new Array<GeoJsonDto>();
+    for (const esriJSON of args.input) {
       const epsgString =
         STANDARD_EPSG + esriJSON.geometry.spatialReference.wkid;
-      try {
-        proj4.defs([epsg[epsgString]]);
-      } catch (e) {
-        throw new HttpException(
-          'EPSG code is not valid',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      this.checkCRS(epsgString);
 
       try {
-        if (esriJSON.geometry.x && esriJSON.geometry.y) {
-          const simpleCoordinates = [esriJSON.geometry.x, esriJSON.geometry.y];
-
-          if (esriJSON.geometry.z) {
-            simpleCoordinates.push(esriJSON.geometry.z);
-          } else {
-            simpleCoordinates.push(0);
-          }
-
-          if (esriJSON.geometry.m) {
-            simpleCoordinates.push(esriJSON.geometry.m);
-          } else {
-            simpleCoordinates.push(0);
-          }
-
+        const geo = esriJSON.geometry;
+        if (geo.x && geo.y) {
           const convertedCoordinates = this.transformSimpleCoordinates(
-            simpleCoordinates,
+            [geo.x, geo.y, geo.z | 0, geo.m | 0],
             epsgString,
             STANDARD_CRS_STRING,
           );
 
-          esriJSON.geometry.x = convertedCoordinates[0];
-          esriJSON.geometry.y = convertedCoordinates[1];
+          geo.x = convertedCoordinates[0];
+          geo.y = convertedCoordinates[1];
 
-          if (esriJSON.geometry.z) {
-            esriJSON.geometry.z = convertedCoordinates[2];
+          if (geo.z) {
+            geo.z = convertedCoordinates[2];
           }
-
-          if (esriJSON.geometry.m) {
-            esriJSON.geometry.m = convertedCoordinates[3];
+          if (geo.m) {
+            geo.m = convertedCoordinates[3];
           }
-        }
-        if (esriJSON.geometry.paths) {
+        } else if (geo.paths || geo.rings || geo.points) {
           this.transformCoordinates(
-            esriJSON.geometry.paths,
-            epsgString,
-            STANDARD_CRS_STRING,
-          );
-        }
-        if (esriJSON.geometry.rings) {
-          this.transformCoordinates(
-            esriJSON.geometry.rings,
-            epsgString,
-            STANDARD_CRS_STRING,
-          );
-        }
-        if (esriJSON.geometry.points) {
-          this.transformCoordinates(
-            esriJSON.geometry.points,
+            geo.paths | geo.rings | geo.points,
             epsgString,
             STANDARD_CRS_STRING,
           );

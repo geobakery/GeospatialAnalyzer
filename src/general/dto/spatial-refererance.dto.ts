@@ -4,5 +4,5 @@ import { ApiProperty } from '@nestjs/swagger';
 export class SpatialRefereranceDto {
   @ApiProperty()
   @IsNotEmpty()
-  wkid: string;
+  wkid: string | number;
 }

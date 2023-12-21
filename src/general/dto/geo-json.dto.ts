@@ -10,6 +10,7 @@ export class GeoJsonDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @Type(() => GeoGeometryDto)
   geometry: GeoGeometryDto;
 
   @ApiProperty()

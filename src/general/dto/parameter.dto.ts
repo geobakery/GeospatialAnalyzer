@@ -11,6 +11,8 @@ import {
 } from 'class-validator';
 import { outputFormatEnum } from '../general.constants';
 import { ApiProperty } from '@nestjs/swagger';
+import { EsriJsonDto } from './esri-json.dto';
+import { GeoJsonDto } from './geo-json.dto';
 
 export class ParameterDto {
   //https://github.com/typestack/class-validator#validation-decorators
@@ -44,7 +46,7 @@ export class ParameterDto {
   })
   @IsArray()
   @ArrayNotEmpty()
-  inputGeometries: GeoJSON[];
+  inputGeometries: EsriJsonDto[] | GeoJsonDto[];
 
   @ApiProperty({
     example: 'geojson',

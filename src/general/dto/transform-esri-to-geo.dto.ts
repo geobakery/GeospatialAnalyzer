@@ -34,9 +34,9 @@ export class TransformEsriToGeoDto {
       '  }\n' +
       ']',
   })
-  @Type(() => EsriJsonDto)
   @ValidateNested({ each: true })
+  @Type(() => EsriJsonDto)
   @IsNotEmpty()
   @IsArray()
-  esriJsonArray: EsriJsonDto[];
+  input: EsriJsonDto[];
 }

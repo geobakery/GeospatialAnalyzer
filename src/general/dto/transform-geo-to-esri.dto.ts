@@ -34,7 +34,7 @@ export class TransformGeoToEsriDto {
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray()
-  geoJsonArray: GeoJsonDto[];
+  input: GeoJsonDto[];
 
   @ApiProperty({ example: '3035' })
   @IsNotEmpty()
