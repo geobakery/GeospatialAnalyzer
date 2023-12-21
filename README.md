@@ -121,25 +121,25 @@ pnpm run start:dev
 You will see following lines in your IDE:
 
 Debug start: \
-<img src="images/debug_start.png" alt="Debug start"/>
+<img src="documentation/images/debug_start.png" alt="Debug start"/>
 
 You can connect to the given address (e.g.: ws://127.0.0.1:9229/xxx-xxx-xxx) with a debugger of your choice. 
 On most IDE's a click on the address will start a debugger automatically. H
 
 Debug view in IDE: \
-<img src="images/debug_view_ide.png" alt="Debug view"/>
+<img src="documentation/images/debug_view_ide.png" alt="Debug view"/>
 
 In your web browser, visit http://localhost:3000/api. Here you can use the "try it out" Swagger function to execute the 
 REST-API.
 
 Swagger UI: \
-<img src="images/swagger_debug.png" alt="Swagger debug"/>
+<img src="documentation/images/swagger_debug.png" alt="Swagger debug"/>
 
 Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools. Here you find the
 translated typescript code in source. You can set breakpoints and debug like you are used to.
 
 Nodejs dev tools: \
-<img src="images/devTools_debug.png" alt="Dev tools Nodejs"/>
+<img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
 
 ## License
 
