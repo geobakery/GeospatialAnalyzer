@@ -11,33 +11,54 @@ import {
   STANDARD_EPSG,
 } from '../general/general.constants';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
+import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
 
 @Injectable()
 export class TransformService {
-  convertGeoJSONToEsriJSON(args): EsriJsonDto[] {
+  convertGeoJSONToEsriJSON(args: TransformGeoToEsriDto): EsriJsonDto[] {
     const epsgString = STANDARD_EPSG + args.epsg;
     this.checkCRS(epsgString);
 
     const esriJsonArray = new Array<EsriJsonDto>();
-
     for (const geoJSON of args.input) {
-      try {
-        this.transformCoordinates(
-          geoJSON.geometry.coordinates,
-          STANDARD_CRS_STRING,
-          epsgString,
-        );
-      } catch (e) {
-        throw new HttpException(
-          'Coordinates are not valid',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+      if (geoJSON.features && geoJSON.features.length) {
+        geoJSON.features.forEach((geo) => {
+          try {
+            this.transformCoordinates(
+              geo.geometry.coordinates,
+              STANDARD_CRS_STRING,
+              epsgString,
+            );
+          } catch (e) {
+            throw new HttpException(
+              'Coordinates are not valid',
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+          }
+        });
+      } else {
+        try {
+          this.transformCoordinates(
+            geoJSON.geometry.coordinates,
+            STANDARD_CRS_STRING,
+            epsgString,
+          );
+        } catch (e) {
+          throw new HttpException(
+            'Coordinates are not valid',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
       }
-
+      // TODO geojsonToArcGIS accepts feature collections: remove from for loop
       try {
-        const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
-        esriJson.geometry.spatialReference.wkid = args.epsg;
-        esriJsonArray.push(esriJson);
+        const esriJson: EsriJsonDto[] = geojsonToArcGIS(geoJSON);
+        if (esriJson.length) {
+          esriJson.forEach((e) => {
+            e.geometry.spatialReference.wkid = args.epsg;
+            esriJsonArray.push(e);
+          });
+        }
       } catch (e) {
         throw new HttpException(
           'GeoJSON to EsriJSON conversion failed',
@@ -45,7 +66,6 @@ export class TransformService {
         );
       }
     }
-
     return esriJsonArray;
   }
 

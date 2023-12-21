@@ -9,7 +9,7 @@ import {
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
-  EPSG_REGEX,
+  ESRIJSON_PARAMETER,
   GEO_IDENTIFIER,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
@@ -28,6 +28,8 @@ import { TransformService } from '../transform/transform.service';
 import { GeoJsonDto } from './dto/geo-json.dto';
 import { GeoGeometryDto } from './dto/geo-geometry.dto';
 import { TransformEsriToGeoDto } from './dto/transform-esri-to-geo.dto';
+import { EsriJsonDto } from './dto/esri-json.dto';
+import { TransformGeoToEsriDto } from './dto/transform-geo-to-esri.dto';
 
 @Injectable()
 export class GeneralService {
@@ -234,6 +236,7 @@ export class GeneralService {
     return {
       topics: args.topics,
       outputFormat: args.outputFormat,
+      outSRS: args.outSRS,
       returnGeometry: args.returnGeometry,
       properties: props,
     };
@@ -245,13 +248,25 @@ export class GeneralService {
    */
   setGeoJSONArray(
     result: GeoJsonDto[],
-    resultArray: GeoJsonDto[],
-  ): GeoJsonDto[] {
+    resultArray: any[], //GeoJsonDto[] | EsriJsonDto[],
+    parameter: ParameterDto,
+  ): any[] {
+    let resultElement: GeoJsonDto[] | EsriJsonDto[] = result;
+    if (parameter.outputFormat === ESRIJSON_PARAMETER) {
+      if (result.length) {
+        resultElement = this.transformService.convertGeoJSONToEsriJSON({
+          input: result,
+          epsg: parameter.outSRS || STANDARD_CRS,
+        } as TransformGeoToEsriDto);
+      }
+    }
     if (!resultArray.length) {
-      resultArray = result;
+      resultArray = resultElement;
     } else {
-      result.forEach((r) => {
-        resultArray.push(r);
+      resultElement.forEach((r) => {
+        if (r) {
+          resultArray.push(r);
+        }
       });
     }
     return resultArray;
@@ -428,7 +443,7 @@ export class GeneralService {
     const tmpResult = this.dbToGeoJSON(query);
     this.addUserInputToResponse(tmpResult, geo, index, requestParams);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
-    return this.setGeoJSONArray(tmpResult, result);
+    return this.setGeoJSONArray(tmpResult, result, requestParams);
   }
 
   /**
