@@ -228,17 +228,12 @@ export class GeneralService {
    * Explanation:
    * collects which input parameter should be included in the response
    */
-  setRequestParameterForResponse(args: ParameterDto, geo: GeoJsonDto): any {
-    let props = {};
-    if (geo.type === 'Feature') {
-      props = geo.properties;
-    }
+  setRequestParameterForResponse(args: ParameterDto): any {
     return {
       topics: args.topics,
       outputFormat: args.outputFormat,
       outSRS: args.outSRS,
       returnGeometry: args.returnGeometry,
-      properties: props,
     };
   }
 
@@ -435,13 +430,13 @@ export class GeneralService {
 
   prepareDBResponse(
     query: any,
-    geo: GeoJsonDto,
+    // geo: GeoJsonDto,
     index: number,
     requestParams: ParameterDto,
     result: GeoJsonDto[],
   ): GeoJsonDto[] {
     const tmpResult = this.dbToGeoJSON(query);
-    this.addUserInputToResponse(tmpResult, geo, index, requestParams);
+    // this.addUserInputToResponse(tmpResult, geo, index, requestParams);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
     return this.setGeoJSONArray(tmpResult, result, requestParams);
   }
@@ -454,7 +449,7 @@ export class GeneralService {
     geo: GeoJsonDto,
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<any> {
+  ): Promise<string> {
     if (geo.type !== 'Feature') {
       // TODO support Feature collection
       throw new HttpException(
@@ -469,10 +464,7 @@ export class GeneralService {
       dbBuilderParameter,
       this.createSelectQueries,
     );
-    return (await this.buildUnionStatement(
-      queryData.query,
-      queryData.parameter,
-    )) as DBResponse[];
+    return await this.buildUnionStatement(queryData.query);
   }
 
   /**
@@ -481,21 +473,13 @@ export class GeneralService {
    *   (a) UNION (b) UNION (c) ...
    *   Send the single complete request to the db
    */
-  async buildUnionStatement(
-    sqlQueries: string[],
-    sqlParameter: string[],
-  ): Promise<any> {
+  async buildUnionStatement(sqlQueries: string[]): Promise<string> {
     // Merge all the parameters from the other queries into a single object. You'll need to make sure that all your parameters have unique names
     const queries = sqlQueries.map((q, index) => {
       return q.replace('$1', '$' + (index + 1));
     });
     // Join all your queries into a single SQL string
-    const unionQuery = '(' + queries.join(') UNION ALL (') + ')';
-    // Create a new querybuilder with the joined SQL string as a FROM subquery
-    if (sqlParameter.length && sqlParameter[0]) {
-      return await this.dataSource.query(unionQuery, sqlParameter);
-    }
-    return await this.dataSource.query(unionQuery);
+    return '(' + queries.join(') UNION ALL (') + ')';
   }
 
   /**
@@ -523,13 +507,30 @@ export class GeneralService {
     geoInput = geoInput as GeoJsonDto[];
     let result: GeoJsonDto[] = [];
     // iterate through all geometries
-    let index = 0;
+    const queryArray: string[] = [];
+
+    const requestParams = this.setRequestParameterForResponse(args);
     for await (const geo of geoInput) {
-      const requestParams: any = this.setRequestParameterForResponse(args, geo);
+      // const requestParams: any = this.setRequestParameterForResponse(args, geo);
       const query = await this.generateQuery(geo, args, dbBuilderParameter);
-      result = this.prepareDBResponse(query, geo, index, requestParams, result);
-      index++;
+      queryArray.push(query);
     }
+    let queryString = '';
+    for (const query of queryArray) {
+      if (queryString) {
+        queryString += ' UNION ALL ' + query;
+      } else {
+        queryString = query;
+      }
+    }
+    const dbResult = await this.dataSource.query(queryString);
+    result = this.prepareDBResponse(
+      dbResult,
+      // geo,
+      0,
+      requestParams,
+      result,
+    );
     if (!result.length) {
       throw new HttpException(
         'No result calculated!',
