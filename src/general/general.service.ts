@@ -4,6 +4,7 @@ import {
   DBResponse,
   QueryAndParameter,
   SupportedTopics,
+  tempResult,
   topicDefinition,
   topicDefinitionOutside,
 } from './general.interface';
@@ -11,6 +12,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   ESRIJSON_PARAMETER,
   GEO_IDENTIFIER,
+  GEO_PARAMETER,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
@@ -149,9 +151,17 @@ export class GeneralService {
    * Explanation:
    * the database response has the attribute "response". Inside the response attribute is the defined geojson structure.
    */
-  dbToGeoJSON(response: DBResponse[]): GeoJsonDto[] {
+  dbToGeoJSON(response: DBResponse[]): tempResult[] {
+    const result = [] as tempResult[];
     if (response.length) {
-      return response.map((r) => r.response);
+      response.forEach((r) => {
+        result.push({
+          result: r.response,
+          id: r.id,
+          parameter: {},
+        });
+      });
+      return result;
     } else {
       throw new HttpException(
         'Unexpected formate error',
@@ -172,54 +182,65 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * Helper function: Returns the ID of the single geo feature, that was set by the user or automated generated if not
-   */
-  _getGeometryIdentifier(geo: GeoJsonDto): string {
-    if (geo.type === 'Feature') {
-      return geo.properties[GEO_IDENTIFIER];
-    }
-    return undefined;
-  }
-  /**
-   * Explanation:
-   * Returns the ID of the single geo feature if set and generates it if not
+   * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJsonDto, index: number): string {
-    const id = this._getGeometryIdentifier(geo);
-    if (!id) {
-      return '__ID:' + index;
+    if (
+      geo.type === 'Feature' &&
+      geo.properties &&
+      geo.properties[GEO_IDENTIFIER]
+    ) {
+      return geo.properties[GEO_IDENTIFIER];
     }
-    return id;
+    if (geo.type === 'Feature') {
+      if (!geo.properties) {
+        geo.properties = {};
+      }
+      geo.properties[GEO_IDENTIFIER] = '__ID_' + index;
+      return geo.properties[GEO_IDENTIFIER];
+    }
+    return null;
   }
 
   /**
    * Explanation:
-   * Adds the user input in the response for the user
+   * Adds the user input and geometry properties in the response for the user
    */
   addUserInputToResponse(
-    geoArray: GeoJsonDto[],
-    inputGeo: GeoJsonDto,
-    index: number,
+    tmpResult: tempResult[],
     requestParams: any,
+    map: Map<string, any>,
   ): void {
-    if (!geoArray?.length) {
+    if (!tmpResult?.length) {
       return;
     }
-    const id = this.getAndSetGeoID(inputGeo, index);
-    geoArray.forEach((geo) => {
+    tmpResult.forEach((result) => {
+      const geo = result.result;
       if (geo.type === 'FeatureCollection') {
-        // TODO fix GeoJSONdto :/
-        // const features = geo.features;
-        // if (!features?.length) {
-        //   return;
-        // }
-        // features.forEach((feature) => {
-        //   feature.properties[GEO_IDENTIFIER] = id;
-        //   feature.properties[REQUESTPARAMS] = requestParams;
-        // });
+        const features = geo.features;
+        if (!features?.length) {
+          const props = {
+            NO_RESULT: 'No result to request',
+          };
+          props[REQUESTPARAMS] = requestParams;
+          props[GEO_PARAMETER] = map.get(result.id);
+
+          geo.features = [
+            {
+              type: 'Feature',
+              properties: props,
+            } as GeoJsonDto,
+          ];
+          return;
+        } else {
+          features.forEach((feature) => {
+            feature.properties[REQUESTPARAMS] = requestParams;
+            feature.properties[GEO_PARAMETER] = map.get(result.id);
+          });
+        }
       } else if (geo.type === 'Feature') {
-        geo.properties[GEO_IDENTIFIER] = id;
         geo.properties[REQUESTPARAMS] = requestParams;
+        geo.properties['test'] = map.get(result.id);
       }
     });
   }
@@ -242,15 +263,16 @@ export class GeneralService {
    * assures that the result is always a GeoJSON[] formate
    */
   setGeoJSONArray(
-    result: GeoJsonDto[],
+    result: tempResult[],
     resultArray: any[], //GeoJsonDto[] | EsriJsonDto[],
     parameter: ParameterDto,
   ): any[] {
-    let resultElement: GeoJsonDto[] | EsriJsonDto[] = result;
+    const resultMap = result.map((r) => r.result);
+    let resultElement: GeoJsonDto[] | EsriJsonDto[] = resultMap;
     if (parameter.outputFormat === ESRIJSON_PARAMETER) {
       if (result.length) {
         resultElement = this.transformService.convertGeoJSONToEsriJSON({
-          input: result,
+          input: resultMap,
           epsg: parameter.outSRS || STANDARD_CRS,
         } as TransformGeoToEsriDto);
       }
@@ -280,7 +302,7 @@ export class GeneralService {
   createRawQuery(
     dbBuilderParameter: dbRequestBuilderSample,
     top: string,
-    geo: GeoGeometryDto,
+    geo: GeoJsonDto,
     args: ParameterDto,
   ): [string, any[]] {
     let result: string = '';
@@ -289,6 +311,14 @@ export class GeneralService {
     } else {
       result += QUERY_SELECT;
     }
+
+    if (geo.type === 'Feature') {
+      const props = geo.properties;
+      const propsId = props[GEO_IDENTIFIER];
+      const propsIdString = "SELECT '" + propsId + "' as id, ";
+      result = result.replace('SELECT', propsIdString);
+    }
+
     // TODO ordentlicher :/
     if (!args.returnGeometry) {
       result = result.replace(
@@ -301,7 +331,7 @@ export class GeneralService {
         dbBuilderParameter.fromStatementParameter,
         dbBuilderParameter.fromStatement,
         top,
-        geo,
+        geo.geometry,
         args,
       );
       result += ' ' + replacedString;
@@ -311,7 +341,7 @@ export class GeneralService {
         dbBuilderParameter.whereStatementParameter,
         dbBuilderParameter.whereStatement,
         top,
-        geo,
+        geo.geometry,
         args,
       );
 
@@ -378,7 +408,7 @@ export class GeneralService {
   async createSelectQueries(
     service: any,
     top: string,
-    geo: GeoGeometryDto,
+    geo: GeoJsonDto,
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<[string, any[]]> {
@@ -398,12 +428,12 @@ export class GeneralService {
    */
   async collectQueries(
     args: ParameterDto,
-    geo: GeoGeometryDto,
+    geo: GeoJsonDto,
     dbBuilderParameter: dbRequestBuilderSample,
     customFunction: (
       service: any,
       top: string,
-      geo: GeoGeometryDto,
+      geo: GeoJsonDto,
       args: ParameterDto,
       dbBuilderParameter: dbRequestBuilderSample,
     ) => Promise<[string, any[]]>,
@@ -430,13 +460,12 @@ export class GeneralService {
 
   prepareDBResponse(
     query: any,
-    // geo: GeoJsonDto,
-    index: number,
     requestParams: ParameterDto,
     result: GeoJsonDto[],
+    map: Map<string, any>,
   ): GeoJsonDto[] {
     const tmpResult = this.dbToGeoJSON(query);
-    // this.addUserInputToResponse(tmpResult, geo, index, requestParams);
+    this.addUserInputToResponse(tmpResult, requestParams, map);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
     return this.setGeoJSONArray(tmpResult, result, requestParams);
   }
@@ -460,7 +489,7 @@ export class GeneralService {
 
     const queryData = await this.collectQueries(
       args,
-      geo.geometry,
+      geo,
       dbBuilderParameter,
       this.createSelectQueries,
     );
@@ -510,7 +539,12 @@ export class GeneralService {
     const queryArray: string[] = [];
 
     const requestParams = this.setRequestParameterForResponse(args);
+    let index = 0;
+    const idParameterMap = new Map<string, any>();
     for await (const geo of geoInput) {
+      const id = this.getAndSetGeoID(geo, index);
+      idParameterMap.set(id, geo.properties);
+      index++;
       // const requestParams: any = this.setRequestParameterForResponse(args, geo);
       const query = await this.generateQuery(geo, args, dbBuilderParameter);
       queryArray.push(query);
@@ -526,10 +560,9 @@ export class GeneralService {
     const dbResult = await this.dataSource.query(queryString);
     result = this.prepareDBResponse(
       dbResult,
-      // geo,
-      0,
       requestParams,
       result,
+      idParameterMap,
     );
     if (!result.length) {
       throw new HttpException(

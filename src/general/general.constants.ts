@@ -40,6 +40,7 @@ export const STANDARD_CRS_STRING = 'EPSG:4326';
 export const DATABASE_CRS = 25833; // TODO in .env
 
 export const GEO_IDENTIFIER = '__geometryIdentifier__';
+export const GEO_PARAMETER = '__geoProperties';
 export const REQUESTPARAMS = '__requestParams';
 
 export const EPSG_REGEX = /\d+$/g;

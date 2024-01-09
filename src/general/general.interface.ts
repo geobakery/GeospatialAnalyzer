@@ -1,4 +1,3 @@
-import { GeoJSON } from 'typeorm';
 import { dbDirection, ReplaceStringType } from './general.constants';
 import { GeoJsonDto } from './dto/geo-json.dto';
 
@@ -16,6 +15,7 @@ export interface ErrorResponse {
 
 export interface DBResponse {
   response: GeoJsonDto;
+  id: string;
 }
 
 export interface QueryAndParameter {
@@ -74,4 +74,10 @@ export interface SupportedTopics {
   within: topicDefinitionOutside[];
   nearestNeighbour: topicDefinitionOutside[];
   valuesAtPoint: topicDefinitionOutside[];
+}
+
+export interface tempResult {
+  result: GeoJsonDto;
+  parameter: any;
+  id: string;
 }
