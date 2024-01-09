@@ -55,9 +55,9 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    const t = this.configService.get<string>('__topicsConfig__');
-    const topicDef = JSON.parse(t);
-    this._setDynamicTopicsConfigurations(topicDef as topicDefinition[]);
+    const t = this.configService.get<topicDefinition[]>('__topicsConfig__');
+    // TODO check if t is valid
+    this._setDynamicTopicsConfigurations(t);
   }
 
   getTopicsInformationForOutsideSpecific(

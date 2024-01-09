@@ -1,0 +1,21 @@
+{
+  "__topicsConfig__": [
+    {
+      "identifier": "my_id", // identifier for end user
+      "title": "User adress", // title for end user
+      "description": "lists the addresses of all user.", // description for end user
+      "__source__": "schmema.table_adress", // database source [not published for end user]
+      "__attributes__": [ // attributes to show for the end user [not published for end user]
+        "title",
+        "name",
+        "adress",
+        "geom"
+      ],
+      "__supports__": [ // supports following methods
+        "intersect",
+        "within",
+        "nearestNeighbour"
+      ]
+    },
+  ]
+}

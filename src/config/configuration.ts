@@ -1,3 +1,5 @@
-export default () => ({
-  __topicsConfig__: JSON.parse(process.env.__topicsConfig__),
-});
+import * as topic from '../../topic.json';
+
+export default () => {
+  return topic as Record<string, any>;
+};

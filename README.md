@@ -5,7 +5,10 @@ You also need `pnpm` as package manager. Check the installation [guide](https://
 You need a database connection, as described in the next section
 
 ## Configuration
-The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default config params.
+The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default config params. 
+
+Additional you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
+The topic.json is added to the `.gitignore` to save your personal data conventions.
 
 ## Database
 You need an accessible database connection for querying the testdata. For the first version, a Postgres (v16) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.   
@@ -68,12 +71,14 @@ a postgres database with postgis and some example data will be available. To com
 ### Prerequisite
 You need an installed and *running* docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
 
-You need to update one line in your `.env` or `.env.dev` file:
+You need to update following lines in your `.env` or `.env.dev` file:
 ```bash
 db_postgres_host: db
 db_postgres_password: geobakery
 ```
 This will asure that the database is taken from the docker network and not from your computer. By default, the name of the service becomes the hostname/address of the container within the Docker network.
+
+Assure that, you have created a `topic.json` file. Have a look at [Configuration](#configuration) for details
 
 ### Run
 Then just run:

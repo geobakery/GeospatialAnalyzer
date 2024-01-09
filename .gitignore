@@ -39,3 +39,4 @@ lerna-debug.log*
 .env.local.dev
 .env.docker.dev
 .env.test
+topic.json
