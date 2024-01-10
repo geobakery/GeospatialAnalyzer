@@ -15,7 +15,15 @@ You need an accessible database connection for querying the testdata. For the fi
 The database itself can be set up by three different approaches:
 * Set up a database by your own. Follow one of Step-By-Step tutorials for the initial configuration. 
   * Please ensure that the database is accessible by your host. Do not forget to add needed params to the `postgresql.conf` and `pg_hba.conf`
-  * Use psql, pgadmin or any other PostgreSQL client for importing the testdata data dump.
+  * Do also not forget to install the PostGIS extension:
+    ```
+    create extension postgis;
+    ```
+    And if you have problems with missing type 'raster':
+     ```
+    create extension postgis_raster;
+    ```
+  * Use psql, pg_restore, pgadmin or any other PostgreSQL client for importing the testdata data dump.
 * You can also check the [installation guide](/documentation/postgresql-without-install.md) for setting up and PostgreSQL instance for missing administrator rights. Guide provides an easy step-by-step instructions for setting up the needed environment.
 * Use the provided docker environment, which will create the needed database + extension + testdata automatically.
 
