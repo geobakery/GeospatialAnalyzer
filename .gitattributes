@@ -2,4 +2,4 @@
 /sql/psql.sh text eol=lf
 
 #ensure that data dump is not modified by git
-sql/data binary
+/sql/data binary
