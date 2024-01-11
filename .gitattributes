@@ -1,0 +1,5 @@
+#ensure that needed psql.sh script (which is used within the docker container (which is based on unix system)) is correctly set tp LF
+/sql/psql.sh text eol=lf
+
+#ensure that data dump is not modified by git
+sql/data binary
