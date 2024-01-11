@@ -251,7 +251,7 @@ export class GeneralService {
    */
   setRequestParameterForResponse(args: ParameterDto): any {
     return {
-      topics: args.topics,
+      timeout: args.timeout,
       outputFormat: args.outputFormat,
       outSRS: args.outSRS,
       returnGeometry: args.returnGeometry,
@@ -315,7 +315,8 @@ export class GeneralService {
     if (geo.type === 'Feature') {
       const props = geo.properties;
       const propsId = props[GEO_IDENTIFIER];
-      const propsIdString = "SELECT '" + propsId + "' as id, ";
+      const propsIdString =
+        "SELECT '" + propsId + "' as id, '" + top + "' as topic, ";
       result = result.replace('SELECT', propsIdString);
     }
 
@@ -394,6 +395,7 @@ export class GeneralService {
               attr += ',' + a;
             });
           }
+          attr += ',' + "'" + top + "' as __topic";
           replacedString = replacedString.replace(key, attr);
           break;
         }
