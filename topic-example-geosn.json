@@ -8,8 +8,7 @@
       "__attributes__": [
         "id00",
         "name",
-        "bundesland",
-        "geom"
+        "bundesland"
       ],
       "__supports__": [
         "intersect",
