@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import {
   dbRequestBuilderSample,
   DBResponse,
+  GeneralResponse,
   QueryAndParameter,
   SupportedTopics,
   tempResult,
@@ -515,7 +516,35 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * Prepares User input and send it to helper functions
+   * Function can be used to call/execute plain sql statements
+   */
+  async executePlainDatabaseQuery(
+    dbBuilderParameter: dbRequestBuilderSample,
+  ): Promise<GeneralResponse> {
+    let queryString = '';
+    if (dbBuilderParameter.selectStatement) {
+      queryString += dbBuilderParameter.selectStatement;
+    }
+    if (dbBuilderParameter?.whereStatement) {
+      queryString += dbBuilderParameter.whereStatement;
+    }
+    if (dbBuilderParameter?.fromStatement) {
+      queryString += dbBuilderParameter.fromStatement;
+    }
+    const dbResult = await this.dataSource.query(queryString);
+    if (!dbResult.length) {
+      throw new HttpException(
+        'Error: Query can not be executed ',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return { response: dbResult } as GeneralResponse;
+  }
+
+  /**
+   * Explanation:
+   * Function which prepares the user's input for the actual database query and which return the actual result
+   * This function is used as the wrapper for all geometry-like interfaces
    */
   async calculateMethode(
     args: ParameterDto,

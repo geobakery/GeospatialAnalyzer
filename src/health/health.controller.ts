@@ -1,6 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { HealthService } from './health.service';
 import { ApiResponse } from '@nestjs/swagger';
+import { ErrorResponse, GeneralResponse } from '../general/general.interface';
 
 @Controller({
   version: '1',
@@ -13,10 +20,16 @@ export class HealthController {
     status: 200,
     description: 'Simple health check',
     type: String,
-    isArray: true,
+    isArray: false,
   })
+  @HttpCode(200)
   @Get('health')
-  getHealth(): string[] {
-    return this.healthService.getHealth();
+  async getHealth(): Promise<GeneralResponse | ErrorResponse | any[]> {
+    try {
+      return await this.healthService.getCurrentHealth();
+    } catch (e) {
+      //just an example error
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
