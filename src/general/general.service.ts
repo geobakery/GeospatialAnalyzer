@@ -514,6 +514,10 @@ export class GeneralService {
     return '(' + queries.join(') UNION ALL (') + ')';
   }
 
+  /**
+   * Explanation:
+   * Function can be used to call/execute plain sql statements
+   */
   async executePlainDatabaseQuery(
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeneralResponse> {
@@ -539,7 +543,8 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * Prepares User input and send it to helper functions
+   * Function which prepares the user's input for the actual database query and which return the actual result
+   * This function is used as the wrapper for all geometry-like interfaces
    */
   async calculateMethode(
     args: ParameterDto,
