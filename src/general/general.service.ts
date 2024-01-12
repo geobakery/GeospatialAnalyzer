@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import {
   dbRequestBuilderSample,
   DBResponse,
+  GeneralResponse,
   QueryAndParameter,
   SupportedTopics,
   tempResult,
@@ -511,6 +512,29 @@ export class GeneralService {
     });
     // Join all your queries into a single SQL string
     return '(' + queries.join(') UNION ALL (') + ')';
+  }
+
+  async executePlainDatabaseQuery(
+    dbBuilderParameter: dbRequestBuilderSample,
+  ): Promise<GeneralResponse> {
+    let queryString = '';
+    if (dbBuilderParameter.selectStatement) {
+      queryString += dbBuilderParameter.selectStatement;
+    }
+    if (dbBuilderParameter?.whereStatement) {
+      queryString += dbBuilderParameter.whereStatement;
+    }
+    if (dbBuilderParameter?.fromStatement) {
+      queryString += dbBuilderParameter.fromStatement;
+    }
+    const dbResult = await this.dataSource.query(queryString);
+    if (!dbResult.length) {
+      throw new HttpException(
+        'Error: Query can not be executed ',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return { response: dbResult } as GeneralResponse;
   }
 
   /**

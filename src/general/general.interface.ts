@@ -1,6 +1,9 @@
 import { dbDirection, ReplaceStringType } from './general.constants';
 import { GeoJsonDto } from './dto/geo-json.dto';
 
+export interface GeneralResponse {
+  response: string;
+}
 export interface Geometry {}
 export interface EsriGeometry {}
 export interface EsriJSON {
