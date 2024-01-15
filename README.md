@@ -11,7 +11,7 @@ Additional you need to create a `topic.json` file to set your specific topic dat
 The topic.json is added to the `.gitignore` to save your personal data conventions.
 
 ## Database
-You need an accessible database connection for querying the testdata. For the first version, a Postgres (v16) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.   
+You need an accessible database connection for querying the testdata. For the first version, a Postgres (v15) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.   
 The database itself can be set up by three different approaches:
 * Set up a database by your own. Follow one of Step-By-Step tutorials for the initial configuration. 
   * Please ensure that the database is accessible by your host. Do not forget to add needed params to the `postgresql.conf` and `pg_hba.conf`
@@ -141,7 +141,7 @@ To add your local docker database :
 
 run:
 ```bash
-pnpm run start:dev
+pnpm run start:debug
 ```
 
 You will see following lines in your IDE:
@@ -150,7 +150,7 @@ Debug start: \
 <img src="documentation/images/debug_start.png" alt="Debug start"/>
 
 You can connect to the given address (e.g.: ws://127.0.0.1:9229/xxx-xxx-xxx) with a debugger of your choice. 
-On most IDE's a click on the address will start a debugger automatically. H
+On most IDE's a click on the address will start a debugger automatically.
 
 Debug view in IDE: \
 <img src="documentation/images/debug_view_ide.png" alt="Debug view"/>
