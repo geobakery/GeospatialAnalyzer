@@ -27,6 +27,7 @@ import configuration from './config/configuration';
       username: process.env.db_postgres_username,
       password: process.env.db_postgres_password,
       database: process.env.db_postgres_database,
+      connectTimeoutMS: 10000,
       synchronize: JSON.parse(process.env.db_postgres_synchronize),
       logging: JSON.parse(process.env.db_postgres_logging),
       subscribers: [],
