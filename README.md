@@ -95,7 +95,7 @@ docker compose up
 ```
 
 3 container (Nest, Postgres, PgAdmin4) will be created. \
-Navigate to [http://localhost:3000](localhost:3000) to check out the "Hello World" greeting.\
+Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.\
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 
@@ -114,7 +114,7 @@ docker compose up --build
 ```bash
 /bin/bash^M: bad interpreter: No such file or directory
 ```
-check the corresponding file, e.g. `psql.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
+check the corresponding file, e.g. `pg_restore.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
 a linux system. Specially for the database, other line ending can lead to execution errors :)
 
 ## PgAdmin4
