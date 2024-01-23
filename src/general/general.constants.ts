@@ -55,4 +55,6 @@ export enum ReplaceStringType {
   COUNT,
   GEOMETRY,
   ATTRIBUTE,
+  MULTIPLE_TABLES,
+  MULTIPLE_SOURCE_RAST_DATA,
 }

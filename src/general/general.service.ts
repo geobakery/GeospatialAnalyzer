@@ -3,6 +3,7 @@ import {
   dbRequestBuilderSample,
   DBResponse,
   GeneralResponse,
+  multipleSource,
   QueryAndParameter,
   SupportedTopics,
   tempResult,
@@ -37,8 +38,15 @@ import { TransformGeoToEsriDto } from './dto/transform-geo-to-esri.dto';
 @Injectable()
 export class GeneralService {
   topicsArray: string[] = [];
-  topicsDatabaseName: Map<string, string> = new Map<string, string>();
-  topicsDatabaseAttributes: Map<string, string[]> = new Map<string, string[]>();
+  identifierSourceMap: Map<string, string> = new Map<string, string>();
+  identifierAllowedAttributesMap: Map<string, string[]> = new Map<
+    string,
+    string[]
+  >();
+  identifierMultipleSourcesMap: Map<string, multipleSource[]> = new Map<
+    string,
+    multipleSource[]
+  >();
   methodeTopicSupport: SupportedTopics = {
     intersect: [],
     within: [],
@@ -93,11 +101,17 @@ export class GeneralService {
         description: t.description,
       } as topicDefinitionOutside;
 
-      this.topicsDatabaseName.set(t.identifier, t.__source__);
+      this.identifierSourceMap.set(t.identifier, t.__source__);
       if (t.__attributes__) {
-        this.topicsDatabaseAttributes.set(t.identifier, t.__attributes__);
+        this.identifierAllowedAttributesMap.set(t.identifier, t.__attributes__);
       } else {
-        this.topicsDatabaseAttributes.set(t.identifier, ['*']);
+        this.identifierAllowedAttributesMap.set(t.identifier, ['*']);
+      }
+      if (t.__multipleSources__) {
+        this.identifierMultipleSourcesMap.set(
+          t.identifier,
+          t.__multipleSources__,
+        );
       }
 
       Object.entries(this.methodeTopicSupport).forEach(([key, value]) => {
@@ -290,8 +304,12 @@ export class GeneralService {
     return resultArray;
   }
 
-  getDBName(top: string): string {
-    return this.topicsDatabaseName.get(top);
+  getDBNameForIdentifier(top: string): string {
+    return this.identifierSourceMap.get(top);
+  }
+
+  getMultipleDBNamesForIdentifier(top: string): multipleSource[] {
+    return this.identifierMultipleSourcesMap.get(top);
   }
 
   /**
@@ -369,10 +387,11 @@ export class GeneralService {
     }
 
     let replacedString = parameterString;
+    const sources = this.getMultipleDBNamesForIdentifier(top);
     statementParameter.forEach((value, key) => {
       switch (value) {
         case ReplaceStringType.TABLE: {
-          const table = this.getDBName(top);
+          const table = this.getDBNameForIdentifier(top);
           replacedString = replacedString.replace(key, table);
           break;
         }
@@ -390,13 +409,47 @@ export class GeneralService {
         }
         case ReplaceStringType.ATTRIBUTE: {
           let attr = 'ST_Transform(geom,' + STANDARD_CRS + ') as geom';
-          const topicAttributes = this.topicsDatabaseAttributes.get(top);
+          const topicAttributes = this.identifierAllowedAttributesMap.get(top);
           if (topicAttributes.length) {
             topicAttributes.forEach((a) => {
               attr += ',' + a;
             });
           }
           attr += ',' + "'" + top + "' as __topic";
+          replacedString = replacedString.replace(key, attr);
+          break;
+        }
+        case ReplaceStringType.MULTIPLE_TABLES: {
+          let attr = '';
+          if (sources && sources.length) {
+            sources.forEach((s) => {
+              attr += s.source + ',';
+            });
+            attr = attr.slice(0, -1); // remove last comma
+          }
+          replacedString = replacedString.replace(key, attr);
+          break;
+        }
+        case ReplaceStringType.MULTIPLE_SOURCE_RAST_DATA: {
+          let attr = '';
+          if (sources && sources.length) {
+            const geoString = this._buildGeometry(geo);
+            sources.forEach((s) => {
+              attr +=
+                'ST_VALUE(ST_Transform(' +
+                s.source +
+                '.rast,' +
+                STANDARD_CRS +
+                "), '" +
+                geoString +
+                "'::geometry) as " +
+                s.name +
+                ',';
+            });
+            attr = attr.slice(0, -1); // remove last comma
+          }
+          // "ST_VALUE(ST_Transform(hr.rast,4326), 'SRID=4326;POINT (13.6645492 51.0639403)'::geometry) as __height_r,\n" +
+          //   "ST_VALUE(ST_Transform(dom.rast,4326), 'SRID=4326;POINT (13.6645492 51.0639403)'::geometry) as __height_dom_r";
           replacedString = replacedString.replace(key, attr);
           break;
         }

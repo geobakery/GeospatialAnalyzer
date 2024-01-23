@@ -15,9 +15,7 @@ const VALUE_SELECT_CLAUSE =
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   ') as response';
 const VALUE_FROM_CLAUSE =
-  "FROM ( SELECT ('SRID=4326;POINT (0 0)'::geometry) as geom, ST_VALUE(ST_Transform(rast," +
-  STANDARD_CRS +
-  "), '__a'::geometry) as __height\n" +
+  "FROM ( SELECT ('SRID=4326;POINT (0 0)'::geometry) as geom, __c" +
   '        FROM __b  ) as customFromSelect';
 
 @Injectable()
@@ -41,7 +39,8 @@ export class ValuesAtPointService {
       fromStatement: VALUE_FROM_CLAUSE,
       fromStatementParameter: new Map<string, ReplaceStringType>([
         ['__a', ReplaceStringType.GEOMETRY],
-        ['__b', ReplaceStringType.TABLE],
+        ['__b', ReplaceStringType.MULTIPLE_TABLES],
+        ['__c', ReplaceStringType.MULTIPLE_SOURCE_RAST_DATA],
       ]),
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);

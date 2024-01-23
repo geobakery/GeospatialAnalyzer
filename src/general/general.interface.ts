@@ -63,6 +63,7 @@ export interface topicDefinition {
   __source__: string;
   __attributes__?: string[];
   __supports__?: string[];
+  __multipleSources__?: multipleSource[];
 }
 
 export interface topicDefinitionOutside {
@@ -83,4 +84,9 @@ export interface tempResult {
   result: GeoJsonDto;
   parameter: any;
   id: string;
+}
+
+export interface multipleSource {
+  source: string;
+  name: string;
 }
