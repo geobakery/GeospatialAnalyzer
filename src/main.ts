@@ -39,12 +39,25 @@ async function checkTopic(): Promise<void> {
 
   const exist = await fileExists(join(__dirname, './../topic.json'));
   if (!exist) {
-    console.error(
-      'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file.',
+    console.warn(
+      'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file. A default one will be added.',
     );
-    process.exit(1);
+    await copyTopic(__dirname);
   }
   return;
+}
+
+async function copyTopic(dirPath: string): Promise<void> {
+  fs.copyFile(
+    join(dirPath, './../topic-example-geosn.json'),
+    join(dirPath, './../topic.json'),
+    (err) => {
+      if (err) {
+        console.log('Error Found:', err);
+        process.exit(1);
+      }
+    },
+  );
 }
 
 bootstrap();
