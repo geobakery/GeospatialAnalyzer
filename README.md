@@ -100,9 +100,9 @@ Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hell
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 
 ### Troubleshooting
-If you update your `package.json`, change your docker files, have down changes to your database, or other problems that lead to a problematic
+If you update your `package.json`, change your docker files, or other problems that lead to a problematic
 start of your docker container; do following: \
-(<b> Beware this will delete all your database data </b>)
+(<b> Beware this will delete all manuell added database data </b>)
 
 ```bash
 docker compose down -v
@@ -116,6 +116,17 @@ docker compose up --build
 ```
 check the corresponding file, e.g. `pg_restore.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
 a linux system. Specially for the database, other line ending can lead to execution errors :)
+
+---
+`ERROR [TypeOrmModule] Unable to connect to the database. Retrying (1)...`
+
+Assure that you have edited your `.env` files. These files are synchronised, but are only read at the start of the application.
+Therefore, you need to restart the container with `docker compose up`.
+
+Depending on the size of your database, the data restore can take way longer than the retry time of the application.
+Wait for  `LOG:  database system is ready to accept connections` from the database, then stop all container and restart with
+`docker compose up`.
+
 
 ## PgAdmin4
 Navigate to [http://localhost:5050](localhost:5050) to check out PgAdmin4.

@@ -35,6 +35,9 @@ services:
       - db
     volumes:
       - ./src:/app/src
+      - ./topic.json:/app/topic.json
+      - ./.env:/app/.env
+      - ./.env.dev:/app/.env.dev
 
   pgadmin:
     image: dpage/pgadmin4
