@@ -59,6 +59,8 @@ Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hell
 
 Navigate to [http://localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
 
+Navigate to [http://localhost:3000/api](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
+
 ## Test
 
 ```bash
