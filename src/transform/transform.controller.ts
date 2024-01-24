@@ -31,7 +31,8 @@ export class TransformController {
     status: 200,
     description:
       'Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code',
-    type: [EsriJsonDto],
+    type: EsriJsonDto,
+    isArray: true,
   })
   @HttpCode(200)
   @Post('transformGeoJSONToEsriJSON')
@@ -50,7 +51,8 @@ export class TransformController {
     status: 200,
     description:
       'Convert the geometries from EsriJSON with the provided EPSG code to GeoJSON (EPSG:4326)',
-    type: String,
+    type: GeoJsonDto,
+    isArray: true,
   })
   @HttpCode(200)
   @Post('transformEsriJSONToGeoJSON')

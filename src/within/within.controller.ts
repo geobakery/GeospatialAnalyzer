@@ -17,6 +17,7 @@ import {
   topicDefinitionOutside,
 } from '../general/general.interface';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 
 @Controller({
   version: '1',
@@ -28,7 +29,7 @@ export class WithinController {
   @ApiResponse({
     status: 200,
     description: 'Shows all attributes and parameters available ',
-    type: String,
+    type: TopicDefinitonOutsideDto,
     isArray: true,
   })
   @Get('within/topics')
@@ -39,7 +40,7 @@ export class WithinController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the within',
-    type: [GeoJsonDto],
+    type: GeoJsonDto,
     isArray: true,
   })
   @HttpCode(200)

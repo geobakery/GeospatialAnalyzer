@@ -29,13 +29,7 @@ export class ParameterDto {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [411967, 5659861],
-          crs: {
-            type: 'name',
-            properties: {
-              name: 'EPSG:25833',
-            },
-          },
+          coordinates: [13.6645492, 51.0639403],
         },
         properties: {
           name: 'test_name',
@@ -56,11 +50,7 @@ export class ParameterDto {
   @IsEnum(outputFormatEnum)
   outputFormat: string;
 
-  @ApiProperty({
-    example: true,
-    description: '',
-  })
-  @ApiProperty()
+  @ApiProperty({ example: false })
   @IsOptional()
   returnGeometry: boolean;
 
@@ -83,7 +73,9 @@ export class ParameterDto {
     example: 4326,
     description: '',
   })
-  @ApiProperty()
+  @ApiProperty({
+    example: '4326',
+  })
   @IsOptional()
   outSRS: string;
 
