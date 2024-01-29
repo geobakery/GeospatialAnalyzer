@@ -54,6 +54,8 @@ export interface dbRequestBuilderSample {
   count?: number;
   orderBy?: string;
   orderByDirection?: dbDirection;
+  attachments?: Map<string, string>;
+  mockGeometry?: boolean;
 }
 
 export interface topicDefinition {

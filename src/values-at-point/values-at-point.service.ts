@@ -5,7 +5,7 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
+import { ReplaceStringType } from '../general/general.constants';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 
@@ -14,9 +14,13 @@ const VALUE_SELECT_CLAUSE =
   "    'type', 'FeatureCollection',\n" +
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   ') as response';
-const VALUE_FROM_CLAUSE =
-  "FROM ( SELECT ('SRID=4326;POINT (0 0)'::geometry) as geom, __c" +
-  '        FROM __b  ) as customFromSelect';
+
+const VALUE_FROM_CLAUSE = 'FROM ( __d__ ) as customFromSelect'; // TODO
+const SELECT_LOOP =
+  'SELECT __a__ \n' + // attribute
+  'ST_VALUE(__hr.rast, __b__) as __height\n' + //geometry
+  'FROM __c__ __hr\n' + // table
+  'WHERE ST_INTERSECTS(__b__, __hr.rast)'; // geometry
 
 @Injectable()
 export class ValuesAtPointService {
@@ -38,10 +42,13 @@ export class ValuesAtPointService {
       from: true,
       fromStatement: VALUE_FROM_CLAUSE,
       fromStatementParameter: new Map<string, ReplaceStringType>([
-        ['__a', ReplaceStringType.GEOMETRY],
-        ['__b', ReplaceStringType.MULTIPLE_TABLES],
-        ['__c', ReplaceStringType.MULTIPLE_SOURCE_RAST_DATA],
+        ['__a__', ReplaceStringType.ATTRIBUTE],
+        ['__b__', ReplaceStringType.GEOMETRY],
+        ['__c__', ReplaceStringType.TABLE],
+        ['__d__', ReplaceStringType.LOOP],
       ]),
+      attachments: new Map<string, string>([['__d__', SELECT_LOOP]]),
+      mockGeometry: true,
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);
   }

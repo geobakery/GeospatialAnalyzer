@@ -15,6 +15,7 @@ import {
   ESRIJSON_PARAMETER,
   GEO_IDENTIFIER,
   GEO_PARAMETER,
+  GEOJSON_PARAMETER,
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
@@ -53,6 +54,7 @@ export class GeneralService {
     nearestNeighbour: [],
     valuesAtPoint: [],
   };
+  database_srid = 0;
   constructor(
     @InjectDataSource()
     private dataSource: DataSource,
@@ -64,9 +66,16 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
+    if (process.env.geospatial_analyzer_srid) {
+      this.database_srid = Number(process.env.geospatial_analyzer_srid);
+    }
     const t = this.configService.get<topicDefinition[]>('__topicsConfig__');
     // TODO check if t is valid
     this._setDynamicTopicsConfigurations(t);
+  }
+
+  getOriginalDatabaseSRID() {
+    return this.database_srid;
   }
 
   getTopicsInformationForOutsideSpecific(
@@ -190,9 +199,13 @@ export class GeneralService {
    * transform the geometry to the needed postgis formate
    * e.g.:'SRID=4326;POINT(411967 5659861)'::geometry
    */
-  _buildGeometry(geo: GeoGeometryDto): string {
+  _buildGeometry(geo: GeoGeometryDto, srid = STANDARD_SRID): string {
     const coordinates = geojsonToWKT(geo);
-    return STANDARD_SRID + coordinates;
+    return srid + coordinates;
+  }
+
+  getCustomSRIDString(crs: number) {
+    return 'SRID=' + crs + ';';
   }
 
   /**
@@ -291,6 +304,17 @@ export class GeneralService {
           epsg: parameter.outSRS || STANDARD_CRS,
         } as TransformGeoToEsriDto);
       }
+    } else if (parameter.outputFormat === GEOJSON_PARAMETER) {
+      if (result.length) {
+        const resultMapTemp =
+          this.transformService.returnGeoJSONArrayAsType(resultMap); // TODO Featurecollection
+        if (resultMapTemp) {
+          resultElement =
+            this.transformService.transformIncorrectCRSGeoJsonArray(
+              resultMapTemp,
+            );
+        }
+      }
     }
     if (!resultArray.length) {
       resultArray = resultElement;
@@ -350,9 +374,11 @@ export class GeneralService {
       const replacedString = this._replaceHelper(
         dbBuilderParameter.fromStatementParameter,
         dbBuilderParameter.fromStatement,
+        dbBuilderParameter.attachments,
         top,
         geo.geometry,
         args,
+        dbBuilderParameter.mockGeometry,
       );
       result += ' ' + replacedString;
     }
@@ -360,9 +386,11 @@ export class GeneralService {
       const replacedString = this._replaceHelper(
         dbBuilderParameter.whereStatementParameter,
         dbBuilderParameter.whereStatement,
+        dbBuilderParameter.attachments,
         top,
         geo.geometry,
         args,
+        dbBuilderParameter.mockGeometry,
       );
 
       result += ' ' + replacedString;
@@ -378,37 +406,62 @@ export class GeneralService {
   _replaceHelper(
     statementParameter: Map<string, ReplaceStringType>,
     parameterString: string,
+    attachments: Map<string, string>,
     top: string,
     geo: GeoGeometryDto,
     args: ParameterDto,
+    addMockgeometry: boolean = false,
+    optionalIndex: number = -1,
   ): string {
     if (!statementParameter.size) {
       return '';
     }
+    const iterationWithLoop = !!attachments;
 
     let replacedString = parameterString;
     const sources = this.getMultipleDBNamesForIdentifier(top);
     statementParameter.forEach((value, key) => {
       switch (value) {
         case ReplaceStringType.TABLE: {
-          const table = this.getDBNameForIdentifier(top);
-          replacedString = replacedString.replace(key, table);
+          if (iterationWithLoop) {
+            break;
+          }
+          let table = '';
+          if (sources && sources.length && optionalIndex >= 0) {
+            table = sources[optionalIndex].source;
+          } else {
+            table = this.getDBNameForIdentifier(top);
+          }
+          replacedString = replacedString.replaceAll(key, table);
           break;
         }
         case ReplaceStringType.GEOMETRY: {
+          if (iterationWithLoop) {
+            break;
+          }
           const geoString = this._buildGeometry(geo);
-          replacedString = replacedString.replace(key, geoString);
+          const geoStringComplete =
+            "ST_Transform('" + geoString + "'::geometry, 25833)"; // TODO
+          replacedString = replacedString.replaceAll(key, geoStringComplete);
           break;
         }
         case ReplaceStringType.COUNT: {
+          if (iterationWithLoop) {
+            break;
+          }
           if (args.count) {
             const countElement = String(args.count);
-            replacedString = replacedString.replace(key, countElement);
+            replacedString = replacedString.replaceAll(key, countElement);
           }
           break;
         }
         case ReplaceStringType.ATTRIBUTE: {
-          let attr = 'ST_Transform(geom,' + STANDARD_CRS + ') as geom';
+          if (iterationWithLoop) {
+            break;
+          }
+          let attr = addMockgeometry
+            ? "('SRID=25833;POINT (0 0)'::geometry) as geom"
+            : 'geom'; //TODO
           const topicAttributes = this.identifierAllowedAttributesMap.get(top);
           if (topicAttributes.length) {
             topicAttributes.forEach((a) => {
@@ -416,41 +469,38 @@ export class GeneralService {
             });
           }
           attr += ',' + "'" + top + "' as __topic";
-          replacedString = replacedString.replace(key, attr);
+
+          if (sources && sources.length && optionalIndex >= 0) {
+            attr += ", '" + sources[optionalIndex].name + "' as __name,";
+          }
+
+          replacedString = replacedString.replaceAll(key, attr);
           break;
         }
-        case ReplaceStringType.MULTIPLE_TABLES: {
+        case ReplaceStringType.LOOP: {
+          const attachment = attachments?.get(key);
           let attr = '';
+          statementParameter.delete(key); // no nested loop allowed
           if (sources && sources.length) {
-            sources.forEach((s) => {
-              attr += s.source + ',';
+            sources.forEach((s, index) => {
+              const loopPart = this._replaceHelper(
+                statementParameter,
+                attachment,
+                null,
+                top,
+                geo,
+                args,
+                addMockgeometry,
+                index,
+              );
+              if (attr) {
+                attr += ' UNION ALL ' + loopPart;
+              } else {
+                attr = loopPart;
+              }
             });
-            attr = attr.slice(0, -1); // remove last comma
           }
-          replacedString = replacedString.replace(key, attr);
-          break;
-        }
-        case ReplaceStringType.MULTIPLE_SOURCE_RAST_DATA: {
-          let attr = '';
-          if (sources && sources.length) {
-            const geoString = this._buildGeometry(geo);
-            sources.forEach((s) => {
-              attr +=
-                'ST_VALUE(ST_Transform(' +
-                s.source +
-                '.rast,' +
-                STANDARD_CRS +
-                "), '" +
-                geoString +
-                "'::geometry) as " +
-                s.name +
-                ',';
-            });
-            attr = attr.slice(0, -1); // remove last comma
-          }
-          // "ST_VALUE(ST_Transform(hr.rast,4326), 'SRID=4326;POINT (13.6645492 51.0639403)'::geometry) as __height_r,\n" +
-          //   "ST_VALUE(ST_Transform(dom.rast,4326), 'SRID=4326;POINT (13.6645492 51.0639403)'::geometry) as __height_dom_r";
-          replacedString = replacedString.replace(key, attr);
+          replacedString = replacedString.replaceAll(key, attr);
           break;
         }
       }
@@ -629,7 +679,6 @@ export class GeneralService {
       const id = this.getAndSetGeoID(geo, index);
       idParameterMap.set(id, geo.properties);
       index++;
-      // const requestParams: any = this.setRequestParameterForResponse(args, geo);
       const query = await this.generateQuery(geo, args, dbBuilderParameter);
       queryArray.push(query);
     }

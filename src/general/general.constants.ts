@@ -37,7 +37,6 @@ export const STANDARD_CRS = 4326;
 export const STANDARD_EPSG = 'EPSG:';
 export const STANDARD_SRID = 'SRID=' + STANDARD_CRS + ';';
 export const STANDARD_CRS_STRING = 'EPSG:4326';
-export const DATABASE_CRS = 25833; // TODO in .env
 
 export const GEO_IDENTIFIER = '__geometryIdentifier__';
 export const GEO_PARAMETER = '__geoProperties';
@@ -55,6 +54,5 @@ export enum ReplaceStringType {
   COUNT,
   GEOMETRY,
   ATTRIBUTE,
-  MULTIPLE_TABLES,
-  MULTIPLE_SOURCE_RAST_DATA,
+  LOOP, // no nested loop allowed
 }

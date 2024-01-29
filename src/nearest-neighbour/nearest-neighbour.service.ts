@@ -5,11 +5,7 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import {
-  dbDirection,
-  ReplaceStringType,
-  STANDARD_CRS,
-} from '../general/general.constants';
+import { dbDirection, ReplaceStringType } from '../general/general.constants';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
@@ -19,12 +15,10 @@ const NEIGHBOUR_SELECT_CLAUSE =
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   ') as response';
 const NEIGHBOUR_FROM_CLAUSE =
-  'FROM ( SELECT __d, ST_Distance(\'__a\'::geometry, ST_Transform("customFrom".geom,' +
-  STANDARD_CRS +
-  ')) as __dist\n' +
-  '        FROM __b "customFrom"\n' +
+  'FROM ( SELECT __d__, ST_Distance(__a__, "customFrom".geom) as __dist\n' +
+  '        FROM __b__ "customFrom"\n' +
   '        ORDER BY __dist asc ' +
-  'LIMIT __c) as customFromSelect';
+  'LIMIT __c__) as customFromSelect';
 @Injectable()
 export class NearestNeighbourService {
   constructor(private generalService: GeneralService) {}
@@ -47,10 +41,10 @@ export class NearestNeighbourService {
       from: true,
       fromStatement: NEIGHBOUR_FROM_CLAUSE,
       fromStatementParameter: new Map<string, ReplaceStringType>([
-        ['__a', ReplaceStringType.GEOMETRY],
-        ['__b', ReplaceStringType.TABLE],
-        ['__c', ReplaceStringType.COUNT],
-        ['__d', ReplaceStringType.ATTRIBUTE],
+        ['__a__', ReplaceStringType.GEOMETRY],
+        ['__b__', ReplaceStringType.TABLE],
+        ['__c__', ReplaceStringType.COUNT],
+        ['__d__', ReplaceStringType.ATTRIBUTE],
       ]),
       count: args.count,
       orderBy: 'dist',

@@ -5,15 +5,13 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { ReplaceStringType, STANDARD_CRS } from '../general/general.constants';
+import { ReplaceStringType } from '../general/general.constants';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 
 const INTERSECT_WHERE_CLAUSE =
-  'WHERE ST_intersects(ST_Transform(customFromSelect.geom,' +
-  STANDARD_CRS +
-  "), '__c'::geometry)";
-const INTERSECT_FROM = 'FROM (SELECT __b FROM __a ) AS customFromSelect';
+  'WHERE ST_intersects(customFromSelect.geom, __c__)';
+const INTERSECT_FROM = 'FROM (SELECT __b__ FROM __a__ ) AS customFromSelect';
 
 @Injectable()
 export class IntersectService {
@@ -33,12 +31,12 @@ export class IntersectService {
       where: true,
       whereStatement: INTERSECT_WHERE_CLAUSE,
       whereStatementParameter: new Map<string, ReplaceStringType>([
-        ['__c', ReplaceStringType.GEOMETRY],
+        ['__c__', ReplaceStringType.GEOMETRY],
       ]),
       fromStatement: INTERSECT_FROM,
       fromStatementParameter: new Map<string, ReplaceStringType>([
-        ['__a', ReplaceStringType.TABLE],
-        ['__b', ReplaceStringType.ATTRIBUTE],
+        ['__a__', ReplaceStringType.TABLE],
+        ['__b__', ReplaceStringType.ATTRIBUTE],
       ]),
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);

@@ -12,6 +12,8 @@ import {
 } from '../general/general.constants';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
 import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
+import { EsriGeometry } from '../general/general.interface';
+import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
 
 @Injectable()
 export class TransformService {
@@ -24,11 +26,20 @@ export class TransformService {
       if (geoJSON.features && geoJSON.features.length) {
         geoJSON.features.forEach((geo) => {
           try {
-            this.transformCoordinates(
-              geo.geometry.coordinates,
-              STANDARD_CRS_STRING,
-              epsgString,
-            );
+            const geoElement = geo.geometry as any;
+            if (geoElement) {
+              const currentCRS = geoElement?.crs?.properties?.name
+                ? geoElement?.crs?.properties?.name
+                : STANDARD_CRS;
+              if (STANDARD_CRS != currentCRS) {
+                this.checkCRS(currentCRS);
+              }
+              this.transformCoordinates(
+                geo.geometry.coordinates,
+                currentCRS,
+                epsgString,
+              );
+            }
           } catch (e) {
             throw new HttpException(
               'Coordinates are not valid',
@@ -55,7 +66,25 @@ export class TransformService {
         const esriJson: EsriJsonDto[] = geojsonToArcGIS(geoJSON);
         if (esriJson.length) {
           esriJson.forEach((e) => {
-            e.geometry.spatialReference.wkid = args.epsg;
+            if (e.geometry?.spatialReference?.wkid) {
+              e.geometry.spatialReference.wkid = args.epsg;
+            } else {
+              // TODO clean code
+              if (!e.geometry) {
+                e.geometry = {
+                  spatialReference: {
+                    wkid: args.epsg,
+                  },
+                } as EsriGeometryDto;
+              }
+              if (!e.geometry.spatialReference) {
+                e.geometry = {
+                  spatialReference: {
+                    wkid: args.epsg,
+                  },
+                } as EsriGeometryDto;
+              }
+            }
             esriJsonArray.push(e);
           });
         }
@@ -79,6 +108,45 @@ export class TransformService {
       );
     }
     return true;
+  }
+
+  transformIncorrectCRSGeoJsonArray(array: GeoJsonDto[]): GeoJsonDto[] {
+    return array.map((geo) => this._transformIncorrectCRSGeoJson(geo));
+  }
+  _transformIncorrectCRSGeoJson(geo: GeoJsonDto) {
+    if (geo.features) {
+      geo.features = geo.features.map((feature) =>
+        this._transformSingleGeoJsonFeature(feature),
+      );
+      return geo;
+    } else {
+      return this._transformSingleGeoJsonFeature(geo);
+    }
+  }
+
+  private _transformSingleGeoJsonFeature(geo: GeoJsonDto): GeoJsonDto {
+    const geometry = geo.geometry as any;
+    if (geometry?.crs) {
+      const crs = geometry.crs.properties?.name;
+      if (crs) {
+        try {
+          this.checkCRS(crs);
+
+          this.transformCoordinates(
+            geo.geometry.coordinates,
+            crs,
+            STANDARD_CRS_STRING,
+          );
+        } catch (e) {
+          throw new HttpException(
+            'Coordinates are not valid',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      }
+      delete geometry.crs;
+    }
+    return geo;
   }
 
   convertEsriJSONToGeoJSON(args: TransformEsriToGeoDto): GeoJsonDto[] {
@@ -165,7 +233,12 @@ export class TransformService {
   }
 
   isGeoJSON(geoArray: any[]): boolean {
-    return !!geoArray.every((geo) => geo['type'] && geo['geometry']);
+    return !!geoArray.every(
+      (geo) => geo['type'] && (geo['geometry'] || geo['features']),
+    );
+  }
+  returnGeoJSONArrayAsType(geoArray: any[]): GeoJsonDto[] {
+    return this.isGeoJSON(geoArray) ? (geoArray as GeoJsonDto[]) : null;
   }
   isEsriJSON(geoArray: any[]): boolean {
     return !!geoArray.every((geo) => geo['attributes'] && geo['geometry']);
