@@ -20,9 +20,20 @@
       "identifier": "hoehe2m_r",
       "title": "Höhenwerte für Dresden",
       "description": "Contains information on terrain elevation and surface elevation in Saxony.",
-      "__source__": "spatialyzer_demo.hoehe2m_r",
+      "__multipleSources__": [
+        {
+          "source": "spatialyzer_demo.hoehe2m_r",
+          "name": "height"
+        },
+        {
+          "source":  "spatialyzer_demo.hoehe2m_dom_r",
+          "name": "dom_height"
+        }
+      ],
       "__attributes__": [],
-      "__supports__": ["valuesAtPoint"]
+      "__supports__": [
+        "valuesAtPoint"
+      ]
     },
     {
       "identifier": "verw_gem_f",
