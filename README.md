@@ -101,6 +101,20 @@ Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hell
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 
+### Dev / Prod container
+
+To ensure that you use, the developer container run:
+```bash
+docker compose -f docker-compose.yml up --build  
+```
+
+If you want to run the production build, call:
+
+```bash
+docker compose -f docker-compose-prod.yml up --build  
+```
+
+
 ### Troubleshooting
 If you update your `package.json`, change your docker files, or other problems that lead to a problematic
 start of your docker container; do following: \
