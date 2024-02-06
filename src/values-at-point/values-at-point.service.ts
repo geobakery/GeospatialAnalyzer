@@ -5,18 +5,13 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { ReplaceStringType } from '../general/general.constants';
+import { ReplaceStringType, SINGLE_SPACE } from '../general/general.constants';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
+import { DbAdapterService } from '../general/db-adapter.service';
 
-const VALUE_SELECT_CLAUSE =
-  'SELECT json_build_object(\n' +
-  "    'type', 'FeatureCollection',\n" +
-  "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
-  ') as response';
-
-const VALUE_FROM_CLAUSE = 'FROM ( __d__ ) as customFromSelect'; // TODO
-const SELECT_LOOP =
+let valueFromClause = 'FROM ( __d__ ) as customFromSelect'; // TODO
+let selectLoop =
   'SELECT __a__ \n' + // attribute
   'ST_VALUE(__hr.rast, __b__) as __height\n' + //geometry
   'FROM __c__ __hr\n' + // table
@@ -24,7 +19,46 @@ const SELECT_LOOP =
 
 @Injectable()
 export class ValuesAtPointService {
-  constructor(private generalService: GeneralService) {}
+  private adapter: DbAdapterService = this.generalService.getDbAdapter();
+
+  constructor(private generalService: GeneralService) {
+    valueFromClause =
+      this.adapter.getFrom() +
+      SINGLE_SPACE +
+      '(' +
+      '__d__' +
+      ')' +
+      SINGLE_SPACE +
+      this.adapter.getAs() +
+      SINGLE_SPACE +
+      'customFromSelect';
+    selectLoop =
+      this.adapter.getSelect() +
+      SINGLE_SPACE +
+      '__a__' +
+      SINGLE_SPACE +
+      this.adapter.getGeoValueMethode({
+        parameter1: '__hr.' + this.adapter.getGeoRast(),
+        parameter2: '__b__',
+      }) +
+      SINGLE_SPACE +
+      this.adapter.getAs() +
+      SINGLE_SPACE +
+      '__height' +
+      SINGLE_SPACE +
+      this.adapter.getFrom() +
+      SINGLE_SPACE +
+      '__c__' +
+      SINGLE_SPACE +
+      '__hr' +
+      SINGLE_SPACE +
+      this.adapter.getWhere() +
+      SINGLE_SPACE +
+      this.adapter.getGeoIntersectMethode({
+        parameter1: '__b__',
+        parameter2: '__hr.' + this.adapter.getGeoRast(),
+      });
+  }
   getTopics(): topicDefinitionOutside[] {
     return this.generalService.getTopicsInformationForOutsideSpecific(
       'valuesAtPoint',
@@ -35,19 +69,18 @@ export class ValuesAtPointService {
     args: ParameterDto,
   ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     const dbBuilderParameter: dbRequestBuilderSample = {
-      select: true,
+      select: false,
       customStatement: true,
-      selectStatement: VALUE_SELECT_CLAUSE,
       where: false,
       from: true,
-      fromStatement: VALUE_FROM_CLAUSE,
+      fromStatement: valueFromClause,
       fromStatementParameter: new Map<string, ReplaceStringType>([
         ['__a__', ReplaceStringType.ATTRIBUTE],
         ['__b__', ReplaceStringType.GEOMETRY],
         ['__c__', ReplaceStringType.TABLE],
         ['__d__', ReplaceStringType.LOOP],
       ]),
-      attachments: new Map<string, string>([['__d__', SELECT_LOOP]]),
+      attachments: new Map<string, string>([['__d__', selectLoop]]),
       mockGeometry: true,
     };
     return this.generalService.calculateMethode(args, dbBuilderParameter);

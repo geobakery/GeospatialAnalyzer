@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MethodeParameter } from './general.interface';
+import { methodeParameter } from './general.interface';
 
 @Injectable()
 export class DbAdapterService {
@@ -26,7 +26,7 @@ export class DbAdapterService {
   getGeoIntersect(): string {
     return null;
   }
-  getGeoIntersectMethode(options?: MethodeParameter): string {
+  getGeoIntersectMethode(options: methodeParameter): string {
     return String(options);
   }
   getBuffer(): string {
@@ -38,6 +38,9 @@ export class DbAdapterService {
   getGeoValue(): string {
     return null;
   }
+  getGeoValueMethode(options: methodeParameter): string {
+    return String(options);
+  }
   getGeoRast(): string {
     return null;
   }
@@ -47,12 +50,23 @@ export class DbAdapterService {
   getGeoWithin(): string {
     return null;
   }
+  getGeoWithinMethode(options: methodeParameter): string {
+    return String(options);
+  }
+
   getGeoDistance(): string {
+    return null;
+  }
+  getGeoDistanceMethode(options: methodeParameter): string {
+    return String(options);
+  }
+  getOrderBy(): string {
     return null;
   }
   getLimit(): string {
     return 'LIMIT';
   }
-
-  // TODO use methods like getTrasnform Methode=>  ST_TRANSFORM(PARA1, PARA2)
+  getJsonStructure(): string {
+    return null;
+  }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DbAdapterService } from '../db-adapter.service';
-import { MethodeParameter } from '../general.interface';
+import { methodeParameter } from '../general.interface';
 import { COMMA } from '../general.constants';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class PostgresService extends DbAdapterService {
   getGeoIntersect(): string {
     return 'ST_intersects';
   }
-  getGeoIntersectMethode(options?: MethodeParameter): string {
+  getGeoIntersectMethode(options?: methodeParameter): string {
     if (options) {
       const p1 = options.parameter1;
       const p2 = options.parameter2;
@@ -55,6 +55,14 @@ export class PostgresService extends DbAdapterService {
   getGeoValue(): string {
     return 'ST_VALUE';
   }
+  getGeoValueMethode(options: methodeParameter): string {
+    if (options) {
+      const p1 = options.parameter1;
+      const p2 = options.parameter2;
+      return this.getGeoValue() + '(' + p1 + COMMA + p2 + ')';
+    }
+    return;
+  }
 
   getGeoRast(): string {
     return 'rast';
@@ -65,14 +73,39 @@ export class PostgresService extends DbAdapterService {
   }
 
   getGeoWithin(): string {
-    return super.getGeoWithin();
+    return 'ST_WITHIN';
+  }
+  getGeoWithinMethode(options: methodeParameter): string {
+    if (options) {
+      const p1 = options.parameter1;
+      const p2 = options.parameter2;
+      return this.getGeoWithin() + '(' + p1 + COMMA + p2 + ')';
+    }
   }
 
   getGeoDistance(): string {
-    return super.getGeoDistance();
+    return 'ST_DISTANCE';
   }
 
+  getGeoDistanceMethode(options: methodeParameter): string {
+    if (options) {
+      const p1 = options.parameter1;
+      const p2 = options.parameter2;
+      return this.getGeoDistance() + '(' + p1 + COMMA + p2 + ')';
+    }
+  }
+  getOrderBy(): string {
+    return 'ORDER BY';
+  }
   getLimit(): string {
     return super.getLimit();
+  }
+  getJsonStructure(): string {
+    return (
+      'SELECT json_build_object(\n' +
+      "    'type', 'FeatureCollection',\n" +
+      "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
+      '  ) as response'
+    );
   }
 }

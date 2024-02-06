@@ -20,12 +20,6 @@ export const QUERY_SELECT =
   "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
   '  ) as response';
 
-export const QUERY_SELECT_WITHOUT_GEO =
-  'SELECT json_build_object(\n' +
-  "    'type', 'FeatureCollection',\n" +
-  "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::jsonb - 'geometry')\n" +
-  '  ) as response';
-
 export const QUERY_PARAMETER_LENGTH = 2;
 export const QUERY_ARRAY_POSITION = 0;
 export const PARAMETER_ARRAY_POSITION = 1;

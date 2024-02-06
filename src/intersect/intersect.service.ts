@@ -5,14 +5,7 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import {
-  _AS_STATEMENT,
-  _FROM_STATEMENT,
-  _SELECT_STATEMENT,
-  _WHERE_STATEMENT,
-  ReplaceStringType,
-  SINGLE_SPACE,
-} from '../general/general.constants';
+import { ReplaceStringType, SINGLE_SPACE } from '../general/general.constants';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
 import { DbAdapterService } from '../general/db-adapter.service';
@@ -24,6 +17,7 @@ let intersectFromClause: string = null;
 export class IntersectService {
   private adapter: DbAdapterService = this.generalService.getDbAdapter();
   constructor(private generalService: GeneralService) {
+    // Build DB string once
     intersectWhereClause =
       this.adapter.getWhere() +
       SINGLE_SPACE +

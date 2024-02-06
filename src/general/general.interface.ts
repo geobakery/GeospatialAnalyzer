@@ -93,7 +93,8 @@ export interface multipleSource {
   name: string;
 }
 
-export interface MethodeParameter {
-  parameter1: string;
-  parameter2: string;
+export interface methodeParameter {
+  parameter1?: string;
+  parameter2?: string;
+  returnGeometry?: boolean;
 }

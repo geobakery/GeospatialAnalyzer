@@ -5,23 +5,61 @@ import {
   dbRequestBuilderSample,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { dbDirection, ReplaceStringType } from '../general/general.constants';
+import {
+  COMMA,
+  dbDirection,
+  ReplaceStringType,
+  SINGLE_SPACE,
+} from '../general/general.constants';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { DbAdapterService } from '../general/db-adapter.service';
 
-const NEIGHBOUR_SELECT_CLAUSE =
-  'SELECT json_build_object(\n' +
-  "    'type', 'FeatureCollection',\n" +
-  "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
-  ') as response';
-const NEIGHBOUR_FROM_CLAUSE =
-  'FROM ( SELECT __d__, ST_Distance(__a__, "customFrom".geom) as __dist\n' +
-  '        FROM __b__ "customFrom"\n' +
-  '        ORDER BY __dist asc ' +
-  'LIMIT __c__) as customFromSelect';
+let neighbourFromClause = '';
 @Injectable()
 export class NearestNeighbourService {
-  constructor(private generalService: GeneralService) {}
+  private adapter: DbAdapterService = this.generalService.getDbAdapter();
+  constructor(private generalService: GeneralService) {
+    // Build DB string once
+    neighbourFromClause =
+      this.adapter.getFrom() +
+      SINGLE_SPACE +
+      '(' +
+      this.adapter.getSelect() +
+      SINGLE_SPACE +
+      '__d__' +
+      COMMA +
+      this.adapter.getGeoDistanceMethode({
+        parameter1: '__a__',
+        parameter2: '"customFrom".geom',
+      }) +
+      SINGLE_SPACE +
+      this.adapter.getAs() +
+      SINGLE_SPACE +
+      '__dist' +
+      SINGLE_SPACE +
+      this.adapter.getFrom() +
+      SINGLE_SPACE +
+      '__b__' +
+      SINGLE_SPACE +
+      '"customFrom"' +
+      SINGLE_SPACE +
+      this.adapter.getOrderBy() +
+      SINGLE_SPACE +
+      '__dist' +
+      SINGLE_SPACE +
+      'asc' +
+      SINGLE_SPACE +
+      this.adapter.getLimit() +
+      SINGLE_SPACE +
+      '__c__' +
+      ')' +
+      SINGLE_SPACE +
+      this.adapter.getAs() +
+      SINGLE_SPACE +
+      'customFromSelect' +
+      SINGLE_SPACE;
+  }
 
   getTopics(): topicDefinitionOutside[] {
     return this.generalService.getTopicsInformationForOutsideSpecific(
@@ -34,12 +72,11 @@ export class NearestNeighbourService {
   ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
     // TODO validate Input, custom ParameterDto?
     const dbBuilderParameter: dbRequestBuilderSample = {
-      select: true,
+      select: false,
       customStatement: true,
-      selectStatement: NEIGHBOUR_SELECT_CLAUSE,
       where: false,
       from: true,
-      fromStatement: NEIGHBOUR_FROM_CLAUSE,
+      fromStatement: neighbourFromClause,
       fromStatementParameter: new Map<string, ReplaceStringType>([
         ['__a__', ReplaceStringType.GEOMETRY],
         ['__b__', ReplaceStringType.TABLE],

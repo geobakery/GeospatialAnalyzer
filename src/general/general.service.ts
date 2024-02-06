@@ -40,6 +40,7 @@ import { DbAdapterService } from './db-adapter.service';
 
 @Injectable()
 export class GeneralService {
+  adapter: DbAdapterService = this.getDbAdapter();
   topicsArray: string[] = [];
   identifierSourceMap: Map<string, string> = new Map<string, string>();
   identifierAllowedAttributesMap: Map<string, string[]> = new Map<
@@ -81,6 +82,9 @@ export class GeneralService {
   }
 
   getDbAdapter(): DbAdapterService {
+    if (this.adapter) {
+      return this.adapter;
+    }
     const dbtype = process.env.geospatial_analyzer_db_type;
     if (dbtype) {
       switch (dbtype) {
@@ -368,7 +372,7 @@ export class GeneralService {
     if (dbBuilderParameter.selectStatement) {
       result += dbBuilderParameter.selectStatement;
     } else {
-      result += QUERY_SELECT;
+      result += this.adapter.getJsonStructure();
     }
 
     if (geo.type === 'Feature') {
@@ -379,7 +383,7 @@ export class GeneralService {
       result = result.replace('SELECT', propsIdString);
     }
 
-    // TODO ordentlicher :/
+    // TODO ordentlicher & in Betrachtung des adapter patterns :/
     if (!args.returnGeometry) {
       result = result.replace(
         'json_agg(ST_AsGeoJSON(customFromSelect.*)::json',
@@ -457,7 +461,7 @@ export class GeneralService {
           }
           const geoString = this._buildGeometry(geo);
           const geoStringComplete =
-            "ST_Transform('" + geoString + "'::geometry, 25833)"; // TODO
+            "ST_Transform('" + geoString + "'::geometry, 25833)"; // TODO adapter pattern
           replacedString = replacedString.replaceAll(key, geoStringComplete);
           break;
         }
