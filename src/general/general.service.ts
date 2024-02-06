@@ -35,6 +35,8 @@ import { GeoGeometryDto } from './dto/geo-geometry.dto';
 import { TransformEsriToGeoDto } from './dto/transform-esri-to-geo.dto';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { TransformGeoToEsriDto } from './dto/transform-geo-to-esri.dto';
+import { PostgresService } from './adapter/postgres.service';
+import { DbAdapterService } from './db-adapter.service';
 
 @Injectable()
 export class GeneralService {
@@ -76,6 +78,20 @@ export class GeneralService {
 
   getOriginalDatabaseSRID() {
     return this.database_srid;
+  }
+
+  getDbAdapter(): DbAdapterService {
+    const dbtype = process.env.geospatial_analyzer_db_type;
+    if (dbtype) {
+      switch (dbtype) {
+        case 'postgres': {
+          return new PostgresService();
+        }
+        default: {
+          return new DbAdapterService();
+        }
+      }
+    }
   }
 
   getTopicsInformationForOutsideSpecific(

@@ -92,3 +92,8 @@ export interface multipleSource {
   source: string;
   name: string;
 }
+
+export interface MethodeParameter {
+  parameter1: string;
+  parameter2: string;
+}

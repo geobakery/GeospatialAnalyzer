@@ -56,3 +56,6 @@ export enum ReplaceStringType {
   ATTRIBUTE,
   LOOP, // no nested loop allowed
 }
+
+export const SINGLE_SPACE = ' ';
+export const COMMA = ',';
