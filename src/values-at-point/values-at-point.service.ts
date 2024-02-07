@@ -10,12 +10,8 @@ import { GeoJsonDto } from '../general/dto/geo-json.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { DbAdapterService } from '../general/db-adapter.service';
 
-let valueFromClause = 'FROM ( __d__ ) as customFromSelect'; // TODO
-let selectLoop =
-  'SELECT __a__ \n' + // attribute
-  'ST_VALUE(__hr.rast, __b__) as __height\n' + //geometry
-  'FROM __c__ __hr\n' + // table
-  'WHERE ST_INTERSECTS(__b__, __hr.rast)'; // geometry
+let valueFromClause = ''; // TODO
+let selectLoop = '';
 
 @Injectable()
 export class ValuesAtPointService {
@@ -24,36 +20,30 @@ export class ValuesAtPointService {
   constructor(private generalService: GeneralService) {
     valueFromClause =
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '(' +
       '__d__' +
       ')' +
       SINGLE_SPACE +
       this.adapter.getAs() +
-      SINGLE_SPACE +
       'customFromSelect';
+
     selectLoop =
       this.adapter.getSelect() +
-      SINGLE_SPACE +
       '__a__' +
       SINGLE_SPACE +
       this.adapter.getGeoValueMethode({
         parameter1: '__hr.' + this.adapter.getGeoRast(),
         parameter2: '__b__',
       }) +
-      SINGLE_SPACE +
       this.adapter.getAs() +
-      SINGLE_SPACE +
       '__height' +
       SINGLE_SPACE +
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '__c__' +
       SINGLE_SPACE +
       '__hr' +
       SINGLE_SPACE +
       this.adapter.getWhere() +
-      SINGLE_SPACE +
       this.adapter.getGeoIntersectMethode({
         parameter1: '__b__',
         parameter2: '__hr.' + this.adapter.getGeoRast(),

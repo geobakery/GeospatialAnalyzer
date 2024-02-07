@@ -23,42 +23,33 @@ export class NearestNeighbourService {
     // Build DB string once
     neighbourFromClause =
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '(' +
       this.adapter.getSelect() +
-      SINGLE_SPACE +
       '__d__' +
       COMMA +
       this.adapter.getGeoDistanceMethode({
         parameter1: '__a__',
         parameter2: '"customFrom".geom',
       }) +
-      SINGLE_SPACE +
       this.adapter.getAs() +
-      SINGLE_SPACE +
       '__dist' +
       SINGLE_SPACE +
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '__b__' +
       SINGLE_SPACE +
       '"customFrom"' +
       SINGLE_SPACE +
       this.adapter.getOrderBy() +
-      SINGLE_SPACE +
       '__dist' +
       SINGLE_SPACE +
       'asc' +
       SINGLE_SPACE +
       this.adapter.getLimit() +
-      SINGLE_SPACE +
       '__c__' +
       ')' +
       SINGLE_SPACE +
       this.adapter.getAs() +
-      SINGLE_SPACE +
-      'customFromSelect' +
-      SINGLE_SPACE;
+      'customFromSelect';
   }
 
   getTopics(): topicDefinitionOutside[] {

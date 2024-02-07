@@ -19,26 +19,22 @@ export class WithinService {
   constructor(private generalService: GeneralService) {
     withinWhereClause =
       this.adapter.getWhere() +
-      SINGLE_SPACE +
       this.adapter.getGeoWithinMethode({
         parameter1: '__a__',
         parameter2: 'customFromSelect.geom',
-      }) +
-      SINGLE_SPACE;
+      });
+
     withinFromClause =
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '(' +
       this.adapter.getSelect() +
-      SINGLE_SPACE +
       '__b__' +
       SINGLE_SPACE +
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '__a__' +
       ')' +
-      this.adapter.getAs() +
       SINGLE_SPACE +
+      this.adapter.getAs() +
       'customFromSelect';
   }
   getTopics(): topicDefinitionOutside[] {

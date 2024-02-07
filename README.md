@@ -27,6 +27,9 @@ The database itself can be set up by three different approaches:
 * You can also check the [installation guide](/documentation/postgresql-without-install.md) for setting up and PostgreSQL instance for missing administrator rights. Guide provides an easy step-by-step instructions for setting up the needed environment.
 * Use the provided docker environment, which will create the needed database + extension + testdata automatically.
 
+### Add new database support
+If you want to support another database, read more in [Database support](/documentation/database-support.md)  
+
 ## Installation
 Run the following in your shell. Command will download and install all needed dependencies and packages.
 

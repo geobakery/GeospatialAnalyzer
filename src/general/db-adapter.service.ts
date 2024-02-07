@@ -1,24 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { methodeParameter } from './general.interface';
+import { SINGLE_SPACE } from './general.constants';
 
 @Injectable()
 export class DbAdapterService {
   constructor() {}
 
   getSelect(): string {
-    return 'SELECT';
+    return 'SELECT' + SINGLE_SPACE;
   }
   getFrom(): string {
-    return 'FROM';
+    return 'FROM' + SINGLE_SPACE;
   }
   getWhere(): string {
-    return 'WHERE';
+    return 'WHERE' + SINGLE_SPACE;
   }
   getUnion(): string {
-    return 'UNION';
+    return 'UNION' + SINGLE_SPACE;
   }
   getUnionAll(): string {
-    return 'UNION ALL';
+    return 'UNION ALL' + SINGLE_SPACE;
   }
   getGeoUnion(): string {
     return null;
@@ -33,7 +34,7 @@ export class DbAdapterService {
     return null;
   }
   getAs(): string {
-    return 'AS';
+    return 'AS' + SINGLE_SPACE;
   }
   getGeoValue(): string {
     return null;
@@ -64,7 +65,7 @@ export class DbAdapterService {
     return null;
   }
   getLimit(): string {
-    return 'LIMIT';
+    return 'LIMIT' + SINGLE_SPACE;
   }
   getJsonStructure(): string {
     return null;

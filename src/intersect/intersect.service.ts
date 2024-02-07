@@ -20,7 +20,6 @@ export class IntersectService {
     // Build DB string once
     intersectWhereClause =
       this.adapter.getWhere() +
-      SINGLE_SPACE +
       this.adapter.getGeoIntersectMethode({
         parameter1: 'customFromSelect.geom',
         parameter2: '__c__',
@@ -30,15 +29,13 @@ export class IntersectService {
       this.adapter.getFrom() +
       '(' +
       this.adapter.getSelect() +
-      SINGLE_SPACE +
       '__b__' +
       SINGLE_SPACE +
       this.adapter.getFrom() +
-      SINGLE_SPACE +
       '__a__' +
       ')' +
-      this.adapter.getAs() +
       SINGLE_SPACE +
+      this.adapter.getAs() +
       'customFromSelect';
   }
   getTopics(): topicDefinitionOutside[] {

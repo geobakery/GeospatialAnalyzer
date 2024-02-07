@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DbAdapterService } from '../db-adapter.service';
 import { methodeParameter } from '../general.interface';
-import { COMMA } from '../general.constants';
+import { COMMA, SINGLE_SPACE } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
@@ -30,17 +30,19 @@ export class PostgresService extends DbAdapterService {
   }
 
   getGeoUnion(): string {
-    return 'ST_UNION';
+    return 'ST_UNION' + SINGLE_SPACE;
   }
 
   getGeoIntersect(): string {
-    return 'ST_intersects';
+    return 'ST_intersects' + SINGLE_SPACE;
   }
   getGeoIntersectMethode(options?: methodeParameter): string {
     if (options) {
       const p1 = options.parameter1;
       const p2 = options.parameter2;
-      return this.getGeoIntersect() + '(' + p1 + COMMA + p2 + ')';
+      return (
+        this.getGeoIntersect() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE
+      );
     }
   }
 
@@ -53,49 +55,49 @@ export class PostgresService extends DbAdapterService {
   }
 
   getGeoValue(): string {
-    return 'ST_VALUE';
+    return 'ST_VALUE' + SINGLE_SPACE;
   }
   getGeoValueMethode(options: methodeParameter): string {
     if (options) {
       const p1 = options.parameter1;
       const p2 = options.parameter2;
-      return this.getGeoValue() + '(' + p1 + COMMA + p2 + ')';
+      return this.getGeoValue() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
     }
     return;
   }
 
   getGeoRast(): string {
-    return 'rast';
+    return 'rast' + SINGLE_SPACE;
   }
 
   getGeoTransform(): string {
-    return 'ST_TRANSFORM';
+    return 'ST_TRANSFORM' + SINGLE_SPACE;
   }
 
   getGeoWithin(): string {
-    return 'ST_WITHIN';
+    return 'ST_WITHIN' + SINGLE_SPACE;
   }
   getGeoWithinMethode(options: methodeParameter): string {
     if (options) {
       const p1 = options.parameter1;
       const p2 = options.parameter2;
-      return this.getGeoWithin() + '(' + p1 + COMMA + p2 + ')';
+      return this.getGeoWithin() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
     }
   }
 
   getGeoDistance(): string {
-    return 'ST_DISTANCE';
+    return 'ST_DISTANCE' + SINGLE_SPACE;
   }
 
   getGeoDistanceMethode(options: methodeParameter): string {
     if (options) {
       const p1 = options.parameter1;
       const p2 = options.parameter2;
-      return this.getGeoDistance() + '(' + p1 + COMMA + p2 + ')';
+      return this.getGeoDistance() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
     }
   }
   getOrderBy(): string {
-    return 'ORDER BY';
+    return 'ORDER BY' + SINGLE_SPACE;
   }
   getLimit(): string {
     return super.getLimit();

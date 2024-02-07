@@ -24,6 +24,7 @@ import {
   REQUESTPARAMS,
   STANDARD_CRS,
   STANDARD_SRID,
+  supportedDatabase,
 } from './general.constants';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ParameterDto } from './dto/parameter.dto';
@@ -88,7 +89,7 @@ export class GeneralService {
     const dbtype = process.env.geospatial_analyzer_db_type;
     if (dbtype) {
       switch (dbtype) {
-        case 'postgres': {
+        case supportedDatabase.postgres: {
           return new PostgresService();
         }
         default: {
