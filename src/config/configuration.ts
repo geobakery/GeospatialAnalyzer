@@ -10,15 +10,19 @@ export default async () => {
 };
 
 async function checkTopic(): Promise<void> {
-  const fileExists = async (path) =>
-    !!(await fs.promises.stat(path).catch(() => false));
+  try {
+    const fileExists = async (path) =>
+      !!(await fs.promises.stat(path).catch(() => false));
 
-  const exist = await fileExists(join(__dirname, './../../topic.json'));
-  if (!exist) {
-    console.warn(
-      'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file. A default one will be added.',
-    );
-    await copyTopic(__dirname);
+    const exist = await fileExists(join(__dirname, './../../topic.json'));
+    if (!exist) {
+      console.warn(
+        'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file. A default one will be added.',
+      );
+      await copyTopic(__dirname);
+    }
+  } catch (e) {
+    //
   }
   return;
 }

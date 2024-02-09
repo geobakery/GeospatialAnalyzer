@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GeneralService } from './general.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { STANDARD_CRS } from './general.constants';
 import { Geometry } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
+import { TransformModule } from '../transform/transform.module';
 
 describe('GeneralService', () => {
   let service: GeneralService;
@@ -29,6 +29,7 @@ describe('GeneralService', () => {
           load: [configuration],
           isGlobal: true,
         }),
+        TransformModule,
       ],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -46,26 +47,21 @@ describe('GeneralService', () => {
   });
 
   // example test specific function
-  it('should show correct crs', () => {
-    const result = service.getCoordinateSystem({});
-    expect(result).toBe(STANDARD_CRS);
+  it('should show topics array', () => {
+    const result = service.getTopics();
+    expect(result).toBeDefined();
   });
 
   // example mock function
   // We can adjust the output of a service by mocking it. If this service is called by itself or another function
   // our mocked version will always be executed (In this case it returns 1234, even the real version would return 4326)
   it('should work with mock', () => {
-    const mockResult = 1234;
+    const mockResult = ['test'];
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    jest
-      .spyOn(service, 'getCoordinateSystem')
-      .mockImplementation(({}) => mockResult);
+    jest.spyOn(service, 'getTopics').mockImplementation(() => mockResult);
 
-    const result = service.getCoordinateSystem({
-      type: 'Point',
-      coordinates: [0, 1],
-    } as Geometry);
-    expect(result).toBe(1234);
+    const result = service.getTopics();
+    expect(result).toEqual(expect.arrayContaining(['test']));
   });
 });
