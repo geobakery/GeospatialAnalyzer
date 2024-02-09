@@ -31,9 +31,8 @@ import { ParameterDto } from './dto/parameter.dto';
 import { ConfigService } from '@nestjs/config';
 import { geojsonToWKT } from '@terraformer/wkt';
 import { TransformService } from '../transform/transform.service';
-import { GeoJsonDto } from './dto/geo-json.dto';
+import { GeoJSONFeatureDto } from './dto/geo-json.dto';
 import { GeoGeometryDto } from './dto/geo-geometry.dto';
-import { TransformEsriToGeoDto } from './dto/transform-esri-to-geo.dto';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { TransformGeoToEsriDto } from './dto/transform-geo-to-esri.dto';
 import { PostgresService } from './adapter/postgres.service';
@@ -59,6 +58,7 @@ export class GeneralService {
     valuesAtPoint: [],
   };
   database_srid = 0;
+
   constructor(
     @InjectDataSource()
     private dataSource: DataSource,
@@ -233,7 +233,7 @@ export class GeneralService {
    * Explanation:
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
-  getAndSetGeoID(geo: GeoJsonDto, index: number): string {
+  getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
     if (
       geo.type === 'Feature' &&
       geo.properties &&
@@ -265,31 +265,27 @@ export class GeneralService {
     }
     tmpResult.forEach((result) => {
       const geo = result.result;
-      if (geo.type === 'FeatureCollection') {
-        const features = geo.features;
-        if (!features?.length) {
-          const props = {
-            NO_RESULT: 'No result to request',
-          };
-          props[REQUESTPARAMS] = requestParams;
-          props[GEO_PARAMETER] = map.get(result.id);
+      const features = geo.features;
+      if (!features?.length) {
+        const props = {
+          NO_RESULT: 'No result to request',
+        };
+        props[REQUESTPARAMS] = requestParams;
+        props[GEO_PARAMETER] = map.get(result.id);
 
-          geo.features = [
-            {
-              type: 'Feature',
-              properties: props,
-            } as GeoJsonDto,
-          ];
-          return;
-        } else {
-          features.forEach((feature) => {
-            feature.properties[REQUESTPARAMS] = requestParams;
-            feature.properties[GEO_PARAMETER] = map.get(result.id);
-          });
-        }
-      } else if (geo.type === 'Feature') {
-        geo.properties[REQUESTPARAMS] = requestParams;
-        geo.properties['test'] = map.get(result.id);
+        geo.features = [
+          {
+            type: 'Feature',
+            properties: props,
+            geometry: null,
+          },
+        ];
+        return;
+      } else {
+        features.forEach((feature) => {
+          feature.properties[REQUESTPARAMS] = requestParams;
+          feature.properties[GEO_PARAMETER] = map.get(result.id);
+        });
       }
     });
   }
@@ -313,11 +309,11 @@ export class GeneralService {
    */
   setGeoJSONArray(
     result: tempResult[],
-    resultArray: any[], //GeoJsonDto[] | EsriJsonDto[],
+    resultArray: GeoJSONFeatureDto[] | EsriJsonDto[],
     parameter: ParameterDto,
   ): any[] {
-    const resultMap = result.map((r) => r.result);
-    let resultElement: GeoJsonDto[] | EsriJsonDto[] = resultMap;
+    const resultMap = result.flatMap((r) => r.result.features);
+    let resultElement: GeoJSONFeatureDto[] | EsriJsonDto[] = resultMap;
     if (parameter.outputFormat === ESRIJSON_PARAMETER) {
       if (result.length) {
         resultElement = this.transformService.convertGeoJSONToEsriJSON({
@@ -328,7 +324,7 @@ export class GeneralService {
     } else if (parameter.outputFormat === GEOJSON_PARAMETER) {
       if (result.length) {
         const resultMapTemp =
-          this.transformService.returnGeoJSONArrayAsType(resultMap); // TODO Featurecollection
+          this.transformService.returnGeoJSONArrayAsType(resultMap);
         if (resultMapTemp) {
           resultElement =
             this.transformService.transformIncorrectCRSGeoJsonArray(
@@ -366,7 +362,7 @@ export class GeneralService {
   createRawQuery(
     dbBuilderParameter: dbRequestBuilderSample,
     top: string,
-    geo: GeoJsonDto,
+    geo: GeoJSONFeatureDto,
     args: ParameterDto,
   ): [string, any[]] {
     let result: string = '';
@@ -388,7 +384,7 @@ export class GeneralService {
     if (!args.returnGeometry) {
       result = result.replace(
         'json_agg(ST_AsGeoJSON(customFromSelect.*)::json',
-        "json_agg(ST_AsGeoJSON(customFromSelect.*)::jsonb - 'geometry'",
+        `jsonb_agg(jsonb_set(ST_AsGeoJSON(customFromSelect.*)::jsonb, '{geometry}', 'null')`,
       );
     }
     if (dbBuilderParameter.fromStatement) {
@@ -535,7 +531,7 @@ export class GeneralService {
   async createSelectQueries(
     service: any,
     top: string,
-    geo: GeoJsonDto,
+    geo: GeoJSONFeatureDto,
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<[string, any[]]> {
@@ -551,16 +547,16 @@ export class GeneralService {
   }
 
   /**
-  Collect all single Queries and put their data together
+   Collect all single Queries and put their data together
    */
   async collectQueries(
     args: ParameterDto,
-    geo: GeoJsonDto,
+    geo: GeoJSONFeatureDto,
     dbBuilderParameter: dbRequestBuilderSample,
     customFunction: (
       service: any,
       top: string,
-      geo: GeoJsonDto,
+      geo: GeoJSONFeatureDto,
       args: ParameterDto,
       dbBuilderParameter: dbRequestBuilderSample,
     ) => Promise<[string, any[]]>,
@@ -588,9 +584,9 @@ export class GeneralService {
   prepareDBResponse(
     query: any,
     requestParams: ParameterDto,
-    result: GeoJsonDto[],
+    result: GeoJSONFeatureDto[],
     map: Map<string, any>,
-  ): GeoJsonDto[] {
+  ): GeoJSONFeatureDto[] {
     const tmpResult = this.dbToGeoJSON(query);
     this.addUserInputToResponse(tmpResult, requestParams, map);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
@@ -602,18 +598,10 @@ export class GeneralService {
    * generates the db query and waits for the response
    */
   async generateQuery(
-    geo: GeoJsonDto,
+    geo: GeoJSONFeatureDto,
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<string> {
-    if (geo.type !== 'Feature') {
-      // TODO support Feature collection
-      throw new HttpException(
-        'Currently only GeoJSON Features are supported',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
     const queryData = await this.collectQueries(
       args,
       geo,
@@ -693,23 +681,30 @@ export class GeneralService {
   async calculateMethode(
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     await this.dynamicValidation(args);
-    let geoInput = args.inputGeometries;
+    let geoInput = Array.isArray(args.inputGeometries)
+      ? args.inputGeometries
+      : [args.inputGeometries];
 
     if (this.transformService.isEsriJSON(geoInput)) {
-      if (geoInput.length) {
-        // TODO check esrijson input
-        geoInput = this.transformService.convertEsriJSONToGeoJSON({
-          input: geoInput,
-        } as TransformEsriToGeoDto);
-      }
-    } else if (!this.transformService.isGeoJSON(geoInput)) {
-      //TODO error handling
+      // TODO check esrijson input
+      geoInput = this.transformService.convertEsriJSONToGeoJSON({
+        input: geoInput,
+      });
+    } else if (this.transformService.isGeoJSONFeatureCollection(geoInput)) {
+      geoInput = geoInput.flatMap(
+        (featureCollection) => featureCollection.features,
+      );
+    } else if (!this.transformService.isGeoJSONFeature(geoInput)) {
+      throw new HttpException(
+        'Malformed inputGeometries',
+        HttpStatus.BAD_REQUEST,
+      );
     }
+
     // Force Type
-    geoInput = geoInput as GeoJsonDto[];
-    let result: GeoJsonDto[] = [];
+    let result: GeoJSONFeatureDto[] = [];
     // iterate through all geometries
     const queryArray: string[] = [];
 

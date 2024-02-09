@@ -1,19 +1,18 @@
-import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
-import { GeoGeometryDto } from './geo-geometry.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsArray, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
+import { GeoGeometryDto } from './geo-geometry.dto';
 
-// TODO only for geojson single feature, currently hacked for both
-export class GeoJsonDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  type: string;
+export class GeoJSONFeatureDto {
+  @ApiProperty({ enum: ['Feature'] })
+  @IsIn(['Feature'])
+  type: 'Feature';
 
   @ApiProperty()
   @IsNotEmpty()
   @Type(() => GeoGeometryDto)
   @IsOptional()
-  geometry: GeoGeometryDto;
+  geometry: GeoGeometryDto | null;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -21,15 +20,33 @@ export class GeoJsonDto {
 
   @ApiProperty()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  bbox: any[];
+  bbox?: any[];
+}
+
+export class GeoJSONFeatureCollectionDto {
+  @ApiProperty({ enum: ['FeatureCollection'] })
+  @IsIn(['FeatureCollection'])
+  type: 'FeatureCollection';
 
   @ApiProperty()
   @IsOptional()
-  @Type(() => GeoJsonDto)
-  features: GeoJsonDto[];
+  description?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsArray()
+  bbox?: any[];
+
+  @ApiProperty({
+    type: 'array',
+    items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+  })
+  @IsArray()
+  @Type(() => GeoJSONFeatureDto)
+  features: GeoJSONFeatureDto[];
 }

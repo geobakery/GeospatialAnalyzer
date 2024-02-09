@@ -1,5 +1,8 @@
 import { dbDirection, ReplaceStringType } from './general.constants';
-import { GeoJsonDto } from './dto/geo-json.dto';
+import {
+  GeoJSONFeatureDto,
+  GeoJSONFeatureCollectionDto,
+} from './dto/geo-json.dto';
 
 export interface GeneralResponse {
   response: string;
@@ -17,7 +20,7 @@ export interface ErrorResponse {
 }
 
 export interface DBResponse {
-  response: GeoJsonDto;
+  response: GeoJSONFeatureCollectionDto;
   id: string;
 }
 
@@ -83,7 +86,7 @@ export interface SupportedTopics {
 }
 
 export interface tempResult {
-  result: GeoJsonDto;
+  result: GeoJSONFeatureCollectionDto;
   parameter: any;
   id: string;
 }

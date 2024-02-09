@@ -15,7 +15,7 @@ import {
   EsriJSON,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 
@@ -40,7 +40,7 @@ export class ValuesAtPointController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the values at point',
-    type: GeoJsonDto,
+    type: GeoJSONFeatureDto,
     isArray: true,
   })
   @HttpCode(200)

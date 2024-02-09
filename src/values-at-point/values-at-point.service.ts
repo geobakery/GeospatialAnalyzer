@@ -6,7 +6,7 @@ import {
   topicDefinitionOutside,
 } from '../general/general.interface';
 import { ReplaceStringType, SINGLE_SPACE } from '../general/general.constants';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { DbAdapterService } from '../general/db-adapter.service';
 
@@ -57,7 +57,7 @@ export class ValuesAtPointService {
 
   async calculateValuesAtPoint(
     args: ParameterDto,
-  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: false,
       customStatement: true,
