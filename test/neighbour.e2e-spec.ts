@@ -20,7 +20,7 @@ describe('IntersectController (e2e)', () => {
       imports: [
         TypeOrmModule.forRoot({
           type: process.env.db_postgres_type,
-          host: process.env.db_postgres_host,
+          host: 'localhost',
           port: process.env.db_postgres_port,
           username: process.env.db_postgres_username,
           password: process.env.db_postgres_password,
@@ -56,13 +56,7 @@ describe('IntersectController (e2e)', () => {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: [411967, 5659861],
-            crs: {
-              type: 'name',
-              properties: {
-                name: 'EPSG:25833',
-              },
-            },
+            coordinates: [13.75, 51.07],
           },
           properties: {
             name: 'Dinagat Islands',

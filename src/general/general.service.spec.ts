@@ -16,7 +16,7 @@ describe('GeneralService', () => {
       imports: [
         TypeOrmModule.forRoot({
           type: process.env.db_postgres_type,
-          host: process.env.db_postgres_host,
+          host: 'localhost',
           port: process.env.db_postgres_port,
           username: process.env.db_postgres_username,
           password: process.env.db_postgres_password,

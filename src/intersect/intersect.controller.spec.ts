@@ -21,7 +21,7 @@ describe('IntersectController', () => {
         }),
         TypeOrmModule.forRoot({
           type: process.env.geospatial_analyzer_db_type,
-          host: process.env.geospatial_analyzer_db_host,
+          host: 'localhost',
           port: process.env.geospatial_analyzer_db_port,
           username: process.env.geospatial_analyzer_db_username,
           password: process.env.geospatial_analyzer_db_password,
