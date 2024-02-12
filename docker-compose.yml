@@ -19,6 +19,8 @@ services:
       - ./sql/data:/docker-entrypoint-initdb.d/data
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\""]
 
   app:
     build:
@@ -32,7 +34,8 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./src:/app/src
       - ./topic.json:/app/topic.json
@@ -49,6 +52,7 @@ services:
     ports:
       - '5050:80'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db

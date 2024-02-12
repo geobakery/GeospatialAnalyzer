@@ -142,10 +142,6 @@ a linux system. Specially for the database, other line ending can lead to execut
 Assure that you have edited your `.env` files. These files are synchronised, but are only read at the start of the application.
 Therefore, you need to restart the container with `docker compose up`.
 
-Depending on the size of your database, the data restore can take way longer than the retry time of the application.
-Wait for  `LOG:  database system is ready to accept connections` from the database, then stop all container and restart with
-`docker compose up`.
-
 
 ## PgAdmin4
 Navigate to [http://localhost:5050](localhost:5050) to check out PgAdmin4.
