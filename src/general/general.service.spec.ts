@@ -5,6 +5,7 @@ import { Geometry } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { TransformModule } from '../transform/transform.module';
+import { GeneralModule } from './general.module';
 
 describe('GeneralService', () => {
   let service: GeneralService;
@@ -14,21 +15,22 @@ describe('GeneralService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [GeneralService],
       imports: [
-        TypeOrmModule.forRoot({
-          type: process.env.db_postgres_type,
-          host: 'localhost',
-          port: process.env.db_postgres_port,
-          username: process.env.db_postgres_username,
-          password: process.env.db_postgres_password,
-          database: process.env.db_postgres_database,
-          synchronize: JSON.parse(process.env.db_postgres_synchronize),
-          logging: JSON.parse(process.env.db_postgres_logging),
-        } as TypeOrmModule),
         ConfigModule.forRoot({
           envFilePath: ['.env.dev', '.env'],
           load: [configuration],
           isGlobal: true,
         }),
+        TypeOrmModule.forRoot({
+          type: process.env.geospatial_analyzer_db_type,
+          host: 'localhost',
+          port: process.env.geospatial_analyzer_db_port,
+          username: process.env.geospatial_analyzer_db_username,
+          password: process.env.geospatial_analyzer_db_password,
+          database: process.env.geospatial_analyzer_db_database,
+          connectTimeoutMS: 10000,
+          synchronize: false,
+          logging: false,
+        } as TypeOrmModule),
         TransformModule,
       ],
     }).compile();
