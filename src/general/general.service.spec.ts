@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { TransformModule } from '../transform/transform.module';
 import { GeneralModule } from './general.module';
+import { HttpException } from '@nestjs/common';
 
 describe('GeneralService', () => {
   let service: GeneralService;
@@ -52,6 +53,58 @@ describe('GeneralService', () => {
   it('should show topics array', () => {
     const result = service.getTopics();
     expect(result).toBeDefined();
+  });
+
+  it('check sql injection', () => {
+    expect(service.injectionCheck('DROP ALL TABLES;')).rejects.toThrowError(
+      HttpException,
+    );
+
+    expect(
+      service.injectionCheck('... SELECT * FROM ALL TABLES;'),
+    ).rejects.toThrowError(HttpException);
+
+    expect(
+      service.injectionCheck('... DELETE * FROM ...;'),
+    ).rejects.toThrowError(HttpException);
+
+    expect(service.injectionCheck('... UPDATE ...;')).rejects.toThrowError(
+      HttpException,
+    );
+
+    expect(service.injectionCheck('... TRUNCATE ...;')).rejects.toThrowError(
+      HttpException,
+    );
+
+    expect(service.injectionCheck('INSERT xxx')).rejects.toThrowError(
+      HttpException,
+    );
+
+    expect(service.injectionCheck(' --SELECT all')).rejects.toThrowError(
+      HttpException,
+    );
+
+    expect(
+      service.injectionCheck(' <iframe>XXX</iframe>'),
+    ).rejects.toThrowError(HttpException);
+  });
+
+  it('check sql injection is not triggerd', () => {
+    expect(
+      service.injectionCheck('SELECT a,b FROM Table'),
+    ).resolves.not.toThrowError(HttpException);
+
+    expect(
+      service.injectionCheck(
+        " (SELECT '__ID_0' as id, 'xxx_xxx_f' as topic,  json_build_object(\n" +
+          "'type', 'FeatureCollection',\n" +
+          "'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::jsonb - 'geometry')\n" +
+          ") as response FROM (SELECT geom,name,'xxx_xxx_f' as __topic FROM spatialyzer_demo.xxx_xxx_f) AS " +
+          "customFromSelect WHERE ST_WITHIN (ST_Transform('SRID=4326;POINT (13.75 51.07)'::geometry, 25833)," +
+          'customFromSelect.geom) )\n' +
+          '\n',
+      ),
+    ).resolves.not.toThrowError(HttpException);
   });
 
   // example mock function

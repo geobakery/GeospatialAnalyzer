@@ -655,6 +655,7 @@ export class GeneralService {
     if (dbBuilderParameter?.fromStatement) {
       queryString += dbBuilderParameter.fromStatement;
     }
+    await this.injectionCheck(queryString);
     const dbResult = await this.dataSource.query(queryString);
     if (!dbResult.length) {
       throw new HttpException(
@@ -663,6 +664,25 @@ export class GeneralService {
       );
     }
     return { response: dbResult } as GeneralResponse;
+  }
+
+  async injectionCheck(query: string): Promise<void> {
+    // https://community.broadcom.com/symantecenterprise/communities/community-home/librarydocuments/viewdocument?DocumentKey=001f5e09-88b4-4a9a-b310-4c20578eecf9&CommunityKey=1ecf5f55-9545-44d6-b0f4-4e4a7f5f5e68&tab=librarydocuments
+    const paranoid = /((%27)|(\\'))|(--)|((%23)|(#))/gi; //Do not allow comments or any Special sql characters
+    const paranoid_css = /((\\%3C)|<)[^\n]+((\\%3E)|>)/gi; //ALl HTML or xml tags are forbidden for Cross Site Scripting
+    const typical = /w*((%27)|('))((%6F)|o|(%4F))((%72)|r|(%52))/gi; //typical sql injection attacks
+    const keywords =
+      /(\W+(DELETE\s|INSERT\s|UPDATE\s|DROP\s|TRUNCATE\s))|^DELETE\s|^INSERT\s|^UPDATE\s|^DROP\s|^TRUNCATE\s|(SELECT \* FROM)/gi;
+
+    const sqlChecks = [paranoid, paranoid_css, typical, keywords];
+    sqlChecks.forEach((check) => {
+      if (check.test(query)) {
+        throw new HttpException(
+          'Error: Query can not be executed, because of a sql injection risk.',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    });
   }
 
   /**
