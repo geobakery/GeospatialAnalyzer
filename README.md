@@ -191,11 +191,15 @@ REST-API.
 Swagger UI: \
 <img src="documentation/images/swagger_debug.png" alt="Swagger debug"/>
 
-Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools. Here you find the
-translated typescript code in source. You can set breakpoints and debug like you are used to.
+Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools.
 
 Nodejs dev tools: \
 <img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
+
+In the sources tab you can navigate to the TypeScript source files to set breakpoints and debug like you are used to.
+Note: The JavaScript that is actually run is in the `dist` folder but thanks to source maps we can work with the TypeScript files.
+
+<img src="documentation/images/devTools_debug_sourceMap.png" alt="Dev tools TypeScript"/>
 
 Also you can call the rest API on your common way as long as you connected to the nodejs-dev tools.
 
