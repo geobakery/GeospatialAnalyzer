@@ -16,7 +16,7 @@ import {
   EsriJSON,
   topicDefinitionOutside,
 } from '../general/general.interface';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 
 @Controller({
@@ -42,7 +42,7 @@ export class NearestNeighbourController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the nearest NEIGHBOUR',
-    type: GeoJsonDto,
+    type: GeoJSONFeatureDto,
     isArray: true,
   })
   @HttpCode(200)

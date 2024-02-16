@@ -4,7 +4,11 @@ import * as epsg from 'proj4-list';
 
 import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoGeometryDto } from '../general/dto/geo-geometry.dto';
+import {
+  GeoJSONFeatureDto,
+  GeoJSONFeatureCollectionDto,
+} from '../general/dto/geo-json.dto';
 import {
   STANDARD_CRS,
   STANDARD_CRS_STRING,
@@ -12,7 +16,6 @@ import {
 } from '../general/general.constants';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
 import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
-import { EsriGeometry } from '../general/general.interface';
 import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
 
 @Injectable()
@@ -22,72 +25,63 @@ export class TransformService {
     this.checkCRS(epsgString);
 
     const esriJsonArray = new Array<EsriJsonDto>();
-    for (const geoJSON of args.input) {
-      if (geoJSON.features && geoJSON.features.length) {
-        geoJSON.features.forEach((geo) => {
-          try {
-            const geoElement = geo.geometry as any;
-            if (geoElement) {
-              const currentCRS = geoElement?.crs?.properties?.name
-                ? geoElement?.crs?.properties?.name
-                : STANDARD_CRS;
-              if (STANDARD_CRS != currentCRS) {
-                this.checkCRS(currentCRS);
-              }
-              this.transformCoordinates(
-                geo.geometry.coordinates,
-                currentCRS,
-                epsgString,
-              );
-            }
-          } catch (e) {
-            throw new HttpException(
-              'Coordinates are not valid',
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+
+    let geoInput = Array.isArray(args.input) ? args.input : [args.input];
+    if (this.isGeoJSONFeatureCollection(geoInput)) {
+      geoInput = geoInput.flatMap(
+        (featureCollection) => featureCollection.features,
+      );
+    } else if (!this.isGeoJSONFeature(geoInput)) {
+      throw new HttpException('Malformed GeoJSON', HttpStatus.BAD_REQUEST);
+    }
+
+    for (const geoJSON of geoInput) {
+      try {
+        const geoElement: GeoGeometryDto & {
+          crs?: { properties?: { name?: string } };
+        } = geoJSON.geometry;
+        if (geoElement) {
+          const currentCRS = geoElement?.crs?.properties?.name
+            ? geoElement?.crs?.properties?.name
+            : STANDARD_CRS;
+          if (STANDARD_CRS != currentCRS) {
+            this.checkCRS(currentCRS);
           }
-        });
-      } else {
-        try {
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
-            STANDARD_CRS_STRING,
+            currentCRS,
             epsgString,
           );
-        } catch (e) {
-          throw new HttpException(
-            'Coordinates are not valid',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
         }
+      } catch (e) {
+        throw new HttpException(
+          'Coordinates are not valid',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
-      // TODO geojsonToArcGIS accepts feature collections: remove from for loop
+
       try {
-        const esriJson: EsriJsonDto[] = geojsonToArcGIS(geoJSON);
-        if (esriJson.length) {
-          esriJson.forEach((e) => {
-            if (e.geometry?.spatialReference?.wkid) {
-              e.geometry.spatialReference.wkid = args.epsg;
-            } else {
-              // TODO clean code
-              if (!e.geometry) {
-                e.geometry = {
-                  spatialReference: {
-                    wkid: args.epsg,
-                  },
-                } as EsriGeometryDto;
-              }
-              if (!e.geometry.spatialReference) {
-                e.geometry = {
-                  spatialReference: {
-                    wkid: args.epsg,
-                  },
-                } as EsriGeometryDto;
-              }
-            }
-            esriJsonArray.push(e);
-          });
+        const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
+        if (esriJson.geometry?.spatialReference?.wkid) {
+          esriJson.geometry.spatialReference.wkid = args.epsg;
+        } else {
+          // TODO clean code
+          if (!esriJson.geometry) {
+            esriJson.geometry = {
+              spatialReference: {
+                wkid: args.epsg,
+              },
+            } as EsriGeometryDto;
+          }
+          if (!esriJson.geometry.spatialReference) {
+            esriJson.geometry = {
+              spatialReference: {
+                wkid: args.epsg,
+              },
+            } as EsriGeometryDto;
+          }
         }
+        esriJsonArray.push(esriJson);
       } catch (e) {
         throw new HttpException(
           'GeoJSON to EsriJSON conversion failed',
@@ -110,21 +104,19 @@ export class TransformService {
     return true;
   }
 
-  transformIncorrectCRSGeoJsonArray(array: GeoJsonDto[]): GeoJsonDto[] {
+  transformIncorrectCRSGeoJsonArray(
+    array: GeoJSONFeatureDto[],
+  ): GeoJSONFeatureDto[] {
     return array.map((geo) => this._transformIncorrectCRSGeoJson(geo));
   }
-  _transformIncorrectCRSGeoJson(geo: GeoJsonDto) {
-    if (geo.features) {
-      geo.features = geo.features.map((feature) =>
-        this._transformSingleGeoJsonFeature(feature),
-      );
-      return geo;
-    } else {
-      return this._transformSingleGeoJsonFeature(geo);
-    }
+
+  _transformIncorrectCRSGeoJson(geo: GeoJSONFeatureDto) {
+    return this._transformSingleGeoJsonFeature(geo);
   }
 
-  private _transformSingleGeoJsonFeature(geo: GeoJsonDto): GeoJsonDto {
+  private _transformSingleGeoJsonFeature(
+    geo: GeoJSONFeatureDto,
+  ): GeoJSONFeatureDto {
     const geometry = geo.geometry as any;
     if (geometry?.crs) {
       const crs = geometry.crs.properties?.name;
@@ -149,8 +141,8 @@ export class TransformService {
     return geo;
   }
 
-  convertEsriJSONToGeoJSON(args: TransformEsriToGeoDto): GeoJsonDto[] {
-    const geoJsonArray = new Array<GeoJsonDto>();
+  convertEsriJSONToGeoJSON(args: TransformEsriToGeoDto): GeoJSONFeatureDto[] {
+    const geoJsonArray = new Array<GeoJSONFeatureDto>();
     for (const esriJSON of args.input) {
       const epsgString =
         STANDARD_EPSG + esriJSON.geometry.spatialReference.wkid;
@@ -194,7 +186,7 @@ export class TransformService {
         if (esriJSON?.geometry?.spatialReference?.wkid) {
           esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
         }
-        const geoJson: GeoJsonDto = arcgisToGeoJSON(esriJSON);
+        const geoJson: GeoJSONFeatureDto = arcgisToGeoJSON(esriJSON);
         geoJsonArray.push(geoJson);
       } catch (e) {
         throw new HttpException(
@@ -232,15 +224,29 @@ export class TransformService {
     return proj4(fromEpsgString, toEpsgString, coordinates);
   }
 
-  isGeoJSON(geoArray: any[]): boolean {
-    return !!geoArray.every(
-      (geo) => geo['type'] && (geo['geometry'] || geo['features']),
+  isGeoJSONFeature(geoArray: object[]): geoArray is GeoJSONFeatureDto[] {
+    return geoArray.every(
+      (geo) =>
+        (geo as GeoJSONFeatureDto).type === 'Feature' && 'geometry' in geo,
     );
   }
-  returnGeoJSONArrayAsType(geoArray: any[]): GeoJsonDto[] {
-    return this.isGeoJSON(geoArray) ? (geoArray as GeoJsonDto[]) : null;
+
+  isGeoJSONFeatureCollection(
+    geoArray: object[],
+  ): geoArray is GeoJSONFeatureCollectionDto[] {
+    return geoArray.every(
+      (geo) =>
+        (geo as GeoJSONFeatureCollectionDto).type === 'FeatureCollection',
+    );
   }
-  isEsriJSON(geoArray: any[]): boolean {
+
+  returnGeoJSONArrayAsType(geoArray: any[]): GeoJSONFeatureDto[] {
+    return this.isGeoJSONFeature(geoArray)
+      ? (geoArray as GeoJSONFeatureDto[])
+      : null;
+  }
+
+  isEsriJSON(geoArray: any[]): geoArray is EsriJsonDto[] {
     return !!geoArray.every((geo) => geo['attributes'] && geo['geometry']);
   }
 }

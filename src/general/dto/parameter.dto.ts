@@ -1,7 +1,4 @@
-import { GeoJSON } from 'typeorm';
 import {
-  ArrayNotEmpty,
-  IsArray,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -10,10 +7,11 @@ import {
   Min,
 } from 'class-validator';
 import { outputFormatEnum } from '../general.constants';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { EsriJsonDto } from './esri-json.dto';
-import { GeoJsonDto } from './geo-json.dto';
+import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
 
+@ApiExtraModels(GeoJSONFeatureCollectionDto, GeoJSONFeatureDto, EsriJsonDto)
 export class ParameterDto {
   //https://github.com/typestack/class-validator#validation-decorators
   @ApiProperty({
@@ -24,6 +22,21 @@ export class ParameterDto {
   topics: string[];
 
   @ApiProperty({
+    oneOf: [
+      {
+        type: 'array',
+        items: { $ref: getSchemaPath(EsriJsonDto) },
+      },
+      {
+        type: 'array',
+        items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+      },
+      {
+        type: 'array',
+        items: { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
+      },
+      { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
+    ],
     example: [
       {
         type: 'Feature',
@@ -38,9 +51,11 @@ export class ParameterDto {
     ],
     description: 'the input geometry',
   })
-  @IsArray()
-  @ArrayNotEmpty()
-  inputGeometries: EsriJsonDto[] | GeoJsonDto[];
+  inputGeometries:
+    | EsriJsonDto[]
+    | GeoJSONFeatureDto[]
+    | GeoJSONFeatureCollectionDto
+    | GeoJSONFeatureCollectionDto[];
 
   @ApiProperty({
     example: 'geojson',

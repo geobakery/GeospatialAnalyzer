@@ -31,7 +31,7 @@ export const PARAMETER_ARRAY_POSITION = 1;
 export const GEOJSON_PARAMETER = 'geojson';
 export const ESRIJSON_PARAMETER = 'esrijson';
 
-export const STANDARD_CRS = 4326;
+export const STANDARD_CRS = '4326';
 export const STANDARD_EPSG = 'EPSG:';
 export const STANDARD_SRID = 'SRID=' + STANDARD_CRS + ';';
 export const STANDARD_CRS_STRING = 'EPSG:4326';

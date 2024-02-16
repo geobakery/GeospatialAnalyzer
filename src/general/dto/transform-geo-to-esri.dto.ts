@@ -1,11 +1,21 @@
-import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { GeoJsonDto } from './geo-json.dto';
-import { Type } from 'class-transformer';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
+import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
 
+@ApiExtraModels(GeoJSONFeatureCollectionDto, GeoJSONFeatureDto)
 export class TransformGeoToEsriDto {
   @ApiProperty({
-    type: [GeoJsonDto],
+    oneOf: [
+      {
+        type: 'array',
+        items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+      },
+      {
+        type: 'array',
+        items: { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
+      },
+      { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
+    ],
     example:
       '[\n' +
       '    {\n' +
@@ -30,11 +40,10 @@ export class TransformGeoToEsriDto {
       '}\n' +
       ']',
   })
-  @Type(() => GeoJsonDto)
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @IsArray()
-  input: GeoJsonDto[];
+  input:
+    | GeoJSONFeatureDto[]
+    | GeoJSONFeatureCollectionDto[]
+    | GeoJSONFeatureCollectionDto;
 
   @ApiProperty({ example: '3035' })
   @IsNotEmpty()

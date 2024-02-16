@@ -16,7 +16,7 @@ import {
   topicDefinitionOutside,
 } from '../general/general.interface';
 import { ParameterDto } from '../general/dto/parameter.dto';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 
 @Controller({
@@ -40,7 +40,7 @@ export class IntersectController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the intersections',
-    type: GeoJsonDto,
+    type: GeoJSONFeatureDto,
     isArray: true,
   })
   @HttpCode(200)

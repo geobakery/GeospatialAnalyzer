@@ -12,7 +12,7 @@ import {
   SINGLE_SPACE,
 } from '../general/general.constants';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
-import { GeoJsonDto } from '../general/dto/geo-json.dto';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { DbAdapterService } from '../general/db-adapter.service';
 
 let neighbourFromClause = '';
@@ -60,7 +60,7 @@ export class NearestNeighbourService {
 
   async calculateNearestNeighbour(
     args: ParameterDto,
-  ): Promise<GeoJsonDto[] | EsriJsonDto[]> {
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     // TODO validate Input, custom ParameterDto?
     const dbBuilderParameter: dbRequestBuilderSample = {
       select: false,
