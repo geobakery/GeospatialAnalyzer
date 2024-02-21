@@ -1,4 +1,5 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
 
 @ApiExtraModels(GeoJSONFeatureCollectionDto, GeoJSONFeatureDto)
@@ -37,6 +38,16 @@ export class TransformGeoToEsriDto {
         },
       },
     ],
+  })
+  @Type(() => Array, {
+    discriminator: {
+      property: 'type',
+      subTypes: [
+        { name: 'Feature', value: GeoJSONFeatureDto },
+        { name: 'FeatureCollection', value: GeoJSONFeatureCollectionDto },
+      ],
+    },
+    keepDiscriminatorProperty: true,
   })
   input:
     | GeoJSONFeatureDto[]

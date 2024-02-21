@@ -77,7 +77,10 @@ async function bootstrap() {
   // to actual class instances, so we still use ValidationPipe's for its `class-transformer` integration but disable its
   // `class-validator` integration.
   app.useGlobalPipes(
-    new ValidationPipe({ validatorPackage: { validate: () => [] } }),
+    new ValidationPipe({
+      transform: true,
+      validatorPackage: { validate: () => [] },
+    }),
   );
 
   await app.listen(3000, '0.0.0.0');

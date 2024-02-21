@@ -1,7 +1,9 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { outputFormatEnum } from '../general.constants';
 import { EsriJsonDto } from './esri-json.dto';
-import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
+import { GeoJSONFeatureCollectionDto, GeoJSONFeatureDto } from './geo-json.dto';
 
 @ApiExtraModels(EsriJsonDto, GeoJSONFeatureDto, GeoJSONFeatureCollectionDto)
 export class ParameterDto {
@@ -41,6 +43,28 @@ export class ParameterDto {
         },
       },
     ],
+  })
+  @Type(({ object }) => {
+    // Since GeoJSON and EsriJSON don't share a common discriminator property, we must manually inspect the input.
+
+    // We accept homogenous arrays only, so looking at the first element suffices. Since we
+    // also accept a single FeatureCollection, we normalize the argument to an array first
+    const inputGeometry:
+      | EsriJsonDto
+      | GeoJSONFeatureDto
+      | GeoJSONFeatureCollectionDto
+      | undefined = [].concat(object.inputGeometries)?.[0];
+
+    if (inputGeometry === undefined) return Array; // No geometries -> Type does not matter
+    if (!('type' in inputGeometry)) return EsriJsonDto;
+    if (inputGeometry.type === 'Feature') return GeoJSONFeatureDto;
+    if (inputGeometry.type === 'FeatureCollection')
+      return GeoJSONFeatureCollectionDto;
+
+    // This is dead code, as long as the schema-based input validation works.
+    throw new InternalServerErrorException(
+      `Unexpected value for ${ParameterDto.name}.inputGeometries`,
+    );
   })
   inputGeometries:
     | EsriJsonDto[]
