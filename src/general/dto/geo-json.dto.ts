@@ -1,52 +1,52 @@
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 import { GeoGeometryDto } from './geo-geometry.dto';
 
+@ApiExtraModels(GeoGeometryDto)
 export class GeoJSONFeatureDto {
   @ApiProperty({ enum: ['Feature'] })
-  @IsIn(['Feature'])
   type: 'Feature';
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({
+    anyOf: [{ $ref: getSchemaPath(GeoGeometryDto) }],
+    nullable: true,
+  })
   @Type(() => GeoGeometryDto)
-  @IsOptional()
   geometry: GeoGeometryDto | null;
 
   @ApiProperty()
-  @IsNotEmpty()
-  properties: object;
+  properties: object | null;
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiProperty({ required: false })
   description?: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsArray()
+  @ApiProperty({
+    items: { nullable: false }, // As close as we can get to the any-type
+    required: false,
+    type: 'array',
+  })
   bbox?: any[];
 }
 
+@ApiExtraModels(GeoJSONFeatureDto)
 export class GeoJSONFeatureCollectionDto {
   @ApiProperty({ enum: ['FeatureCollection'] })
-  @IsIn(['FeatureCollection'])
   type: 'FeatureCollection';
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiProperty({ required: false })
   description?: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsArray()
+  @ApiProperty({
+    items: { nullable: false }, // As close as we can get to the any-type
+    required: false,
+    type: 'array',
+  })
   bbox?: any[];
 
   @ApiProperty({
-    type: 'array',
     items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+    type: 'array',
   })
-  @IsArray()
   @Type(() => GeoJSONFeatureDto)
   features: GeoJSONFeatureDto[];
 }

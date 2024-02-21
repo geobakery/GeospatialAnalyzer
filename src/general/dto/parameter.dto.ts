@@ -1,28 +1,19 @@
-import {
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  Max,
-  Min,
-} from 'class-validator';
-import { outputFormatEnum } from '../general.constants';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { outputFormatEnum } from '../general.constants';
 import { EsriJsonDto } from './esri-json.dto';
 import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
 
-@ApiExtraModels(GeoJSONFeatureCollectionDto, GeoJSONFeatureDto, EsriJsonDto)
+@ApiExtraModels(EsriJsonDto, GeoJSONFeatureDto, GeoJSONFeatureCollectionDto)
 export class ParameterDto {
-  //https://github.com/typestack/class-validator#validation-decorators
   @ApiProperty({
-    example: ['verw_kreis_f'],
     description: 'the topic name to check for',
+    example: ['verw_kreis_f'],
+    minItems: 1,
   })
-  @IsNotEmpty()
   topics: string[];
 
   @ApiProperty({
-    oneOf: [
+    anyOf: [
       {
         type: 'array',
         items: { $ref: getSchemaPath(EsriJsonDto) },
@@ -37,6 +28,7 @@ export class ParameterDto {
       },
       { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
     ],
+    description: 'the input geometry',
     example: [
       {
         type: 'Feature',
@@ -49,7 +41,6 @@ export class ParameterDto {
         },
       },
     ],
-    description: 'the input geometry',
   })
   inputGeometries:
     | EsriJsonDto[]
@@ -58,48 +49,27 @@ export class ParameterDto {
     | GeoJSONFeatureCollectionDto[];
 
   @ApiProperty({
+    enum: outputFormatEnum,
     example: 'geojson',
-    description: '',
   })
-  @IsOptional()
-  @IsEnum(outputFormatEnum)
   outputFormat: string;
 
   @ApiProperty({ example: false })
-  @IsOptional()
   returnGeometry: boolean;
 
-  @ApiProperty({
-    example: 3,
-    description: '',
-  })
-  @IsOptional()
-  @IsInt()
+  @ApiProperty({ example: 3 })
   count: number;
 
-  @ApiProperty({
-    example: 10000,
-    description: '',
-  })
-  @IsOptional()
+  @ApiProperty({ example: 10000 })
   maxDistanceToNeighbour: number;
 
-  @ApiProperty({
-    example: 4326,
-    description: '',
-  })
-  @ApiProperty({
-    example: '4326',
-  })
-  @IsOptional()
+  @ApiProperty({ example: '4326' })
   outSRS: string;
 
   @ApiProperty({
-    example: 60000,
-    description: '',
+    example: 60_000,
+    minimum: 5_000,
+    maximum: 100_000,
   })
-  @IsOptional()
-  @Min(5000)
-  @Max(100000)
   timeout: number;
 }

@@ -1,13 +1,12 @@
-import { IsArray, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GeoGeometryDto {
   @ApiProperty()
-  @IsNotEmpty()
   type: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsArray()
+  @ApiProperty({
+    items: { nullable: true }, // As close as we can get to the any-type
+    type: 'array',
+  })
   coordinates: any[];
 }

@@ -1,8 +1,8 @@
-import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SpatialRefereranceDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  wkid: string | number;
+  @ApiProperty({
+    minLength: 1,
+  })
+  wkid: string;
 }
