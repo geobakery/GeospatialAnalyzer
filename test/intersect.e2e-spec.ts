@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-// import * as request from 'supertest';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -10,9 +9,30 @@ import { GeneralModule } from '../src/general/general.module';
 import { IntersectService } from '../src/intersect/intersect.service';
 import configuration from '../src/config/configuration';
 import { ConfigModule } from '@nestjs/config';
+import { GeoJSONFeatureDto } from '../src/general/dto/geo-json.dto';
+import {
+  GEOJSON_WITH_GEOMETRY_KREIS,
+  GEOJSON_WITHOUT_GEOMETRY_KREIS,
+  GET,
+  HEADERS_JSON,
+  INTERSECT_URL,
+  POST,
+  TOPIC_URL,
+  URL_START,
+} from './common/constants';
+import {
+  getGeoJSONFeatureFromResponse,
+  requestGeoPropertiesTest,
+  requestParamsPropertiesTest,
+  resultIsGeoJSONFeatureWithoutGeometry,
+  resultProperties,
+  testStatus200,
+  topicTest,
+} from './common/test';
 
 describe('IntersectController (e2e)', () => {
   let app: NestFastifyApplication;
+  const INTERSECT: string = 'Intersect';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -49,52 +69,67 @@ describe('IntersectController (e2e)', () => {
     await app.close();
   });
 
-  it('/GET Topics', () => {
-    return app
-      .inject({
-        method: 'GET',
-        url: '/intersect/topics',
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(200);
-        expect(result.statusMessage).toEqual('OK');
-        // expect(JSON.parse(result.body)).toEqual(['testTopic']);
-      });
+  it('/GET Topics', async () => {
+    const result = await app.inject({
+      method: GET,
+      url: URL_START + INTERSECT_URL + TOPIC_URL,
+    });
+    await testStatus200('/GET Topics', result);
   });
 
-  it('/POST Intersect', () => {
-    const body = {
-      inputGeometries: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [13.75, 51.07],
-          },
-          properties: {
-            name: 'Dinagat Islands',
-          },
-        },
-      ],
-      topics: ['verw_kreis_f'],
-      error: '',
-      count: 2,
-      timeout: 60000,
-    };
-    return app
-      .inject({
-        method: 'POST',
-        url: '/intersect',
-        payload: body,
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
-      })
-      .then((result) => {
-        console.log('result response', result);
-        expect(result.statusCode).toEqual(200);
-        expect(result.statusMessage).toEqual('OK');
-        // expect(JSON.parse(result.body)).toEqual(['testTopic']);
-      });
+  it('/POST Intersect with geometry', async () => {
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: GEOJSON_WITH_GEOMETRY_KREIS,
+      headers: HEADERS_JSON,
+    });
+    // console.log(result);
+    expect(result.statusCode).toEqual(200);
+    expect(result.statusMessage).toEqual('OK');
+    const data = JSON.parse(result.payload);
+    expect(data.length).toBeDefined();
+    const geojson = data[0] as GeoJSONFeatureDto;
+    expect(geojson.type === 'Feature').toBeTruthy();
+    const geo = geojson.geometry;
+    expect(geo.type === 'Polygon').toBeTruthy();
+    expect(geo.coordinates).not.toBeNull();
+    expect(geo.coordinates.length > 0).toBeTruthy();
+
+    const props = geojson.properties;
+    expect(props['__topic'] === 'verw_kreis_f').toBeTruthy();
+    expect(props['name'] === 'Kreisfreie Stadt Dresden').toBeTruthy();
+  });
+
+  it('/POST Intersect without geometry', async () => {
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: GEOJSON_WITHOUT_GEOMETRY_KREIS,
+      headers: HEADERS_JSON,
+    });
+
+    await testStatus200('/POST Intersect without geometry', result);
+
+    await resultIsGeoJSONFeatureWithoutGeometry(result);
+    const geojson = await getGeoJSONFeatureFromResponse(result);
+    await topicTest(INTERSECT, geojson, 'verw_kreis_f');
+
+    const propsMap = new Map<string, string | number | boolean>([
+      ['name', 'Kreisfreie Stadt Dresden'],
+    ]);
+    await resultProperties('intersect', geojson, 'verw_kreis_f', propsMap);
+
+    const requestParams = new Map<string, string | number | boolean>([
+      ['timeout', 60000],
+      ['returnGeometry', false],
+    ]);
+    await requestParamsPropertiesTest('intersect', geojson, requestParams);
+
+    const geoParams = new Map<string, string | number | boolean>([
+      ['name', 'testname'],
+      ['test', 9],
+    ]);
+    await requestGeoPropertiesTest('intersect', geojson, geoParams);
   });
 });
