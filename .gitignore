@@ -38,6 +38,5 @@ lerna-debug.log*
 .env.dev
 .env.local.dev
 .env.docker.dev
-.env.test
 .env.prod
 topic.json

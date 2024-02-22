@@ -9,37 +9,39 @@ import { GeneralModule } from '../src/general/general.module';
 import { IntersectService } from '../src/intersect/intersect.service';
 import configuration from '../src/config/configuration';
 import { ConfigModule } from '@nestjs/config';
-import { GeoJSONFeatureDto } from '../src/general/dto/geo-json.dto';
 import {
-  GEOJSON_WITH_GEOMETRY_KREIS,
+  ESRI_JSON_WITHOUT_GEOMETRY_KREIS,
   GEOJSON_WITHOUT_GEOMETRY_KREIS,
   GET,
   HEADERS_JSON,
+  INTERSECT,
   INTERSECT_URL,
   POST,
   TOPIC_URL,
   URL_START,
 } from './common/constants';
 import {
+  getESRISONFeatureFromResponse,
   getGeoJSONFeatureFromResponse,
-  requestGeoPropertiesTest,
-  requestParamsPropertiesTest,
+  resultIsGeoJSONFeatureWithGeometry,
   resultIsGeoJSONFeatureWithoutGeometry,
-  resultProperties,
   testStatus200,
   topicTest,
 } from './common/test';
+import {
+  getEsriJSONFeature,
+  getGeoJSONFeature,
+} from './common/testDataPreparer';
 
 describe('IntersectController (e2e)', () => {
   let app: NestFastifyApplication;
-  const INTERSECT: string = 'Intersect';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
       imports: [
         ConfigModule.forRoot({
-          envFilePath: ['.env.dev', '.env'],
+          envFilePath: ['.env.test'],
           load: [configuration],
           isGlobal: true,
         }),
@@ -78,27 +80,23 @@ describe('IntersectController (e2e)', () => {
   });
 
   it('/POST Intersect with geometry', async () => {
+    const input = await getGeoJSONFeature({
+      topics: ['verw_kreis_f'],
+      returnGeometry: true,
+    });
     const result = await app.inject({
       method: POST,
       url: URL_START + INTERSECT_URL,
-      payload: GEOJSON_WITH_GEOMETRY_KREIS,
+      payload: input,
       headers: HEADERS_JSON,
     });
-    // console.log(result);
-    expect(result.statusCode).toEqual(200);
-    expect(result.statusMessage).toEqual('OK');
-    const data = JSON.parse(result.payload);
-    expect(data.length).toBeDefined();
-    const geojson = data[0] as GeoJSONFeatureDto;
-    expect(geojson.type === 'Feature').toBeTruthy();
-    const geo = geojson.geometry;
-    expect(geo.type === 'Polygon').toBeTruthy();
-    expect(geo.coordinates).not.toBeNull();
-    expect(geo.coordinates.length > 0).toBeTruthy();
+    const implName = '/POST Intersect without geometry';
+    await testStatus200(implName, result);
 
-    const props = geojson.properties;
-    expect(props['__topic'] === 'verw_kreis_f').toBeTruthy();
-    expect(props['name'] === 'Kreisfreie Stadt Dresden').toBeTruthy();
+    const geoJSON = await getGeoJSONFeatureFromResponse(result);
+    expect(geoJSON.length).toBe(1);
+    await topicTest(INTERSECT, geoJSON[0], 'verw_kreis_f');
+    await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
   it('/POST Intersect without geometry', async () => {
@@ -108,28 +106,231 @@ describe('IntersectController (e2e)', () => {
       payload: GEOJSON_WITHOUT_GEOMETRY_KREIS,
       headers: HEADERS_JSON,
     });
-
-    await testStatus200('/POST Intersect without geometry', result);
-
+    const implName = '/POST Intersect without geometry';
+    await testStatus200(implName, result);
     await resultIsGeoJSONFeatureWithoutGeometry(result);
-    const geojson = await getGeoJSONFeatureFromResponse(result);
-    await topicTest(INTERSECT, geojson, 'verw_kreis_f');
+  });
 
-    const propsMap = new Map<string, string | number | boolean>([
-      ['name', 'Kreisfreie Stadt Dresden'],
-    ]);
-    await resultProperties('intersect', geojson, 'verw_kreis_f', propsMap);
+  it('/POST Intersect custom without geometry', async () => {
+    const input = await getGeoJSONFeature({
+      topics: ['verw_kreis_f', 'verw_land_f'],
+      returnGeometry: false,
+      fixGeometry: {
+        type: 'Point',
+        coordinates: [13.746, 51.0629],
+      },
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect custom without geometry';
+    await testStatus200(implName, result);
 
-    const requestParams = new Map<string, string | number | boolean>([
-      ['timeout', 60000],
-      ['returnGeometry', false],
-    ]);
-    await requestParamsPropertiesTest('intersect', geojson, requestParams);
+    // test if there is an answer for both topics
+    const geojsonArray = await getGeoJSONFeatureFromResponse(result);
+    expect(geojsonArray.length === 2);
+    const verwKreisGeoJSON = geojsonArray[0];
+    const verwLandGeoJSON = geojsonArray[1];
 
-    const geoParams = new Map<string, string | number | boolean>([
-      ['name', 'testname'],
-      ['test', 9],
-    ]);
-    await requestGeoPropertiesTest('intersect', geojson, geoParams);
+    // test verw_kreis_f response
+    expect(verwKreisGeoJSON.geometry === null).toBeTruthy();
+    expect(verwKreisGeoJSON.type).toBe('Feature');
+
+    const props = verwKreisGeoJSON.properties;
+    expect(props['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(props['__topic']).toBe('verw_kreis_f');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(false);
+    expect(requestProps['outputFormat']).toBe('geojson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test verw_land_f response
+    expect(verwLandGeoJSON.geometry === null).toBeTruthy();
+    expect(verwLandGeoJSON.type).toBe('Feature');
+
+    const propsLand = verwLandGeoJSON.properties;
+    expect(propsLand['name']).toBe('Sachsen');
+    expect(propsLand['__topic']).toBe('verw_land_f');
+
+    const geoPropsLand = propsLand['__geoProperties'];
+    const requestPropsLand = propsLand['__requestParams'];
+    expect(requestPropsLand['timeout']).toBe(60000);
+    expect(requestPropsLand['returnGeometry']).toBe(false);
+    expect(requestPropsLand['outputFormat']).toBe('geojson');
+
+    expect(geoPropsLand['name']).toBe('testname');
+    expect(geoPropsLand['test']).toBe(9);
+    expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
+  });
+
+  it('/POST Intersect custom with geometry', async () => {
+    const input = await getGeoJSONFeature({
+      topics: ['verw_gem_f'],
+      returnGeometry: true,
+      fixGeometry: {
+        type: 'Point',
+        coordinates: [13.75, 51.07],
+      },
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect custom with geometry';
+    await testStatus200(implName, result);
+
+    const geojsonArray = await getGeoJSONFeatureFromResponse(result);
+    expect(geojsonArray.length).toBe(1);
+    const verwGemGeoJSON = geojsonArray[0];
+
+    // test verw_kreis_f response
+    expect(verwGemGeoJSON.geometry !== null).toBeTruthy();
+    expect(verwGemGeoJSON.type).toBe('Feature');
+
+    const props = verwGemGeoJSON.properties;
+    expect(props['name']).toBe('Stadt Dresden');
+    expect(props['__topic']).toBe('verw_gem_f');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(true);
+    expect(requestProps['outputFormat']).toBe('geojson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test geometry
+    const geo = verwGemGeoJSON.geometry;
+    expect(geo.type).toBe('Polygon');
+    expect(geo.coordinates.length).toBeGreaterThan(0);
+    const coordinates = geo.coordinates;
+    expect(geo.coordinates.length).toBeGreaterThan(0);
+    const coord = coordinates[0];
+    expect(coord.length).toBeGreaterThan(0);
+    const singleCoordinate = coord[0];
+    // check approx. x and y coordinates
+    expect(singleCoordinate.length).toBe(2);
+    expect(singleCoordinate[0]).toBeGreaterThan(13);
+    expect(singleCoordinate[0]).toBeLessThan(14);
+    expect(singleCoordinate[1]).toBeGreaterThan(50);
+    expect(singleCoordinate[1]).toBeLessThan(51);
+  });
+
+  it('/POST Intersect with esri input and output', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: true,
+      outputFormat: 'esrijson',
+      topics: ['verw_kreis_f'],
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect custom with geometry';
+    await testStatus200(implName, result);
+
+    // test if there is an answer for both topics
+    const esrijsonArray = await getESRISONFeatureFromResponse(result);
+    expect(esrijsonArray.length).toBe(1);
+    const verwEsri = esrijsonArray[0];
+
+    // test verw_kreis_f response
+    expect(verwEsri.geometry !== null).toBeTruthy();
+    expect(verwEsri.attributes).toBeDefined();
+
+    const props = verwEsri.attributes;
+    expect(props['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(props['__topic']).toBe('verw_kreis_f');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(true);
+    expect(requestProps['outSRS']).toBe('25833');
+    expect(requestProps['outputFormat']).toBe('esrijson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test geometry
+    const geo = verwEsri.geometry;
+    expect(geo.spatialReference).toBeDefined();
+    expect(geo.spatialReference.wkid).toBeDefined();
+    expect(geo.spatialReference.wkid).toBe('25833');
+    expect(geo.rings).toBeDefined();
+    expect(geo.rings.length).toBeGreaterThan(0);
+    const coordinates = geo.rings;
+    expect(coordinates.length).toBeGreaterThan(0);
+    // TODO after swagger update add tests for rigns with number[][][]
+  });
+
+  it('/POST Intersect with esri input and geojson output', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: true,
+      outputFormat: 'geojson',
+      topics: ['verw_kreis_f'],
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect custom with geometry';
+    await testStatus200(implName, result);
+
+    const geojsonArray = await getGeoJSONFeatureFromResponse(result);
+    expect(geojsonArray.length).toBe(1);
+    const verwGemGeoJSON = geojsonArray[0];
+
+    // test verw_kreis_f response
+    expect(verwGemGeoJSON.geometry !== null).toBeTruthy();
+    expect(verwGemGeoJSON.type).toBe('Feature');
+
+    const props = verwGemGeoJSON.properties;
+    expect(props['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(props['__topic']).toBe('verw_kreis_f');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(true);
+    expect(requestProps['outputFormat']).toBe('geojson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test geometry
+    const geo = verwGemGeoJSON.geometry;
+    expect(geo.type).toBe('Polygon');
+    expect(geo.coordinates.length).toBeGreaterThan(0);
+    const coordinates = geo.coordinates;
+    expect(geo.coordinates.length).toBeGreaterThan(0);
+    const coord = coordinates[0];
+    expect(coord.length).toBeGreaterThan(0);
+    const singleCoordinate = coord[0];
+    // check approx. x and y coordinates
+    expect(singleCoordinate.length).toBe(2);
+    expect(singleCoordinate[0]).toBeGreaterThan(13);
+    expect(singleCoordinate[0]).toBeLessThan(14);
+    expect(singleCoordinate[1]).toBeGreaterThan(50);
+    expect(singleCoordinate[1]).toBeLessThan(51);
   });
 });
