@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SpatialRefereranceDto {
+export class SpatialReferenceDto {
   @ApiProperty()
   wkid: number;
 }

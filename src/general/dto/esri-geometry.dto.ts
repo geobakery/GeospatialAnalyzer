@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { SpatialRefereranceDto } from './spatial-refererance.dto';
+import { SpatialReferenceDto } from './spatial-reference.dto';
 
 /**
  * @see https://developers.arcgis.com/documentation/common-data-types/feature-object.htm
@@ -9,7 +9,7 @@ import { SpatialRefereranceDto } from './spatial-refererance.dto';
  *        the clearest. For example, `x` and `y` are defined as mandatory for point geometries, but in the "Empty points"
  *        examples sometimes `y` is missing.
  */
-@ApiExtraModels(SpatialRefereranceDto)
+@ApiExtraModels(SpatialReferenceDto)
 export class EsriGeometryDto {
   @ApiProperty({ required: false })
   x?: number;
@@ -33,6 +33,6 @@ export class EsriGeometryDto {
   points?: number[];
 
   @ApiProperty()
-  @Type(() => SpatialRefereranceDto)
-  spatialReference: SpatialRefereranceDto;
+  @Type(() => SpatialReferenceDto)
+  spatialReference: SpatialReferenceDto;
 }
