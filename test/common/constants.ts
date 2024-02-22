@@ -56,6 +56,7 @@ export const HEADERS_JSON = {
 export const INTERSECT_URL = 'intersect';
 export const NEAREST_URL = 'nearestNeighbour';
 export const WITHIN_URL = 'within';
+export const VALUES_AT_POINT_URL = 'valuesAtPoint';
 export const POST = 'POST';
 export const GET = 'GET';
 export const URL_START = '/';
@@ -63,6 +64,7 @@ export const TOPIC_URL = '/topics';
 
 export const INTERSECT: string = 'Intersect';
 export const WITHIN: string = 'Within';
+export const VAlUES_AT_POINT: string = 'Values-at-point';
 export const NEAREST_NEIGHBOUR: string = 'Nearest-Neighbour';
 
 //
