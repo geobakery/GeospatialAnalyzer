@@ -10,7 +10,6 @@ import { IntersectService } from '../src/intersect/intersect.service';
 import configuration from '../src/config/configuration';
 import { ConfigModule } from '@nestjs/config';
 import {
-  ESRI_JSON_WITHOUT_GEOMETRY_KREIS,
   GEOJSON_WITHOUT_GEOMETRY_KREIS,
   GET,
   HEADERS_JSON,

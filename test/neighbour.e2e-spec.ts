@@ -1,17 +1,39 @@
 import { Test, TestingModule } from '@nestjs/testing';
-// import * as request from 'supertest';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../src/general/general.module';
+import configuration from '../src/config/configuration';
+import { ConfigModule } from '@nestjs/config';
+import {
+  GEOJSON_WITHOUT_GEOMETRY_KREIS,
+  GET,
+  HEADERS_JSON,
+  INTERSECT,
+  NEAREST_URL,
+  POST,
+  TOPIC_URL,
+  URL_START,
+} from './common/constants';
+import {
+  getESRISONFeatureFromResponse,
+  getGeoJSONFeatureFromResponse,
+  resultIsGeoJSONFeatureWithGeometry,
+  resultIsGeoJSONFeatureWithoutGeometry,
+  testStatus200,
+  testStatus500,
+  topicTest,
+} from './common/test';
+import {
+  getEsriJSONFeature,
+  getGeoJSONFeature,
+} from './common/testDataPreparer';
 import { NearestNeighbourController } from '../src/nearest-neighbour/nearest-neighbour.controller';
 import { NearestNeighbourService } from '../src/nearest-neighbour/nearest-neighbour.service';
-import { ConfigModule } from '@nestjs/config';
-import configuration from '../src/config/configuration';
 
-describe('IntersectController (e2e)', () => {
+describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
@@ -19,7 +41,7 @@ describe('IntersectController (e2e)', () => {
       controllers: [NearestNeighbourController],
       imports: [
         ConfigModule.forRoot({
-          envFilePath: ['.env.dev', '.env'],
+          envFilePath: ['.env.test'],
           load: [configuration],
           isGlobal: true,
         }),
@@ -37,6 +59,7 @@ describe('IntersectController (e2e)', () => {
       ],
       providers: [NearestNeighbourService],
     }).compile();
+
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
@@ -48,40 +71,224 @@ describe('IntersectController (e2e)', () => {
     await app.close();
   });
 
-  // TODO load expected result from data and compare result
-  it('/POST Neighbour', () => {
-    const body = {
-      inputGeometries: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [13.75, 51.07],
-          },
-          properties: {
-            name: 'Dinagat Islands',
-          },
-        },
-      ],
+  it('/GET Topics', async () => {
+    const result = await app.inject({
+      method: GET,
+      url: URL_START + NEAREST_URL + TOPIC_URL,
+    });
+    await testStatus200('/GET Topics', result);
+  });
+
+  it('/POST Nearest neighbour with geometry', async () => {
+    const input = await getGeoJSONFeature({
       topics: ['verw_kreis_f'],
-      error: '',
+      returnGeometry: true,
       count: 2,
-      timeout: 60000,
-    };
-    return app
-      .inject({
-        method: 'POST',
-        url: '/nearestNeighbour',
-        payload: body,
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
-      })
-      .then((result) => {
-        console.log('yolo', result);
-        expect(result.statusCode).toEqual(200);
-        expect(result.statusMessage).toEqual('OK');
-        // expect(JSON.parse(result.body)).toEqual(['testTopic']);
-      });
+      fixGeometry: {
+        type: 'Point',
+        coordinates: [15.75, 51.072],
+      },
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Nearest neighbour without geometry';
+    await testStatus200(implName, result);
+
+    const geoJSON = await getGeoJSONFeatureFromResponse(result);
+    expect(geoJSON.length).toBe(2);
+    await topicTest(INTERSECT, geoJSON[0], 'verw_kreis_f');
+    await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
+  });
+
+  it('/POST Nearest neighbour without geometry', async () => {
+    const input = await getGeoJSONFeature({
+      topics: ['verw_kreis_f'],
+      returnGeometry: false,
+      count: 2,
+      fixGeometry: {
+        type: 'Point',
+        coordinates: [15.75, 51.072],
+      },
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect without geometry';
+    await testStatus200(implName, result);
+    await resultIsGeoJSONFeatureWithoutGeometry(result);
+  });
+
+  it('/POST Nearest neighbour custom without geometry', async () => {
+    const input = await getGeoJSONFeature({
+      topics: ['verw_kreis_f', 'verw_land_f'],
+      returnGeometry: false,
+      fixGeometry: {
+        type: 'Point',
+        coordinates: [15.746, 51.072],
+      },
+      count: 2,
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Nearest neighbour custom without geometry';
+    await testStatus200(implName, result);
+
+    // test if there is an answer for both topics
+    const geojsonArray = await getGeoJSONFeatureFromResponse(result);
+    // Land has currently just on item! kreis_f 2 => 1+2=3
+    expect(geojsonArray.length === 3);
+    const verwKreisGeoJSON = geojsonArray[0];
+    const verwKreisGeoJSON1 = geojsonArray[1];
+    const verwLandGeoJSON = geojsonArray[2];
+
+    // test verw_kreis_f response
+    expect(verwKreisGeoJSON.geometry === null).toBeTruthy();
+    expect(verwKreisGeoJSON.type).toBe('Feature');
+    expect(verwKreisGeoJSON1.geometry === null).toBeTruthy();
+    expect(verwKreisGeoJSON1.type).toBe('Feature');
+
+    const props = verwKreisGeoJSON.properties;
+    expect(props['name']).toBe('Landkreis Bautzen');
+    expect(props['__topic']).toBe('verw_kreis_f');
+    // approx result
+    expect(props['__dist']).toBeGreaterThan(74076);
+    expect(props['__dist']).toBeLessThan(74077);
+
+    const props1 = verwKreisGeoJSON1.properties;
+    expect(props1['name']).toBe('Landkreis Sächsische Schweiz-Osterzgebirge');
+    expect(props1['__topic']).toBe('verw_kreis_f');
+    // approx result
+    expect(props1['__dist']).toBeGreaterThan(95639);
+    expect(props1['__dist']).toBeLessThan(95640);
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(false);
+    expect(requestProps['outputFormat']).toBe('geojson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test verw_land_f response
+    expect(verwLandGeoJSON.geometry === null).toBeTruthy();
+    expect(verwLandGeoJSON.type).toBe('Feature');
+
+    const propsLand = verwLandGeoJSON.properties;
+    expect(propsLand['name']).toBe('Sachsen');
+    expect(propsLand['__topic']).toBe('verw_land_f');
+    expect(propsLand['__dist']).toBeGreaterThan(52689);
+    expect(propsLand['__dist']).toBeLessThan(52690);
+
+    const geoPropsLand = propsLand['__geoProperties'];
+    const requestPropsLand = propsLand['__requestParams'];
+    expect(requestPropsLand['timeout']).toBe(60000);
+    expect(requestPropsLand['returnGeometry']).toBe(false);
+    expect(requestPropsLand['outputFormat']).toBe('geojson');
+
+    expect(geoPropsLand['name']).toBe('testname');
+    expect(geoPropsLand['test']).toBe(9);
+    expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
+  });
+
+  it('/POST Nearest neighbour with esri input and output', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: true,
+      outputFormat: 'esrijson',
+      topics: ['verw_kreis_f'],
+      count: 1,
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Nearest neighbour custom with geometry';
+    await testStatus200(implName, result);
+
+    const esrijsonArray = await getESRISONFeatureFromResponse(result);
+    expect(esrijsonArray.length).toBe(1);
+    const verwEsri = esrijsonArray[0];
+
+    // test verw_kreis_f response
+    expect(verwEsri.geometry !== null).toBeTruthy();
+    expect(verwEsri.attributes).toBeDefined();
+
+    const props = verwEsri.attributes;
+    expect(props['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(props['__topic']).toBe('verw_kreis_f');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['timeout']).toBe(60000);
+    expect(requestProps['returnGeometry']).toBe(true);
+    expect(requestProps['outSRS']).toBe('25833');
+    expect(requestProps['outputFormat']).toBe('esrijson');
+
+    expect(geoProps['name']).toBe('testname');
+    expect(geoProps['test']).toBe(9);
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test geometry
+    const geo = verwEsri.geometry;
+    expect(geo.spatialReference).toBeDefined();
+    expect(geo.spatialReference.wkid).toBeDefined();
+    expect(geo.spatialReference.wkid).toBe('25833');
+    expect(geo.rings).toBeDefined();
+    expect(geo.rings.length).toBeGreaterThan(0);
+    const coordinates = geo.rings;
+    expect(coordinates.length).toBeGreaterThan(0);
+    // TODO after swagger update add tests for rigns with number[][][]
+  });
+
+  it('/POST Nearest neighbour without count', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: false,
+      outputFormat: 'esrijson',
+      topics: ['verw_kreis_f'],
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Nearest neighbour custom with geometry';
+    await testStatus500(implName, result);
+    // TODO add test for count user message
+  });
+
+  it('/POST Nearest neighbour with false topic', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: false,
+      outputFormat: 'esrijson',
+      topics: ['verw_test_f'],
+      count: 1,
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Nearest neighbour custom with geometry';
+    await testStatus500(implName, result);
+
+    const data = JSON.parse(result.payload);
+    expect(data).toBeDefined();
+    expect(data.message).toContain('Unsupported topic');
   });
 });

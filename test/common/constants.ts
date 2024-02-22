@@ -16,7 +16,6 @@ export const GEOJSON_WITHOUT_GEOMETRY_KREIS = {
     },
   ],
   topics: ['verw_kreis_f'],
-  error: '',
   count: 0,
   returnGeometry: false,
   timeout: 60000,
@@ -47,6 +46,7 @@ export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS = {
   outSRS: '25833',
   maxDistanceToNeighbour: 0,
   timeout: 60000,
+  count: 0,
 };
 
 export const HEADERS_JSON = {
@@ -54,28 +54,32 @@ export const HEADERS_JSON = {
 };
 
 export const INTERSECT_URL = 'intersect';
+export const NEAREST_URL = 'nearestNeighbour';
 export const POST = 'POST';
 export const GET = 'GET';
 export const URL_START = '/';
 export const TOPIC_URL = '/topics';
 
 export const INTERSECT: string = 'Intersect';
+export const NEAREST_NEIGHBOUR: string = 'Nearest-Neighbour';
 
 //
 export interface testDataParameterGeoJSONFeature {
-  returnGeometry: boolean;
+  returnGeometry?: boolean;
   geometryType?: string;
   fixGeometry?: GeoGeometryDto;
-  topics: string[];
+  topics?: string[];
   additionalAttributes?: Map<string, any>;
   outputFormat?: string;
+  count?: number;
 }
 
 export interface testDataParameterEsriJSONFeature {
-  returnGeometry: boolean;
+  returnGeometry?: boolean;
   geometryType?: string;
   fixGeometry?: EsriJsonDto[];
   outputFormat?: string;
-  topics: string[];
+  topics?: string[];
   additionalAttributes?: Map<string, any>;
+  count?: number;
 }

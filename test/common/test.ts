@@ -8,6 +8,13 @@ export const testStatus200 = async (implName: string, result: any) => {
   expect(result.statusMessage).toEqual('OK');
 };
 
+export const testStatus500 = async (implName: string, result: any) => {
+  console.log(`testStatus500 for ${implName}`);
+
+  expect(result.statusCode).toEqual(500);
+  expect(result.statusMessage).toBe('Internal Server Error');
+};
+
 export const topicTest = async (
   implName: string,
   geojson: GeoJSONFeatureDto,
