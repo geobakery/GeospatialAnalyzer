@@ -7,17 +7,13 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { NearestNeighbourService } from './nearest-neighbour.service';
-import { ApiResponse } from '@nestjs/swagger';
-import { ParameterDto } from '../general/dto/parameter.dto';
-import { GeoJSON } from 'typeorm';
-import {
-  ErrorResponse,
-  EsriJSON,
-  topicDefinitionOutside,
-} from '../general/general.interface';
+import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
+import { ParameterDto } from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { topicDefinitionOutside } from '../general/general.interface';
+import { NearestNeighbourService } from './nearest-neighbour.service';
 
 @Controller({
   version: '1',
@@ -42,14 +38,18 @@ export class NearestNeighbourController {
   @ApiResponse({
     status: 200,
     description: 'Calculate the nearest NEIGHBOUR',
-    type: GeoJSONFeatureDto,
-    isArray: true,
+    schema: {
+      anyOf: [
+        { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
+        { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
+      ],
+    },
   })
   @HttpCode(200)
   @Post('nearestNeighbour')
   async intersect(
     @Body() args: ParameterDto,
-  ): Promise<GeoJSON[] | EsriJSON | ErrorResponse | any[]> {
+  ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
     try {
       return await this.nearestNeighbourService.calculateNearestNeighbour(args);
     } catch (e) {
