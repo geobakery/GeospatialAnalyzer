@@ -55,12 +55,14 @@ export const HEADERS_JSON = {
 
 export const INTERSECT_URL = 'intersect';
 export const NEAREST_URL = 'nearestNeighbour';
+export const WITHIN_URL = 'within';
 export const POST = 'POST';
 export const GET = 'GET';
 export const URL_START = '/';
 export const TOPIC_URL = '/topics';
 
 export const INTERSECT: string = 'Intersect';
+export const WITHIN: string = 'Within';
 export const NEAREST_NEIGHBOUR: string = 'Nearest-Neighbour';
 
 //
