@@ -12,6 +12,7 @@ import {
 } from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  DB_DIST_NAME,
   ESRIJSON_PARAMETER,
   GEO_IDENTIFIER,
   GEO_PARAMETER,
@@ -19,9 +20,9 @@ import {
   PARAMETER_ARRAY_POSITION,
   QUERY_ARRAY_POSITION,
   QUERY_PARAMETER_LENGTH,
-  QUERY_SELECT,
   ReplaceStringType,
   REQUESTPARAMS,
+  SINGLE_SPACE,
   STANDARD_CRS,
   STANDARD_SRID,
   supportedDatabase,
@@ -468,7 +469,35 @@ export class GeneralService {
           }
           if (args.count) {
             const countElement = String(args.count);
-            replacedString = replacedString.replaceAll(key, countElement);
+            const result =
+              SINGLE_SPACE +
+              this.adapter.getLimit() +
+              SINGLE_SPACE +
+              countElement;
+            replacedString = replacedString.replaceAll(key, result);
+          } else {
+            replacedString = replacedString.replaceAll(key, '');
+          }
+          break;
+        }
+        case ReplaceStringType.NEAREST_NEIGHBOUR: {
+          if (iterationWithLoop) {
+            break;
+          }
+          if (args.maxDistanceToNeighbour) {
+            const countElement = String(args.maxDistanceToNeighbour);
+            const result =
+              SINGLE_SPACE +
+              this.adapter.getWhere() +
+              SINGLE_SPACE +
+              DB_DIST_NAME +
+              SINGLE_SPACE +
+              '<' +
+              SINGLE_SPACE +
+              countElement;
+            replacedString = replacedString.replaceAll(key, result);
+          } else {
+            replacedString = replacedString.replaceAll(key, '');
           }
           break;
         }

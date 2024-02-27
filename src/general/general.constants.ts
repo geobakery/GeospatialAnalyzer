@@ -47,9 +47,12 @@ export enum dbDirection {
   desc = 'desc',
 }
 
+export const DB_DIST_NAME = '__dist';
+
 export enum ReplaceStringType {
   TABLE,
   COUNT,
+  NEAREST_NEIGHBOUR,
   GEOMETRY,
   ATTRIBUTE,
   LOOP, // no nested loop allowed

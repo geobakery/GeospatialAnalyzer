@@ -7,6 +7,7 @@ import {
 } from '../general/general.interface';
 import {
   COMMA,
+  DB_DIST_NAME,
   dbDirection,
   ReplaceStringType,
   SINGLE_SPACE,
@@ -32,7 +33,7 @@ export class NearestNeighbourService {
         parameter2: '"customFrom".geom',
       }) +
       this.adapter.getAs() +
-      '__dist' +
+      DB_DIST_NAME +
       SINGLE_SPACE +
       this.adapter.getFrom() +
       '__b__' +
@@ -40,16 +41,16 @@ export class NearestNeighbourService {
       '"customFrom"' +
       SINGLE_SPACE +
       this.adapter.getOrderBy() +
-      '__dist' +
+      DB_DIST_NAME +
       SINGLE_SPACE +
       'asc' +
-      SINGLE_SPACE +
-      this.adapter.getLimit() +
       '__c__' +
       ')' +
       SINGLE_SPACE +
       this.adapter.getAs() +
-      'customFromSelect';
+      'customFromSelect' +
+      SINGLE_SPACE +
+      '__e__';
   }
 
   getTopics(): topicDefinitionOutside[] {
@@ -73,6 +74,7 @@ export class NearestNeighbourService {
         ['__b__', ReplaceStringType.TABLE],
         ['__c__', ReplaceStringType.COUNT],
         ['__d__', ReplaceStringType.ATTRIBUTE],
+        ['__e__', ReplaceStringType.NEAREST_NEIGHBOUR],
       ]),
       count: args.count,
       orderBy: 'dist',
