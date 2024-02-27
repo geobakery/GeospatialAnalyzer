@@ -15,6 +15,13 @@ export const testStatus500 = async (implName: string, result: any) => {
   expect(result.statusMessage).toBe('Internal Server Error');
 };
 
+export const testStatus400 = async (implName: string, result: any) => {
+  console.log(`testStatus400 for ${implName}`);
+
+  expect(result.statusCode).toEqual(400);
+  expect(result.statusMessage).toBe('Bad Request');
+};
+
 export const topicTest = async (
   implName: string,
   geojson: GeoJSONFeatureDto,

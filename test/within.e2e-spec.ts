@@ -22,6 +22,7 @@ import {
   resultIsGeoJSONFeatureWithGeometry,
   resultIsGeoJSONFeatureWithoutGeometry,
   testStatus200,
+  testStatus400,
   testStatus500,
   topicTest,
 } from './common/test';
@@ -252,7 +253,7 @@ describe('WithinController (e2e)', () => {
       headers: HEADERS_JSON,
     });
     const implName = '/POST within custom with geometry';
-    await testStatus500(implName, result);
+    await testStatus400(implName, result);
 
     const data = JSON.parse(result.payload);
     expect(data).toBeDefined();

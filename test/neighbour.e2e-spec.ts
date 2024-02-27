@@ -23,7 +23,7 @@ import {
   resultIsGeoJSONFeatureWithGeometry,
   resultIsGeoJSONFeatureWithoutGeometry,
   testStatus200,
-  testStatus500,
+  testStatus400,
   topicTest,
 } from './common/test';
 import {
@@ -32,6 +32,7 @@ import {
 } from './common/testDataPreparer';
 import { NearestNeighbourController } from '../src/nearest-neighbour/nearest-neighbour.controller';
 import { NearestNeighbourService } from '../src/nearest-neighbour/nearest-neighbour.service';
+import { DB_DIST_NAME } from '../src/general/general.constants';
 
 describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -162,15 +163,15 @@ describe('NearestNeighbourController (e2e)', () => {
     expect(props['name']).toBe('Landkreis Bautzen');
     expect(props['__topic']).toBe('verw_kreis_f');
     // approx result
-    expect(props['__dist']).toBeGreaterThan(74076);
-    expect(props['__dist']).toBeLessThan(74077);
+    expect(props[DB_DIST_NAME]).toBeGreaterThan(74076);
+    expect(props[DB_DIST_NAME]).toBeLessThan(74077);
 
     const props1 = verwKreisGeoJSON1.properties;
     expect(props1['name']).toBe('Landkreis Sächsische Schweiz-Osterzgebirge');
     expect(props1['__topic']).toBe('verw_kreis_f');
     // approx result
-    expect(props1['__dist']).toBeGreaterThan(95639);
-    expect(props1['__dist']).toBeLessThan(95640);
+    expect(props1[DB_DIST_NAME]).toBeGreaterThan(95639);
+    expect(props1[DB_DIST_NAME]).toBeLessThan(95640);
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -189,8 +190,8 @@ describe('NearestNeighbourController (e2e)', () => {
     const propsLand = verwLandGeoJSON.properties;
     expect(propsLand['name']).toBe('Sachsen');
     expect(propsLand['__topic']).toBe('verw_land_f');
-    expect(propsLand['__dist']).toBeGreaterThan(52689);
-    expect(propsLand['__dist']).toBeLessThan(52690);
+    expect(propsLand[DB_DIST_NAME]).toBeGreaterThan(52689);
+    expect(propsLand[DB_DIST_NAME]).toBeLessThan(52690);
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
@@ -267,8 +268,7 @@ describe('NearestNeighbourController (e2e)', () => {
       headers: HEADERS_JSON,
     });
     const implName = '/POST Nearest neighbour custom with geometry';
-    await testStatus500(implName, result);
-    // TODO add test for count user message
+    await testStatus200(implName, result);
   });
 
   it('/POST Nearest neighbour with false topic', async () => {
@@ -285,7 +285,7 @@ describe('NearestNeighbourController (e2e)', () => {
       headers: HEADERS_JSON,
     });
     const implName = '/POST Nearest neighbour custom with geometry';
-    await testStatus500(implName, result);
+    await testStatus400(implName, result);
 
     const data = JSON.parse(result.payload);
     expect(data).toBeDefined();
