@@ -183,12 +183,12 @@ export class GeneralService {
       throw new HttpException(
         'Unsupported topic. Supported topics are: ' +
           this.getTopics().join(', '),
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
     throw new HttpException(
       'Unsupported topics. No topics were found.',
-      HttpStatus.INTERNAL_SERVER_ERROR,
+      HttpStatus.BAD_REQUEST,
     );
   }
 

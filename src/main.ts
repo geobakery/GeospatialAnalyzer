@@ -4,8 +4,8 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { join } from 'path';
 import * as fs from 'fs';
 
@@ -28,7 +28,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+  );
 
   await app.listen(3000, '0.0.0.0');
 }
