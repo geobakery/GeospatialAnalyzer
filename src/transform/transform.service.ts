@@ -1,22 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import proj4 from 'proj4';
-import * as epsg from 'proj4-list';
 
 import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
+import proj4 from 'proj4';
+import * as epsg from 'proj4-list';
+import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoGeometryDto } from '../general/dto/geo-geometry.dto';
 import {
-  GeoJSONFeatureDto,
   GeoJSONFeatureCollectionDto,
+  GeoJSONFeatureDto,
 } from '../general/dto/geo-json.dto';
+import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
+import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
 import {
   STANDARD_CRS,
   STANDARD_CRS_STRING,
   STANDARD_EPSG,
 } from '../general/general.constants';
-import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
-import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
-import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
 
 @Injectable()
 export class TransformService {
@@ -26,14 +26,7 @@ export class TransformService {
 
     const esriJsonArray = new Array<EsriJsonDto>();
 
-    let geoInput = Array.isArray(args.input) ? args.input : [args.input];
-    if (this.isGeoJSONFeatureCollection(geoInput)) {
-      geoInput = geoInput.flatMap(
-        (featureCollection) => featureCollection.features,
-      );
-    } else if (!this.isGeoJSONFeature(geoInput)) {
-      throw new HttpException('Malformed GeoJSON', HttpStatus.BAD_REQUEST);
-    }
+    const geoInput = this.normalizeInputGeometries(args.input);
 
     for (const geoJSON of geoInput) {
       try {
@@ -224,29 +217,46 @@ export class TransformService {
     return proj4(fromEpsgString, toEpsgString, coordinates);
   }
 
-  isGeoJSONFeature(geoArray: object[]): geoArray is GeoJSONFeatureDto[] {
-    return geoArray.every(
-      (geo) =>
-        (geo as GeoJSONFeatureDto).type === 'Feature' && 'geometry' in geo,
-    );
-  }
-
-  isGeoJSONFeatureCollection(
-    geoArray: object[],
+  isGeoJSONFeatureCollectionArray(
+    geoArray:
+      | EsriJsonDto[]
+      | GeoJSONFeatureDto[]
+      | GeoJSONFeatureCollectionDto[],
   ): geoArray is GeoJSONFeatureCollectionDto[] {
-    return geoArray.every(
-      (geo) =>
-        (geo as GeoJSONFeatureCollectionDto).type === 'FeatureCollection',
+    return (
+      geoArray.length === 0 ||
+      geoArray[0] instanceof GeoJSONFeatureCollectionDto
     );
   }
 
-  returnGeoJSONArrayAsType(geoArray: any[]): GeoJSONFeatureDto[] {
-    return this.isGeoJSONFeature(geoArray)
-      ? (geoArray as GeoJSONFeatureDto[])
-      : null;
+  isEsriJSONArray(
+    geoArray:
+      | EsriJsonDto[]
+      | GeoJSONFeatureDto[]
+      | GeoJSONFeatureCollectionDto[],
+  ): geoArray is EsriJsonDto[] {
+    return geoArray.length === 0 || geoArray[0] instanceof EsriJsonDto;
   }
 
-  isEsriJSON(geoArray: any[]): geoArray is EsriJsonDto[] {
-    return !!geoArray.every((geo) => geo['attributes'] && geo['geometry']);
+  public normalizeInputGeometries(
+    geometries:
+      | EsriJsonDto[]
+      | GeoJSONFeatureCollectionDto
+      | GeoJSONFeatureCollectionDto[]
+      | GeoJSONFeatureDto[],
+  ): GeoJSONFeatureDto[] {
+    const geometriesArray = Array.isArray(geometries)
+      ? geometries
+      : [geometries];
+
+    if (this.isEsriJSONArray(geometriesArray)) {
+      return this.convertEsriJSONToGeoJSON({ input: geometriesArray });
+    }
+
+    if (this.isGeoJSONFeatureCollectionArray(geometriesArray)) {
+      return geometriesArray.flatMap(({ features }) => features);
+    }
+
+    return geometriesArray;
   }
 }
