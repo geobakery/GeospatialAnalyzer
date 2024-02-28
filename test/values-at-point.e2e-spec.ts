@@ -1,37 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GeneralModule } from '../src/general/general.module';
+import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
-import { ConfigModule } from '@nestjs/config';
+import { GeneralModule } from '../src/general/general.module';
+import { ValuesAtPointController } from '../src/values-at-point/values-at-point.controller';
+import { ValuesAtPointService } from '../src/values-at-point/values-at-point.service';
 import {
   GET,
   HEADERS_JSON,
-  VALUES_AT_POINT_URL,
   POST,
   TOPIC_URL,
   URL_START,
   VAlUES_AT_POINT,
-  WITHIN_URL,
+  VALUES_AT_POINT_URL,
 } from './common/constants';
 import {
-  getESRISONFeatureFromResponse,
   getGeoJSONFeatureFromResponse,
-  resultIsGeoJSONFeatureWithGeometry,
   resultIsGeoJSONFeatureWithoutGeometry,
   testStatus200,
-  testStatus500,
   topicTest,
 } from './common/test';
-import {
-  getEsriJSONFeature,
-  getGeoJSONFeature,
-} from './common/testDataPreparer';
-import { ValuesAtPointController } from '../src/values-at-point/values-at-point.controller';
-import { ValuesAtPointService } from '../src/values-at-point/values-at-point.service';
+import { getGeoJSONFeature } from './common/testDataPreparer';
 
 describe('ValuesAtPointController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -63,6 +57,7 @@ describe('ValuesAtPointController (e2e)', () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
+    await setUpOpenAPIAndValidation(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });
