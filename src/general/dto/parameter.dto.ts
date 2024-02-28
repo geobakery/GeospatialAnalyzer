@@ -63,8 +63,8 @@ export class ParameterDto {
   @ApiProperty({ example: 10000 })
   maxDistanceToNeighbour: number;
 
-  @ApiProperty({ example: '4326' })
-  outSRS: string;
+  @ApiProperty({ example: 4326 })
+  outSRS: number;
 
   @ApiProperty({
     example: 60_000,

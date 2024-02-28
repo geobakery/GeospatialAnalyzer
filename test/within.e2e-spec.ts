@@ -220,7 +220,7 @@ describe('WithinController (e2e)', () => {
     const requestProps = props['__requestParams'];
     expect(requestProps['timeout']).toBe(60000);
     expect(requestProps['returnGeometry']).toBe(true);
-    expect(requestProps['outSRS']).toBe('25833');
+    expect(requestProps['outSRS']).toBe(25833);
     expect(requestProps['outputFormat']).toBe('esrijson');
 
     expect(geoProps['name']).toBe('testname');
@@ -231,7 +231,7 @@ describe('WithinController (e2e)', () => {
     const geo = verwEsri.geometry;
     expect(geo.spatialReference).toBeDefined();
     expect(geo.spatialReference.wkid).toBeDefined();
-    expect(geo.spatialReference.wkid).toBe('25833');
+    expect(geo.spatialReference.wkid).toBe(25833);
     expect(geo.rings).toBeDefined();
     expect(geo.rings.length).toBeGreaterThan(0);
     const coordinates = geo.rings;

@@ -44,8 +44,7 @@ export class TransformGeoToEsriDto {
     | GeoJSONFeatureCollectionDto;
 
   @ApiProperty({
-    example: '3035',
-    minLength: 1,
+    example: 3035,
   })
-  epsg: string;
+  epsg: number;
 }

@@ -49,7 +49,7 @@ export class TransformService {
           }
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
-            currentCRS,
+            String(currentCRS),
             epsgString,
           );
         }
