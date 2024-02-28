@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { NearestNeighbourService } from './nearest-neighbour.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { ParameterDto } from '../general/dto/parameter.dto';
@@ -18,6 +10,7 @@ import {
 } from '../general/general.interface';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
 
 @Controller({
   version: '1',
@@ -47,14 +40,9 @@ export class NearestNeighbourController {
   })
   @HttpCode(200)
   @Post('nearestNeighbour')
-  async intersect(
+  async nearestNeighbour(
     @Body() args: ParameterDto,
-  ): Promise<GeoJSON[] | EsriJSON | ErrorResponse | any[]> {
-    try {
-      return await this.nearestNeighbourService.calculateNearestNeighbour(args);
-    } catch (e) {
-      //just an example error
-      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
+    return await this.nearestNeighbourService.calculateNearestNeighbour(args);
   }
 }

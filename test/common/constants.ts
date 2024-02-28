@@ -18,7 +18,6 @@ export const GEOJSON_WITHOUT_GEOMETRY_KREIS = {
   topics: ['verw_kreis_f'],
   count: 0,
   returnGeometry: false,
-  timeout: 60000,
   outputFormat: 'geojson',
   maxDistanceToNeighbour: 0,
   outSRS: '4326',
@@ -45,7 +44,6 @@ export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS = {
   outputFormat: 'esrijson',
   outSRS: '25833',
   maxDistanceToNeighbour: 0,
-  timeout: 60000,
   count: 0,
 };
 

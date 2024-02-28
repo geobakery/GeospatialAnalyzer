@@ -93,13 +93,4 @@ export class ParameterDto {
   })
   @IsOptional()
   outSRS: string;
-
-  @ApiProperty({
-    example: 60000,
-    description: '',
-  })
-  @IsOptional()
-  @Min(5000)
-  @Max(100000)
-  timeout: number;
 }

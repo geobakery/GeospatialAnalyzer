@@ -27,11 +27,32 @@ import configuration from './config/configuration';
       username: process.env.geospatial_analyzer_db_username,
       password: process.env.geospatial_analyzer_db_password,
       database: process.env.geospatial_analyzer_db_database,
-      connectTimeoutMS: 10000,
+      connectTimeoutMS: process.env.geospatial_analyzer_connectTimeoutMS
+        ? Number(process.env.geospatial_analyzer_connectTimeoutMS)
+        : 60000,
       synchronize: JSON.parse(process.env.geospatial_analyzer_db_synchronize),
       logging: JSON.parse(process.env.geospatial_analyzer_db_logging),
       subscribers: [],
       migrations: [],
+      extra: {
+        statement_timeout: process.env.statement_timeout
+          ? Number(process.env.geospatial_analyzer_statement_timeout)
+          : 30000, // number of milliseconds before a statement in query will time out, default is no timeout
+        query_timeout: process.env.geospatial_analyzer_query_timeout
+          ? Number(process.env.geospatial_analyzer_query_timeout)
+          : 30000, // number of milliseconds before a query call will timeout, default is no timeout
+        connectionTimeoutMillis: process.env
+          .geospatial_analyzer_connectionTimeoutMillis
+          ? Number(process.env.geospatial_analyzer_connectionTimeoutMillis)
+          : 0, // number of milliseconds to wait for connection, default is no timeout
+        idle_in_transaction_session_timeout: process.env
+          .geospatial_analyzer_idle_in_transaction_session_timeout
+          ? Number(
+              process.env
+                .geospatial_analyzer_idle_in_transaction_session_timeout,
+            )
+          : 0, // number of milliseconds before terminating any session with an open idle transaction, default is no timeout
+      },
     } as TypeOrmModule),
     IntersectModule,
     TransformModule,

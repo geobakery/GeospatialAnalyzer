@@ -86,9 +86,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
 
 - GeoJSON feature collections aren't supported (currently array of single feature)
 - Currently, unsupported user parameter
-  - timeout
   - buffer
-  - maxDistanceToNeighbour
 - Currently, user parameter with known bugs
   - outSRS
     - returnGeometry has to be true, or transfer throws error of valid coordinates

@@ -13,7 +13,11 @@ async function bootstrap() {
   await checkTopic();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      bodyLimit: process.env.geospatial_analyzer_payload
+        ? Number(process.env.geospatial_analyzer_payload)
+        : 1048576,
+    }),
   );
   app.enableVersioning({
     type: VersioningType.URI,

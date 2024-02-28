@@ -139,7 +139,6 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
-    expect(requestProps['timeout']).toBe(60000);
     expect(requestProps['returnGeometry']).toBe(false);
     expect(requestProps['outputFormat']).toBe('geojson');
 
@@ -158,7 +157,6 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
-    expect(requestPropsLand['timeout']).toBe(60000);
     expect(requestPropsLand['returnGeometry']).toBe(false);
     expect(requestPropsLand['outputFormat']).toBe('geojson');
 

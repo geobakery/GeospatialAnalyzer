@@ -18,6 +18,7 @@ import {
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { EsriJsonDto } from '../general/dto/esri-json.dto';
 
 @Controller({
   version: '1',
@@ -47,12 +48,7 @@ export class IntersectController {
   @Post('intersect')
   async intersect(
     @Body() args: ParameterDto,
-  ): Promise<GeoJSON[] | EsriJSON | ErrorResponse | any[]> {
-    try {
-      return await this.intersectService.calculateIntersect(args);
-    } catch (e) {
-      //just an example error
-      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
+    return await this.intersectService.calculateIntersect(args);
   }
 }
