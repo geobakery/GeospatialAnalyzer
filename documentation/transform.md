@@ -228,16 +228,4 @@ Post-call http://localhost:3000/v1/transformEsriJSONToGeoJSON with JSON body:
 ```
 
 ## Known Limitations
-- Both GeoJSON and EsriJSON have separate services
-    - For GeoJSON an EPSG code and an Array with GeoJSON objects must be input
-    - For EsriJSON an Array with EsriJSON objects must be input and it will always be converted to EPSG:4326
-    - GeoJSON only supports EPSG:4326
-- Unsupported geo-types
-    - MultiPolygon
-    - MultiLineString
-    - MultiPoint
-    - GeometryCollection
-- Expected GeoJSON and EsriJSON can be seen in swagger examples and DTO schema definitions
-
-## Work In Progress
-- testing
+- None
