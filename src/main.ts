@@ -1,13 +1,13 @@
+import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
-import { join } from 'path';
 import * as fs from 'fs';
+import { join } from 'path';
+import { setUpOpenAPIAndValidation } from './app-init';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   await checkTopic();
@@ -19,18 +19,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('GeospatialAnalyzer')
-    .setDescription('API description')
-    .setVersion('1.2.15')
-    .addTag('Geobakery')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-  app.useGlobalPipes(
-    new ValidationPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
-  );
+  await setUpOpenAPIAndValidation(app);
 
   await app.listen(3000, '0.0.0.0');
 }

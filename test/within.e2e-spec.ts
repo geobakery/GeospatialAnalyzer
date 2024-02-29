@@ -1,20 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GeneralModule } from '../src/general/general.module';
+import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
-import { ConfigModule } from '@nestjs/config';
+import { GeneralModule } from '../src/general/general.module';
+import { WithinController } from '../src/within/within.controller';
+import { WithinService } from '../src/within/within.service';
 import {
   GET,
   HEADERS_JSON,
-  WITHIN_URL,
   POST,
   TOPIC_URL,
   URL_START,
   WITHIN,
+  WITHIN_URL,
 } from './common/constants';
 import {
   getESRISONFeatureFromResponse,
@@ -23,15 +26,12 @@ import {
   resultIsGeoJSONFeatureWithoutGeometry,
   testStatus200,
   testStatus400,
-  testStatus500,
   topicTest,
 } from './common/test';
 import {
   getEsriJSONFeature,
   getGeoJSONFeature,
 } from './common/testDataPreparer';
-import { WithinController } from '../src/within/within.controller';
-import { WithinService } from '../src/within/within.service';
 
 describe('WithinController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -63,6 +63,7 @@ describe('WithinController (e2e)', () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
+    await setUpOpenAPIAndValidation(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });
@@ -220,7 +221,7 @@ describe('WithinController (e2e)', () => {
     const requestProps = props['__requestParams'];
     expect(requestProps['timeout']).toBe(60000);
     expect(requestProps['returnGeometry']).toBe(true);
-    expect(requestProps['outSRS']).toBe('25833');
+    expect(requestProps['outSRS']).toBe(25833);
     expect(requestProps['outputFormat']).toBe('esrijson');
 
     expect(geoProps['name']).toBe('testname');
@@ -231,7 +232,7 @@ describe('WithinController (e2e)', () => {
     const geo = verwEsri.geometry;
     expect(geo.spatialReference).toBeDefined();
     expect(geo.spatialReference.wkid).toBeDefined();
-    expect(geo.spatialReference.wkid).toBe('25833');
+    expect(geo.spatialReference.wkid).toBe(25833);
     expect(geo.rings).toBeDefined();
     expect(geo.rings.length).toBeGreaterThan(0);
     const coordinates = geo.rings;

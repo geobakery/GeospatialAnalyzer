@@ -1,16 +1,15 @@
-import { DataSource } from 'typeorm';
-import {
-  dbRequestBuilderSample,
-  DBResponse,
-  GeneralResponse,
-  multipleSource,
-  QueryAndParameter,
-  SupportedTopics,
-  tempResult,
-  topicDefinition,
-  topicDefinitionOutside,
-} from './general.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { geojsonToWKT } from '@terraformer/wkt';
+import { DataSource } from 'typeorm';
+import { TransformService } from '../transform/transform.service';
+import { PostgresService } from './adapter/postgres.service';
+import { DbAdapterService } from './db-adapter.service';
+import { EsriJsonDto } from './dto/esri-json.dto';
+import { GeoGeometryDto } from './dto/geo-geometry.dto';
+import { GeoJSONFeatureDto } from './dto/geo-json.dto';
+import { ParameterDto } from './dto/parameter.dto';
 import {
   DB_DIST_NAME,
   ESRIJSON_PARAMETER,
@@ -27,17 +26,17 @@ import {
   STANDARD_SRID,
   supportedDatabase,
 } from './general.constants';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { ParameterDto } from './dto/parameter.dto';
-import { ConfigService } from '@nestjs/config';
-import { geojsonToWKT } from '@terraformer/wkt';
-import { TransformService } from '../transform/transform.service';
-import { GeoJSONFeatureDto } from './dto/geo-json.dto';
-import { GeoGeometryDto } from './dto/geo-geometry.dto';
-import { EsriJsonDto } from './dto/esri-json.dto';
-import { TransformGeoToEsriDto } from './dto/transform-geo-to-esri.dto';
-import { PostgresService } from './adapter/postgres.service';
-import { DbAdapterService } from './db-adapter.service';
+import {
+  dbRequestBuilderSample,
+  DBResponse,
+  GeneralResponse,
+  multipleSource,
+  QueryAndParameter,
+  SupportedTopics,
+  tempResult,
+  topicDefinition,
+  topicDefinitionOutside,
+} from './general.interface';
 
 @Injectable()
 export class GeneralService {
@@ -307,43 +306,27 @@ export class GeneralService {
   /**
    * Explanation:
    * assures that the result is always a GeoJSON[] formate
+   * @TODO Update doc block and method name.
    */
   setGeoJSONArray(
     result: tempResult[],
-    resultArray: GeoJSONFeatureDto[] | EsriJsonDto[],
     parameter: ParameterDto,
-  ): any[] {
+  ): GeoJSONFeatureDto[] | EsriJsonDto[] {
     const resultMap = result.flatMap((r) => r.result.features);
-    let resultElement: GeoJSONFeatureDto[] | EsriJsonDto[] = resultMap;
+
     if (parameter.outputFormat === ESRIJSON_PARAMETER) {
-      if (result.length) {
-        resultElement = this.transformService.convertGeoJSONToEsriJSON({
-          input: resultMap,
-          epsg: parameter.outSRS || STANDARD_CRS,
-        } as TransformGeoToEsriDto);
-      }
-    } else if (parameter.outputFormat === GEOJSON_PARAMETER) {
-      if (result.length) {
-        const resultMapTemp =
-          this.transformService.returnGeoJSONArrayAsType(resultMap);
-        if (resultMapTemp) {
-          resultElement =
-            this.transformService.transformIncorrectCRSGeoJsonArray(
-              resultMapTemp,
-            );
-        }
-      }
-    }
-    if (!resultArray.length) {
-      resultArray = resultElement;
-    } else {
-      resultElement.forEach((r) => {
-        if (r) {
-          resultArray.push(r);
-        }
+      return this.transformService.convertGeoJSONToEsriJSON({
+        input: resultMap,
+        epsg: parameter.outSRS || STANDARD_CRS,
       });
     }
-    return resultArray;
+
+    if (parameter.outputFormat === GEOJSON_PARAMETER) {
+      this.transformService.transformIncorrectCRSGeoJsonArray(resultMap);
+      return resultMap;
+    }
+
+    return resultMap;
   }
 
   getDBNameForIdentifier(top: string): string {
@@ -613,13 +596,12 @@ export class GeneralService {
   prepareDBResponse(
     query: any,
     requestParams: ParameterDto,
-    result: GeoJSONFeatureDto[],
     map: Map<string, any>,
-  ): GeoJSONFeatureDto[] {
+  ): EsriJsonDto[] | GeoJSONFeatureDto[] {
     const tmpResult = this.dbToGeoJSON(query);
     this.addUserInputToResponse(tmpResult, requestParams, map);
     //ensure that the result is an GeoJSON[] and not GeoJSON[][]
-    return this.setGeoJSONArray(tmpResult, result, requestParams);
+    return this.setGeoJSONArray(tmpResult, requestParams);
   }
 
   /**
@@ -712,28 +694,11 @@ export class GeneralService {
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     await this.dynamicValidation(args);
-    let geoInput = Array.isArray(args.inputGeometries)
-      ? args.inputGeometries
-      : [args.inputGeometries];
 
-    if (this.transformService.isEsriJSON(geoInput)) {
-      // TODO check esrijson input
-      geoInput = this.transformService.convertEsriJSONToGeoJSON({
-        input: geoInput,
-      });
-    } else if (this.transformService.isGeoJSONFeatureCollection(geoInput)) {
-      geoInput = geoInput.flatMap(
-        (featureCollection) => featureCollection.features,
-      );
-    } else if (!this.transformService.isGeoJSONFeature(geoInput)) {
-      throw new HttpException(
-        'Malformed inputGeometries',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const geoInput = this.transformService.normalizeInputGeometries(
+      args.inputGeometries,
+    );
 
-    // Force Type
-    let result: GeoJSONFeatureDto[] = [];
     // iterate through all geometries
     const queryArray: string[] = [];
 
@@ -756,10 +721,9 @@ export class GeneralService {
       }
     }
     const dbResult = await this.dataSource.query(queryString);
-    result = this.prepareDBResponse(
+    const result = this.prepareDBResponse(
       dbResult,
       requestParams,
-      result,
       idParameterMap,
     );
     if (!result.length) {

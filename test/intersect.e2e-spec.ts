@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { IntersectController } from '../src/intersect/intersect.controller';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GeneralModule } from '../src/general/general.module';
-import { IntersectService } from '../src/intersect/intersect.service';
+import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
-import { ConfigModule } from '@nestjs/config';
+import { GeneralModule } from '../src/general/general.module';
+import { IntersectController } from '../src/intersect/intersect.controller';
+import { IntersectService } from '../src/intersect/intersect.service';
 import {
   GEOJSON_WITHOUT_GEOMETRY_KREIS,
   GET,
@@ -62,6 +63,7 @@ describe('IntersectController (e2e)', () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
+    await setUpOpenAPIAndValidation(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });
@@ -260,7 +262,7 @@ describe('IntersectController (e2e)', () => {
     const requestProps = props['__requestParams'];
     expect(requestProps['timeout']).toBe(60000);
     expect(requestProps['returnGeometry']).toBe(true);
-    expect(requestProps['outSRS']).toBe('25833');
+    expect(requestProps['outSRS']).toBe(25833);
     expect(requestProps['outputFormat']).toBe('esrijson');
 
     expect(geoProps['name']).toBe('testname');
@@ -271,7 +273,7 @@ describe('IntersectController (e2e)', () => {
     const geo = verwEsri.geometry;
     expect(geo.spatialReference).toBeDefined();
     expect(geo.spatialReference.wkid).toBeDefined();
-    expect(geo.spatialReference.wkid).toBe('25833');
+    expect(geo.spatialReference.wkid).toBe(25833);
     expect(geo.rings).toBeDefined();
     expect(geo.rings.length).toBeGreaterThan(0);
     const coordinates = geo.rings;

@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
 import { GeoJSONFeatureDto, GeoJSONFeatureCollectionDto } from './geo-json.dto';
 
 @ApiExtraModels(GeoJSONFeatureCollectionDto, GeoJSONFeatureDto)
@@ -16,36 +16,46 @@ export class TransformGeoToEsriDto {
       },
       { $ref: getSchemaPath(GeoJSONFeatureCollectionDto) },
     ],
-    example:
-      '[\n' +
-      '    {\n' +
-      '  "type": "Feature",\n' +
-      '  "geometry": {\n' +
-      '    "type": "Point",\n' +
-      '    "coordinates": [125.6, 10.1]\n' +
-      '  },\n' +
-      '  "properties": {\n' +
-      '    "name": "Dinagat Islands"\n' +
-      '  }\n' +
-      '},\n' +
-      '    {\n' +
-      '  "type": "Feature",\n' +
-      '  "geometry": {\n' +
-      '    "type": "Point",\n' +
-      '    "coordinates": [125.6, 10.1]\n' +
-      '  },\n' +
-      '  "properties": {\n' +
-      '    "name": "Dinagat Islands"\n' +
-      '  }\n' +
-      '}\n' +
-      ']',
+    example: [
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [125.6, 10.1],
+        },
+        properties: {
+          name: 'Dinagat Islands',
+        },
+      },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [125.6, 10.1],
+        },
+        properties: {
+          name: 'Dinagat Islands',
+        },
+      },
+    ],
+  })
+  @Type(() => Array, {
+    discriminator: {
+      property: 'type',
+      subTypes: [
+        { name: 'Feature', value: GeoJSONFeatureDto },
+        { name: 'FeatureCollection', value: GeoJSONFeatureCollectionDto },
+      ],
+    },
+    keepDiscriminatorProperty: true,
   })
   input:
     | GeoJSONFeatureDto[]
     | GeoJSONFeatureCollectionDto[]
     | GeoJSONFeatureCollectionDto;
 
-  @ApiProperty({ example: '3035' })
-  @IsNotEmpty()
-  epsg: string;
+  @ApiProperty({
+    example: 3035,
+  })
+  epsg: number;
 }

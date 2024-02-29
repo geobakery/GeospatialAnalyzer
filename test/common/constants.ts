@@ -1,7 +1,8 @@
 import { GeoGeometryDto } from '../../src/general/dto/geo-geometry.dto';
 import { EsriJsonDto } from '../../src/general/dto/esri-json.dto';
+import { ParameterDto } from '../../src/general/dto/parameter.dto';
 
-export const GEOJSON_WITHOUT_GEOMETRY_KREIS = {
+export const GEOJSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
   inputGeometries: [
     {
       type: 'Feature',
@@ -21,10 +22,9 @@ export const GEOJSON_WITHOUT_GEOMETRY_KREIS = {
   timeout: 60000,
   outputFormat: 'geojson',
   maxDistanceToNeighbour: 0,
-  outSRS: '4326',
+  outSRS: 4326,
 };
-
-export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS = {
+export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
   inputGeometries: [
     {
       geometry: {
@@ -43,7 +43,7 @@ export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS = {
   topics: ['verw_kreis_f'],
   returnGeometry: false,
   outputFormat: 'esrijson',
-  outSRS: '25833',
+  outSRS: 25833,
   maxDistanceToNeighbour: 0,
   timeout: 60000,
   count: 0,

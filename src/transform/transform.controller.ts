@@ -6,12 +6,12 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { TransformService } from './transform.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
 import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
+import { TransformService } from './transform.service';
 
 @Controller({
   version: '1',
@@ -19,13 +19,6 @@ import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto'
 @Controller('transform')
 export class TransformController {
   constructor(private readonly transformService: TransformService) {}
-
-  /*  @ApiResponse({
-    status: 200,
-    description:
-      'Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code',
-    type: EsriJsonDto,
-  })*/
 
   @ApiResponse({
     status: 200,
