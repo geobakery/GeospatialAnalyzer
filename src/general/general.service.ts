@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { geojsonToWKT } from '@terraformer/wkt';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
 import { PostgresService } from './adapter/postgres.service';
 import { DbAdapterService } from './db-adapter.service';
@@ -296,7 +296,6 @@ export class GeneralService {
    */
   setRequestParameterForResponse(args: ParameterDto): any {
     return {
-      timeout: args.timeout,
       outputFormat: args.outputFormat,
       outSRS: args.outSRS,
       returnGeometry: args.returnGeometry,
@@ -690,6 +689,35 @@ export class GeneralService {
    * This function is used as the wrapper for all geometry-like interfaces
    */
   async calculateMethode(
+    args: ParameterDto,
+    dbBuilderParameter: dbRequestBuilderSample,
+  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
+    try {
+      return await this.generelRoutine(args, dbBuilderParameter);
+    } catch (e) {
+      switch (e.constructor) {
+        case QueryFailedError: {
+          throw new HttpException(e.message, HttpStatus.REQUEST_TIMEOUT);
+        }
+        case HttpException: {
+          throw new HttpException(
+            e.message,
+            e.status ? e.status : HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+        default: {
+          throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
+    }
+  }
+
+  /**
+   * Explanation:
+   * Function which prepares the user's input for the actual database query and which return the actual result
+   * This function is used as the wrapper for all geometry-like interfaces
+   */
+  async generelRoutine(
     args: ParameterDto,
     dbBuilderParameter: dbRequestBuilderSample,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {

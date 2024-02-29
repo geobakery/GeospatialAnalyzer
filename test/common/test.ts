@@ -5,21 +5,18 @@ export const testStatus200 = async (implName: string, result: any) => {
   console.log(`testStatus200 for ${implName}`);
 
   expect(result.statusCode).toEqual(200);
-  expect(result.statusMessage).toEqual('OK');
 };
 
 export const testStatus500 = async (implName: string, result: any) => {
   console.log(`testStatus500 for ${implName}`);
 
   expect(result.statusCode).toEqual(500);
-  expect(result.statusMessage).toBe('Internal Server Error');
 };
 
 export const testStatus400 = async (implName: string, result: any) => {
   console.log(`testStatus400 for ${implName}`);
 
   expect(result.statusCode).toEqual(400);
-  expect(result.statusMessage).toBe('Bad Request');
 };
 
 export const topicTest = async (

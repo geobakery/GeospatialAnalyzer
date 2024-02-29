@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { GeneralService } from '../general/general.service';
 import {
   dbRequestBuilderSample,
@@ -22,11 +22,10 @@ export class HealthService {
       await this.generalService.executePlainDatabaseQuery(dbBuilderParameter);
     if (databaseResult) {
       return { response: 'ok' } as GeneralResponse;
-    } else {
-      return {
-        status: 500,
-        error: 'Fail - Database is not available.',
-      } as ErrorResponse;
     }
+    throw new HttpException(
+      'Database not reachable',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }

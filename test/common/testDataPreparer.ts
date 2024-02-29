@@ -18,7 +18,7 @@ export const getGeoJSONFeature = (
     base.topics = opts.topics;
   }
   if (opts.fixGeometry) {
-    base.inputGeometries[0].geometry = opts.fixGeometry;
+    base.inputGeometries[0].geometry = { ...opts.fixGeometry };
   }
   if (opts.additionalAttributes) {
     opts.additionalAttributes.forEach((value, key) => {

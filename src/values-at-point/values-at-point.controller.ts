@@ -3,8 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Post,
 } from '@nestjs/common';
 import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
@@ -48,11 +46,6 @@ export class ValuesAtPointController {
   async valuesAtPoint(
     @Body() args: ParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
-    try {
-      return await this.valuesAtPointService.calculateValuesAtPoint(args);
-    } catch (e) {
-      //just an example error
-      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.valuesAtPointService.calculateValuesAtPoint(args);
   }
 }

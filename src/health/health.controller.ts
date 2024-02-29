@@ -28,7 +28,6 @@ export class HealthController {
     try {
       return await this.healthService.getCurrentHealth();
     } catch (e) {
-      //just an example error
       throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

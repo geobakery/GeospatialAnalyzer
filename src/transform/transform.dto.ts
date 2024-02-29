@@ -11,7 +11,4 @@ export class TransformDto {
 
   @ApiProperty()
   outSRS: string;
-
-  @ApiProperty()
-  timeout: string;
 }

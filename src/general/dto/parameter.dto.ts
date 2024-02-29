@@ -89,11 +89,4 @@ export class ParameterDto {
 
   @ApiProperty({ example: 4326 })
   outSRS: number;
-
-  @ApiProperty({
-    example: 60_000,
-    minimum: 5_000,
-    maximum: 100_000,
-  })
-  timeout: number;
 }
