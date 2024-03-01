@@ -32,6 +32,7 @@ import {
   getEsriJSONFeature,
   getGeoJSONFeature,
 } from './common/testDataPreparer';
+import { TransformModule } from '../src/transform/transform.module';
 
 describe('IntersectController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -56,6 +57,7 @@ describe('IntersectController (e2e)', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [IntersectService],
     }).compile();

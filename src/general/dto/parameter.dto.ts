@@ -2,11 +2,12 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { outputFormatEnum } from '../general.constants';
+import { GeospatialRequest } from '../general.service';
 import { EsriJsonDto } from './esri-json.dto';
 import { GeoJSONFeatureCollectionDto, GeoJSONFeatureDto } from './geo-json.dto';
 
 @ApiExtraModels(EsriJsonDto, GeoJSONFeatureDto, GeoJSONFeatureCollectionDto)
-export class ParameterDto {
+export class ParameterDto implements GeospatialRequest {
   @ApiProperty({
     description: 'the topic name to check for',
     example: ['verw_kreis_f'],

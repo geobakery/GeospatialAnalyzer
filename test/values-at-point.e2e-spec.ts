@@ -26,6 +26,7 @@ import {
   topicTest,
 } from './common/test';
 import { getGeoJSONFeature } from './common/testDataPreparer';
+import { TransformModule } from '../src/transform/transform.module';
 
 describe('ValuesAtPointController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -50,6 +51,7 @@ describe('ValuesAtPointController (e2e)', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [ValuesAtPointService],
     }).compile();

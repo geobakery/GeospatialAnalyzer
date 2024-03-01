@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TransformModule } from '../transform/transform.module';
 import { NearestNeighbourService } from './nearest-neighbour.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../general/general.module';
@@ -30,6 +31,7 @@ describe('NearestNeighbourService', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

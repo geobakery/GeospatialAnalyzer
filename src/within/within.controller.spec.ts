@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TransformModule } from '../transform/transform.module';
 import { WithinController } from './within.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WithinService } from './within.service';
@@ -31,6 +32,7 @@ describe('WithinController', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [WithinService],
     }).compile();

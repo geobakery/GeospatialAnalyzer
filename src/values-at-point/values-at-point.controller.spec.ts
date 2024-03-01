@@ -1,10 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ValuesAtPointController } from './values-at-point.controller';
-import { GeneralModule } from '../general/general.module';
-import { ValuesAtPointService } from './values-at-point.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from '../config/configuration';
+import { GeneralModule } from '../general/general.module';
+import { TransformModule } from '../transform/transform.module';
+import { ValuesAtPointController } from './values-at-point.controller';
+import { ValuesAtPointService } from './values-at-point.service';
 
 describe('ValuesAtPointController', () => {
   let controller: ValuesAtPointController;
@@ -31,6 +32,7 @@ describe('ValuesAtPointController', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [ValuesAtPointService],
     }).compile();

@@ -40,6 +40,6 @@ export class IntersectController {
   async intersect(
     @Body() args: ParameterDto,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
-    return await this.intersectService.calculateIntersect(args);
+    return await this.intersectService.handleRequest(args);
   }
 }

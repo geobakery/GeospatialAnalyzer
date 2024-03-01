@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TransformModule } from '../transform/transform.module';
 import { IntersectController } from './intersect.controller';
 import { GeneralModule } from '../general/general.module';
 import { IntersectService } from './intersect.service';
@@ -31,6 +32,7 @@ describe('IntersectController', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [IntersectService],
     }).compile();

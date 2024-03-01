@@ -1,18 +1,7 @@
-import { dbDirection, ReplaceStringType } from './general.constants';
-import {
-  GeoJSONFeatureDto,
-  GeoJSONFeatureCollectionDto,
-} from './dto/geo-json.dto';
+import { GeoJSONFeatureCollectionDto } from './dto/geo-json.dto';
 
 export interface GeneralResponse {
   response: string;
-}
-export interface Geometry {}
-export interface EsriGeometry {}
-export interface EsriJSON {
-  geometry: EsriGeometry;
-  symbol: NonNullable<object>;
-  attributes: NonNullable<object>;
 }
 export interface ErrorResponse {
   status: number;
@@ -22,43 +11,6 @@ export interface ErrorResponse {
 export interface DBResponse {
   response: GeoJSONFeatureCollectionDto;
   id: string;
-}
-
-export interface QueryAndParameter {
-  query: string[];
-  parameter: string[];
-}
-
-export interface CrsGeometryElementProperty {
-  name: string;
-}
-export interface CrsGeometryElement {
-  type: string;
-  properties: CrsGeometryElementProperty;
-}
-export interface CrsGeometry {
-  type: string;
-  crs?: CrsGeometryElement;
-  coordinates: any;
-}
-
-export interface dbRequestBuilderSample {
-  select: boolean;
-  where: boolean;
-  from?: boolean;
-  fromStatement?: string;
-  fromStatementParameter?: Map<string, ReplaceStringType>;
-  customStatement?: boolean;
-  selectStatement?: string;
-  selectStatementParameter?: string;
-  whereStatement?: string;
-  whereStatementParameter?: Map<string, ReplaceStringType>;
-  limit?: number;
-  count?: number;
-  orderBy?: string;
-  orderByDirection?: dbDirection;
-  attachments?: Map<string, string>;
-  mockGeometry?: boolean;
 }
 
 export interface topicDefinition {
@@ -96,8 +48,8 @@ export interface multipleSource {
   name: string;
 }
 
-export interface methodeParameter {
-  parameter1?: string;
-  parameter2?: string;
-  returnGeometry?: boolean;
+export interface SqlLiteral {
+  bindingName: string;
+  value: string | number;
+  sqlAlias: string;
 }
