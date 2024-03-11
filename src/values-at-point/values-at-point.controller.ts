@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
@@ -46,6 +40,6 @@ export class ValuesAtPointController {
   async valuesAtPoint(
     @Body() args: ParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
-    return await this.valuesAtPointService.calculateValuesAtPoint(args);
+    return await this.valuesAtPointService.handleRequest(args);
   }
 }

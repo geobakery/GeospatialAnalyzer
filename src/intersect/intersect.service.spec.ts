@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TransformModule } from '../transform/transform.module';
 import { IntersectService } from './intersect.service';
 import { GeneralModule } from '../general/general.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -30,6 +31,7 @@ describe('IntersectService', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
     }).compile();
 

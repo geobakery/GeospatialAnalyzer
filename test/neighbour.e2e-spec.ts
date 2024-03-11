@@ -33,6 +33,7 @@ import {
   getEsriJSONFeature,
   getGeoJSONFeature,
 } from './common/testDataPreparer';
+import { TransformModule } from '../src/transform/transform.module';
 
 describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -57,6 +58,7 @@ describe('NearestNeighbourController (e2e)', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [NearestNeighbourService],
     }).compile();
@@ -97,10 +99,11 @@ describe('NearestNeighbourController (e2e)', () => {
       payload: input,
       headers: HEADERS_JSON,
     });
-    const implName = '/POST Nearest neighbour without geometry';
+    const implName = '/POST Nearest neighbour with geometry';
     await testStatus200(implName, result);
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
+    console.log(geoJSON);
     expect(geoJSON.length).toBe(2);
     await topicTest(INTERSECT, geoJSON[0], 'verw_kreis_f');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');

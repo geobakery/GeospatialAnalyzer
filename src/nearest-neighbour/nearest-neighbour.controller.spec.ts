@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TransformModule } from '../transform/transform.module';
 import { NearestNeighbourController } from './nearest-neighbour.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GeneralModule } from '../general/general.module';
@@ -31,6 +32,7 @@ describe('NearestNeighbourController', () => {
           logging: false,
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [NearestNeighbourService],
     }).compile();

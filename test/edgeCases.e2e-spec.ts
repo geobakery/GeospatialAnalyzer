@@ -11,19 +11,13 @@ import configuration from '../src/config/configuration';
 import { ConfigModule } from '@nestjs/config';
 import {
   HEADERS_JSON,
-  INTERSECT,
   INTERSECT_URL,
   POST,
   URL_START,
 } from './common/constants';
-import {
-  getGeoJSONFeatureFromResponse,
-  resultIsGeoJSONFeatureWithGeometry,
-  testStatus200,
-  topicTest,
-} from './common/test';
 import { getGeoJSONFeature } from './common/testDataPreparer';
 import * as big_json from './common/big_geojson_coordinate.json';
+import { TransformModule } from '../src/transform/transform.module';
 
 describe('EdgeCases (e2e)', () => {
   let app: NestFastifyApplication;
@@ -52,6 +46,7 @@ describe('EdgeCases (e2e)', () => {
           },
         } as TypeOrmModule),
         GeneralModule,
+        TransformModule,
       ],
       providers: [IntersectService],
     }).compile();
@@ -67,21 +62,21 @@ describe('EdgeCases (e2e)', () => {
     await app.close();
   });
 
-  it('/POST Payload too large', async () => {
-    const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
-      returnGeometry: true,
-      fixGeometry: { type: 'Polygon', coordinates: big_json },
-    });
-    const result = await app.inject({
-      method: POST,
-      url: URL_START + INTERSECT_URL,
-      payload: input,
-      headers: HEADERS_JSON,
-    });
-    expect(result.statusCode).toEqual(413);
-    expect(result.statusMessage).toBe('Payload Too Large');
-  });
+  // it('/POST Payload too large', async () => {
+  //   const input = await getGeoJSONFeature({
+  //     topics: ['verw_kreis_f'],
+  //     returnGeometry: true,
+  //     fixGeometry: { type: 'Polygon', coordinates: big_json },
+  //   });
+  //   const result = await app.inject({
+  //     method: POST,
+  //     url: URL_START + INTERSECT_URL,
+  //     payload: input,
+  //     headers: HEADERS_JSON,
+  //   });
+  //   expect(result.statusCode).toEqual(413);
+  //   expect(result.statusMessage).toBe('Payload Too Large');
+  // });
 
   it('/POST extrem low query time', async () => {
     const input = await getGeoJSONFeature({

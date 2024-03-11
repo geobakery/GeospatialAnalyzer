@@ -63,9 +63,6 @@ export const TOPIC_URL = '/topics';
 export const INTERSECT: string = 'Intersect';
 export const WITHIN: string = 'Within';
 export const VAlUES_AT_POINT: string = 'Values-at-point';
-export const NEAREST_NEIGHBOUR: string = 'Nearest-Neighbour';
-
-//
 export interface testDataParameterGeoJSONFeature {
   returnGeometry?: boolean;
   geometryType?: string;

@@ -6,28 +6,6 @@ export enum supportedDatabase {
   postgres = 'postgres',
 }
 
-export const ARRAY_SEPERATOR_CONFIG = ', ';
-export const DATABASE_NAME_CONFIG = 'database.db_name';
-export const geojsonToPostGis = new Map<string, string>([
-  ['Point', 'POINT'],
-  ['LineString', 'LINESTRING'],
-  ['Polygon', 'POLYGON'],
-  ['GeometryCollection', 'GEOMETRYCOLLECTION'],
-  ['MultiPoint', 'GEOMETRYCOLLECTION'],
-  ['MultiLineString', 'GEOMETRYCOLLECTION'],
-  ['MultiPolygon', 'GEOMETRYCOLLECTION'],
-]);
-
-export const QUERY_SELECT =
-  'SELECT json_build_object(\n' +
-  "    'type', 'FeatureCollection',\n" +
-  "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
-  '  ) as response';
-
-export const QUERY_PARAMETER_LENGTH = 2;
-export const QUERY_ARRAY_POSITION = 0;
-export const PARAMETER_ARRAY_POSITION = 1;
-
 export const GEOJSON_PARAMETER = 'geojson';
 export const ESRIJSON_PARAMETER = 'esrijson';
 
@@ -40,23 +18,8 @@ export const GEO_IDENTIFIER = '__geometryIdentifier__';
 export const GEO_PARAMETER = '__geoProperties';
 export const REQUESTPARAMS = '__requestParams';
 
-export const EPSG_REGEX = /\d+$/g;
-
-export enum dbDirection {
-  asc = 'asc',
-  desc = 'desc',
-}
-
 export const DB_DIST_NAME = '__dist';
 
-export enum ReplaceStringType {
-  TABLE,
-  COUNT,
-  NEAREST_NEIGHBOUR,
-  GEOMETRY,
-  ATTRIBUTE,
-  LOOP, // no nested loop allowed
-}
-
-export const SINGLE_SPACE = ' ';
-export const COMMA = ',';
+export const QUERY_FEATURE_INDEX = 'feature_wkt_';
+export const TOPIC_ID = '__topic';
+export const QUERY_TOPIC = 'topic_';

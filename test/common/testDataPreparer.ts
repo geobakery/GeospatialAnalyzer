@@ -1,3 +1,4 @@
+import { ParameterDto } from '../../src/general/dto/parameter.dto';
 import {
   ESRI_JSON_WITHOUT_GEOMETRY_KREIS,
   GEOJSON_WITHOUT_GEOMETRY_KREIS,
@@ -7,9 +8,7 @@ import {
 
 export const getGeoJSONFeature = (
   opts: testDataParameterGeoJSONFeature,
-  // ): ParameterDto => { // TODO check after Swagger update
-): any => {
-  console.log(opts);
+): ParameterDto => {
   const base = { ...GEOJSON_WITHOUT_GEOMETRY_KREIS };
   if (opts.returnGeometry) {
     base.returnGeometry = opts.returnGeometry;
@@ -17,6 +16,7 @@ export const getGeoJSONFeature = (
   if (opts.topics) {
     base.topics = opts.topics;
   }
+  //FIXME: This modifies the GEOJSON_WITHOUT_GEOMETRY_KREIS' geometries
   if (opts.fixGeometry) {
     base.inputGeometries[0].geometry = { ...opts.fixGeometry };
   }

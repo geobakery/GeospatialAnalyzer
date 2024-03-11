@@ -1,113 +1,66 @@
 import { Injectable } from '@nestjs/common';
-import { DbAdapterService } from '../db-adapter.service';
-import { methodeParameter } from '../general.interface';
-import { COMMA, SINGLE_SPACE } from '../general.constants';
+import { SelectQueryBuilder } from 'typeorm';
+import { DbAdapterService, SqlParameter } from '../db-adapter.service';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
-  constructor() {
-    super();
+  override areFeaturesIntersecting(
+    feature: SqlParameter,
+    other: SqlParameter,
+  ): string {
+    return `ST_intersects(${feature.value}, ${other.value})`;
   }
 
-  getSelect(): string {
-    return super.getSelect();
+  override isFeatureWithin(inner: SqlParameter, outer: SqlParameter): string {
+    return `ST_within(${inner.value}, ${outer.value})`;
   }
 
-  getFrom(): string {
-    return super.getFrom();
+  override getFeatureDistance(
+    feature: SqlParameter,
+    other: SqlParameter,
+  ): string {
+    return `ST_distance(${feature.value}, ${other.value})`;
   }
 
-  getWhere(): string {
-    return super.getWhere();
+  override getValueAtFeature(
+    point: SqlParameter,
+    raster: SqlParameter,
+  ): string {
+    return `ST_value(${raster.value}, ${point.value})`;
   }
 
-  getUnion(): string {
-    return super.getUnion();
+  override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
+    return `ST_TRANSFORM(${featureWkt.value}::text, ${toCrs})`;
   }
 
-  getUnionAll(): string {
-    return super.getUnionAll();
+  override getJsonStructure(returnGeometry: boolean): string {
+    return returnGeometry
+      ? `json_build_object(
+      'type', 'FeatureCollection',
+      'features', jsonb_agg(ST_AsGeoJSON(${this.getJsonRecordAlias()}.*)::jsonb))
+     `
+      : `json_build_object(
+      'type', 'FeatureCollection',
+      'features', jsonb_agg(jsonb_set(
+         ST_AsGeoJSON(${this.getJsonRecordAlias()}.*)::jsonb,
+         '{geometry}',
+         'null'
+      )))
+     `;
   }
 
-  getGeoUnion(): string {
-    return 'ST_UNION' + SINGLE_SPACE;
+  override getJsonRecordAlias(): string {
+    return 'custom_from_select';
   }
 
-  getGeoIntersect(): string {
-    return 'ST_intersects' + SINGLE_SPACE;
-  }
-  getGeoIntersectMethode(options?: methodeParameter): string {
-    if (options) {
-      const p1 = options.parameter1;
-      const p2 = options.parameter2;
-      return (
-        this.getGeoIntersect() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE
-      );
-    }
-  }
-
-  getBuffer(): string {
-    return super.getBuffer();
-  }
-
-  getAs(): string {
-    return super.getAs();
-  }
-
-  getGeoValue(): string {
-    return 'ST_VALUE' + SINGLE_SPACE;
-  }
-  getGeoValueMethode(options: methodeParameter): string {
-    if (options) {
-      const p1 = options.parameter1;
-      const p2 = options.parameter2;
-      return this.getGeoValue() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
-    }
-    return;
-  }
-
-  getGeoRast(): string {
-    return 'rast' + SINGLE_SPACE;
-  }
-
-  getGeoTransform(): string {
-    return 'ST_TRANSFORM' + SINGLE_SPACE;
-  }
-
-  getGeoWithin(): string {
-    return 'ST_WITHIN' + SINGLE_SPACE;
-  }
-  getGeoWithinMethode(options: methodeParameter): string {
-    if (options) {
-      const p1 = options.parameter1;
-      const p2 = options.parameter2;
-      return this.getGeoWithin() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
-    }
-  }
-
-  getGeoDistance(): string {
-    return 'ST_DISTANCE' + SINGLE_SPACE;
-  }
-
-  getGeoDistanceMethode(options: methodeParameter): string {
-    if (options) {
-      const p1 = options.parameter1;
-      const p2 = options.parameter2;
-      return this.getGeoDistance() + '(' + p1 + COMMA + p2 + ')' + SINGLE_SPACE;
-    }
-  }
-  getOrderBy(): string {
-    return 'ORDER BY' + SINGLE_SPACE;
-  }
-  getLimit(): string {
-    return super.getLimit();
-  }
-  getJsonStructure(): string {
-    return (
-      'SELECT json_build_object(\n' +
-      "    'type', 'FeatureCollection',\n" +
-      "    'features', json_agg(ST_AsGeoJSON(customFromSelect.*)::json)\n" +
-      '  ) as response'
+  /**
+   * @todo think about name and explanation
+   * @param qb
+   */
+  override injectDummyWKTStringToQuery(qb: SelectQueryBuilder<unknown>): void {
+    qb.setParameter('dummyWkt', 'SRID=25833;POINT (0 0)').addSelect(
+      ':dummyWkt::geometry',
+      'geom',
     );
   }
 }

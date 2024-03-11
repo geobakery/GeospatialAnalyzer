@@ -1,56 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { GeneralService } from '../general/general.service';
+import { geojsonToWKT } from '@terraformer/wkt';
+import { DataSource, LessThanOrEqual, SelectQueryBuilder } from 'typeorm';
+import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import {
-  dbRequestBuilderSample,
-  topicDefinitionOutside,
-} from '../general/general.interface';
-import {
-  COMMA,
   DB_DIST_NAME,
-  dbDirection,
-  ReplaceStringType,
-  SINGLE_SPACE,
+  QUERY_FEATURE_INDEX,
+  QUERY_TOPIC,
+  STANDARD_SRID,
+  TOPIC_ID,
 } from '../general/general.constants';
-import { EsriJsonDto } from '../general/dto/esri-json.dto';
-import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { DbAdapterService } from '../general/db-adapter.service';
+import { topicDefinitionOutside } from '../general/general.interface';
+import {
+  GeneralService,
+  GeospatialLogicalRequest,
+} from '../general/general.service';
+import { GeospatialService } from '../general/geospatial.service';
+import { TransformService } from '../transform/transform.service';
 
-let neighbourFromClause = '';
 @Injectable()
-export class NearestNeighbourService {
-  private adapter: DbAdapterService = this.generalService.getDbAdapter();
-  constructor(private generalService: GeneralService) {
-    // Build DB string once
-    neighbourFromClause =
-      this.adapter.getFrom() +
-      '(' +
-      this.adapter.getSelect() +
-      '__d__' +
-      COMMA +
-      this.adapter.getGeoDistanceMethode({
-        parameter1: '__a__',
-        parameter2: '"customFrom".geom',
-      }) +
-      this.adapter.getAs() +
-      DB_DIST_NAME +
-      SINGLE_SPACE +
-      this.adapter.getFrom() +
-      '__b__' +
-      SINGLE_SPACE +
-      '"customFrom"' +
-      SINGLE_SPACE +
-      this.adapter.getOrderBy() +
-      DB_DIST_NAME +
-      SINGLE_SPACE +
-      'asc' +
-      '__c__' +
-      ')' +
-      SINGLE_SPACE +
-      this.adapter.getAs() +
-      'customFromSelect' +
-      SINGLE_SPACE +
-      '__e__';
+export class NearestNeighbourService extends GeospatialService<ParameterDto> {
+  constructor(
+    dataSource: DataSource,
+    generalService: GeneralService,
+    transformService: TransformService,
+  ) {
+    super(dataSource, generalService, transformService);
   }
 
   getTopics(): topicDefinitionOutside[] {
@@ -59,27 +34,65 @@ export class NearestNeighbourService {
     );
   }
 
-  async calculateNearestNeighbour(
-    args: ParameterDto,
-  ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
-    // TODO validate Input, custom ParameterDto?
-    const dbBuilderParameter: dbRequestBuilderSample = {
-      select: false,
-      customStatement: true,
-      where: false,
-      from: true,
-      fromStatement: neighbourFromClause,
-      fromStatementParameter: new Map<string, ReplaceStringType>([
-        ['__a__', ReplaceStringType.GEOMETRY],
-        ['__b__', ReplaceStringType.TABLE],
-        ['__c__', ReplaceStringType.COUNT],
-        ['__d__', ReplaceStringType.ATTRIBUTE],
-        ['__e__', ReplaceStringType.NEAREST_NEIGHBOUR],
-      ]),
-      count: args.count,
-      orderBy: 'dist',
-      orderByDirection: dbDirection.asc,
-    };
-    return this.generalService.calculateMethode(args, dbBuilderParameter);
+  protected override handleLogicalRequest(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    logicalRequest: GeospatialLogicalRequest,
+    request: ParameterDto,
+  ): void {
+    const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
+      logicalRequest;
+
+    queryBuilder.from((subQuery) => {
+      fieldsToQuery.forEach((field) => subQuery.addSelect(field));
+      // TODO remove topic call => replace in postProcessor to build output-json
+      subQuery.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
+      subQuery.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
+      // Notice: geom is needed to calculate the distance
+      if (!fieldsToQuery.includes('geom')) {
+        subQuery.addSelect('geom');
+      }
+      const featureDistanceString = this.getFeatureDistanceString(
+        queryBuilder,
+        feature,
+        featureIndex,
+      );
+      subQuery
+        // TODO constante (maybe __dist could be a keyword ??)
+        .addSelect(featureDistanceString, DB_DIST_NAME)
+        .from(this.generalService.getDBNameForIdentifier(topic), topic)
+        .orderBy(DB_DIST_NAME)
+        .limit(request.count);
+
+      return subQuery;
+    }, this.adapter.getJsonRecordAlias());
+
+    if (request.maxDistanceToNeighbour) {
+      queryBuilder.andWhere({
+        [DB_DIST_NAME]: LessThanOrEqual(request.maxDistanceToNeighbour),
+      });
+    }
+  }
+
+  private getFeatureDistanceString(
+    queryStart: SelectQueryBuilder<unknown>,
+    feature: GeoJSONFeatureDto,
+    featureIndex: number,
+  ): string {
+    // setup for left and right side of Within
+    queryStart.setParameter(
+      `${QUERY_FEATURE_INDEX}${featureIndex}`,
+      STANDARD_SRID + geojsonToWKT(feature.geometry),
+    );
+    const queryFeature = this.adapter.transformFeature(
+      { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
+      this.generalService.database_srid,
+    );
+    const dbFeature = 'geom';
+
+    // Within call
+    return this.adapter.getFeatureDistance(
+      { raw: true, value: queryFeature },
+      { raw: true, value: dbFeature },
+    );
   }
 }

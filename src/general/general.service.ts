@@ -1,37 +1,26 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { geojsonToWKT } from '@terraformer/wkt';
-import { DataSource, QueryFailedError } from 'typeorm';
+import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
 import { PostgresService } from './adapter/postgres.service';
 import { DbAdapterService } from './db-adapter.service';
 import { EsriJsonDto } from './dto/esri-json.dto';
-import { GeoGeometryDto } from './dto/geo-geometry.dto';
-import { GeoJSONFeatureDto } from './dto/geo-json.dto';
-import { ParameterDto } from './dto/parameter.dto';
 import {
-  DB_DIST_NAME,
+  GeoJSONFeatureCollectionDto,
+  GeoJSONFeatureDto,
+} from './dto/geo-json.dto';
+import {
   ESRIJSON_PARAMETER,
   GEO_IDENTIFIER,
   GEO_PARAMETER,
   GEOJSON_PARAMETER,
-  PARAMETER_ARRAY_POSITION,
-  QUERY_ARRAY_POSITION,
-  QUERY_PARAMETER_LENGTH,
-  ReplaceStringType,
   REQUESTPARAMS,
-  SINGLE_SPACE,
   STANDARD_CRS,
-  STANDARD_SRID,
   supportedDatabase,
 } from './general.constants';
 import {
-  dbRequestBuilderSample,
   DBResponse,
-  GeneralResponse,
   multipleSource,
-  QueryAndParameter,
   SupportedTopics,
   tempResult,
   topicDefinition,
@@ -60,8 +49,6 @@ export class GeneralService {
   database_srid = 0;
 
   constructor(
-    @InjectDataSource()
-    private dataSource: DataSource,
     private configService: ConfigService,
     private transformService: TransformService,
   ) {
@@ -78,10 +65,6 @@ export class GeneralService {
     this._setDynamicTopicsConfigurations(t);
   }
 
-  getOriginalDatabaseSRID() {
-    return this.database_srid;
-  }
-
   getDbAdapter(): DbAdapterService {
     if (this.adapter) {
       return this.adapter;
@@ -93,7 +76,7 @@ export class GeneralService {
           return new PostgresService();
         }
         default: {
-          return new DbAdapterService();
+          throw new Error(`Unsupported database type: ${dbtype}`);
         }
       }
     }
@@ -158,8 +141,8 @@ export class GeneralService {
     return this.topicsArray;
   }
 
-  checkTopics(args: ParameterDto): boolean {
-    return !!args.topics.every((val) => this.topicsArray.includes(val));
+  checkTopics(topics: string[]): boolean {
+    return !!topics.every((val) => this.topicsArray.includes(val));
   }
 
   /**
@@ -167,9 +150,9 @@ export class GeneralService {
    * Check if the dynamic service settings are set correctly
    * Improvement: Only once at the start and not on every start up
    */
-  async dynamicValidation(args: ParameterDto): Promise<boolean> {
-    if (this.checkTopics(args)) {
-      if (args.topics.every((t) => this.topicsArray.includes(t))) {
+  async dynamicValidation(topics: string[]): Promise<boolean> {
+    if (this.checkTopics(topics)) {
+      if (topics.every((t) => this.topicsArray.includes(t))) {
         return Promise.resolve(true);
       } else {
         throw new HttpException(
@@ -217,20 +200,6 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * transform the geometry to the needed postgis formate
-   * e.g.:'SRID=4326;POINT(411967 5659861)'::geometry
-   */
-  _buildGeometry(geo: GeoGeometryDto, srid = STANDARD_SRID): string {
-    const coordinates = geojsonToWKT(geo);
-    return srid + coordinates;
-  }
-
-  getCustomSRIDString(crs: number) {
-    return 'SRID=' + crs + ';';
-  }
-
-  /**
-   * Explanation:
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
@@ -257,8 +226,11 @@ export class GeneralService {
    */
   addUserInputToResponse(
     tmpResult: tempResult[],
-    requestParams: any,
-    map: Map<string, any>,
+    requestParams: Pick<
+      GeospatialRequest,
+      'outputFormat' | 'outSRS' | 'returnGeometry'
+    >,
+    map: Map<string, object>,
   ): void {
     if (!tmpResult?.length) {
       return;
@@ -292,24 +264,12 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * collects which input parameter should be included in the response
-   */
-  setRequestParameterForResponse(args: ParameterDto): any {
-    return {
-      outputFormat: args.outputFormat,
-      outSRS: args.outSRS,
-      returnGeometry: args.returnGeometry,
-    };
-  }
-
-  /**
-   * Explanation:
    * assures that the result is always a GeoJSON[] formate
    * @TODO Update doc block and method name.
    */
   setGeoJSONArray(
     result: tempResult[],
-    parameter: ParameterDto,
+    parameter: Pick<GeospatialRequest, 'outputFormat' | 'outSRS'>,
   ): GeoJSONFeatureDto[] | EsriJsonDto[] {
     const resultMap = result.flatMap((r) => r.result.features);
 
@@ -333,269 +293,16 @@ export class GeneralService {
   }
 
   getMultipleDBNamesForIdentifier(top: string): multipleSource[] {
-    return this.identifierMultipleSourcesMap.get(top);
-  }
-
-  /**
-   * Explanation:
-   * Creates a custom raw sql statement from given Parameter
-   * TypeORM has an array formate of:
-   * ['SQL string to execute with parameter $1 $2 $3',[Intparameter, Stringparameter, otherTypeParameter ]]
-   */
-  createRawQuery(
-    dbBuilderParameter: dbRequestBuilderSample,
-    top: string,
-    geo: GeoJSONFeatureDto,
-    args: ParameterDto,
-  ): [string, any[]] {
-    let result: string = '';
-    if (dbBuilderParameter.selectStatement) {
-      result += dbBuilderParameter.selectStatement;
-    } else {
-      result += this.adapter.getJsonStructure();
-    }
-
-    if (geo.type === 'Feature') {
-      const props = geo.properties;
-      const propsId = props[GEO_IDENTIFIER];
-      const propsIdString =
-        "SELECT '" + propsId + "' as id, '" + top + "' as topic, ";
-      result = result.replace('SELECT', propsIdString);
-    }
-
-    // TODO ordentlicher & in Betrachtung des adapter patterns :/
-    if (!args.returnGeometry) {
-      result = result.replace(
-        'json_agg(ST_AsGeoJSON(customFromSelect.*)::json',
-        `jsonb_agg(jsonb_set(ST_AsGeoJSON(customFromSelect.*)::jsonb, '{geometry}', 'null')`,
-      );
-    }
-    if (dbBuilderParameter.fromStatement) {
-      const replacedString = this._replaceHelper(
-        dbBuilderParameter.fromStatementParameter,
-        dbBuilderParameter.fromStatement,
-        dbBuilderParameter.attachments,
-        top,
-        geo.geometry,
-        args,
-        dbBuilderParameter.mockGeometry,
-      );
-      result += ' ' + replacedString;
-    }
-    if (dbBuilderParameter.whereStatementParameter?.size) {
-      const replacedString = this._replaceHelper(
-        dbBuilderParameter.whereStatementParameter,
-        dbBuilderParameter.whereStatement,
-        dbBuilderParameter.attachments,
-        top,
-        geo.geometry,
-        args,
-        dbBuilderParameter.mockGeometry,
-      );
-
-      result += ' ' + replacedString;
-    }
-    return [result, []];
-  }
-
-  /**
-   * Explanation:
-   * Helperfunction to replace place marker in string for their true value
-   * e.g.: "SELECT * from __a" => [__a => "tablename1"] => ""SELECT * from tablename1"
-   */
-  _replaceHelper(
-    statementParameter: Map<string, ReplaceStringType>,
-    parameterString: string,
-    attachments: Map<string, string>,
-    top: string,
-    geo: GeoGeometryDto,
-    args: ParameterDto,
-    addMockgeometry: boolean = false,
-    optionalIndex: number = -1,
-  ): string {
-    if (!statementParameter.size) {
-      return '';
-    }
-    const iterationWithLoop = !!attachments;
-
-    let replacedString = parameterString;
-    const sources = this.getMultipleDBNamesForIdentifier(top);
-    statementParameter.forEach((value, key) => {
-      switch (value) {
-        case ReplaceStringType.TABLE: {
-          if (iterationWithLoop) {
-            break;
-          }
-          let table = '';
-          if (sources && sources.length && optionalIndex >= 0) {
-            table = sources[optionalIndex].source;
-          } else {
-            table = this.getDBNameForIdentifier(top);
-          }
-          replacedString = replacedString.replaceAll(key, table);
-          break;
-        }
-        case ReplaceStringType.GEOMETRY: {
-          if (iterationWithLoop) {
-            break;
-          }
-          const geoString = this._buildGeometry(geo);
-          const geoStringComplete =
-            "ST_Transform('" + geoString + "'::geometry, 25833)"; // TODO adapter pattern
-          replacedString = replacedString.replaceAll(key, geoStringComplete);
-          break;
-        }
-        case ReplaceStringType.COUNT: {
-          if (iterationWithLoop) {
-            break;
-          }
-          if (args.count) {
-            const countElement = String(args.count);
-            const result =
-              SINGLE_SPACE +
-              this.adapter.getLimit() +
-              SINGLE_SPACE +
-              countElement;
-            replacedString = replacedString.replaceAll(key, result);
-          } else {
-            replacedString = replacedString.replaceAll(key, '');
-          }
-          break;
-        }
-        case ReplaceStringType.NEAREST_NEIGHBOUR: {
-          if (iterationWithLoop) {
-            break;
-          }
-          if (args.maxDistanceToNeighbour) {
-            const countElement = String(args.maxDistanceToNeighbour);
-            const result =
-              SINGLE_SPACE +
-              this.adapter.getWhere() +
-              SINGLE_SPACE +
-              DB_DIST_NAME +
-              SINGLE_SPACE +
-              '<' +
-              SINGLE_SPACE +
-              countElement;
-            replacedString = replacedString.replaceAll(key, result);
-          } else {
-            replacedString = replacedString.replaceAll(key, '');
-          }
-          break;
-        }
-        case ReplaceStringType.ATTRIBUTE: {
-          if (iterationWithLoop) {
-            break;
-          }
-          let attr = addMockgeometry
-            ? "('SRID=25833;POINT (0 0)'::geometry) as geom"
-            : 'geom'; //TODO
-          const topicAttributes = this.identifierAllowedAttributesMap.get(top);
-          if (topicAttributes.length) {
-            topicAttributes.forEach((a) => {
-              attr += ',' + a;
-            });
-          }
-          attr += ',' + "'" + top + "' as __topic";
-
-          if (sources && sources.length && optionalIndex >= 0) {
-            attr += ", '" + sources[optionalIndex].name + "' as __name,";
-          }
-
-          replacedString = replacedString.replaceAll(key, attr);
-          break;
-        }
-        case ReplaceStringType.LOOP: {
-          const attachment = attachments?.get(key);
-          let attr = '';
-          statementParameter.delete(key); // no nested loop allowed
-          if (sources && sources.length) {
-            sources.forEach((s, index) => {
-              const loopPart = this._replaceHelper(
-                statementParameter,
-                attachment,
-                null,
-                top,
-                geo,
-                args,
-                addMockgeometry,
-                index,
-              );
-              if (attr) {
-                attr += ' UNION ALL ' + loopPart;
-              } else {
-                attr = loopPart;
-              }
-            });
-          }
-          replacedString = replacedString.replaceAll(key, attr);
-          break;
-        }
-      }
-    });
-    return replacedString;
-  }
-
-  /*
-  Creates a single query for typeOrm (query as string, parameter as array)
-   */
-  async createSelectQueries(
-    service: any,
-    top: string,
-    geo: GeoJSONFeatureDto,
-    args: ParameterDto,
-    dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<[string, any[]]> {
-    // To replace Repositories, we only create raw sql statements
-    if (dbBuilderParameter.customStatement) {
-      return service.createRawQuery(dbBuilderParameter, top, geo, args);
-    }
-
-    throw new HttpException(
-      'Unsupported route parameter configuration',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
-  }
-
-  /**
-   Collect all single Queries and put their data together
-   */
-  async collectQueries(
-    args: ParameterDto,
-    geo: GeoJSONFeatureDto,
-    dbBuilderParameter: dbRequestBuilderSample,
-    customFunction: (
-      service: any,
-      top: string,
-      geo: GeoJSONFeatureDto,
-      args: ParameterDto,
-      dbBuilderParameter: dbRequestBuilderSample,
-    ) => Promise<[string, any[]]>,
-  ): Promise<QueryAndParameter> {
-    const topics: string[] = [];
-    const query: string[] = [];
-    const parameter: string[] = [];
-    args.topics.forEach((s) => {
-      topics.push(s);
-    });
-
-    for await (const t of topics) {
-      const q = await customFunction(this, t, geo, args, dbBuilderParameter);
-      if (q.length === QUERY_PARAMETER_LENGTH) {
-        query.push(<string>q[QUERY_ARRAY_POSITION]);
-        parameter.push(String(q[PARAMETER_ARRAY_POSITION]));
-      }
-    }
-    return {
-      query: query,
-      parameter: parameter,
-    };
+    return this.identifierMultipleSourcesMap.get(top) ?? [];
   }
 
   prepareDBResponse(
     query: any,
-    requestParams: ParameterDto,
-    map: Map<string, any>,
+    requestParams: Pick<
+      GeospatialRequest,
+      'outputFormat' | 'outSRS' | 'returnGeometry'
+    >,
+    map: Map<string, object>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
     const tmpResult = this.dbToGeoJSON(query);
     this.addUserInputToResponse(tmpResult, requestParams, map);
@@ -605,95 +312,15 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * generates the db query and waits for the response
-   */
-  async generateQuery(
-    geo: GeoJSONFeatureDto,
-    args: ParameterDto,
-    dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<string> {
-    const queryData = await this.collectQueries(
-      args,
-      geo,
-      dbBuilderParameter,
-      this.createSelectQueries,
-    );
-    return await this.buildUnionStatement(queryData.query);
-  }
-
-  /**
-   * Explanation:
-   *  Iterate over all queries to create a single Query:
-   *   (a) UNION (b) UNION (c) ...
-   *   Send the single complete request to the db
-   */
-  async buildUnionStatement(sqlQueries: string[]): Promise<string> {
-    // Merge all the parameters from the other queries into a single object. You'll need to make sure that all your parameters have unique names
-    const queries = sqlQueries.map((q, index) => {
-      return q.replace('$1', '$' + (index + 1));
-    });
-    // Join all your queries into a single SQL string
-    return '(' + queries.join(') UNION ALL (') + ')';
-  }
-
-  /**
-   * Explanation:
-   * Function can be used to call/execute plain sql statements
-   */
-  async executePlainDatabaseQuery(
-    dbBuilderParameter: dbRequestBuilderSample,
-  ): Promise<GeneralResponse> {
-    let queryString = '';
-    if (dbBuilderParameter.selectStatement) {
-      queryString += dbBuilderParameter.selectStatement;
-    }
-    if (dbBuilderParameter?.whereStatement) {
-      queryString += dbBuilderParameter.whereStatement;
-    }
-    if (dbBuilderParameter?.fromStatement) {
-      queryString += dbBuilderParameter.fromStatement;
-    }
-    await this.injectionCheck(queryString);
-    const dbResult = await this.dataSource.query(queryString);
-    if (!dbResult.length) {
-      throw new HttpException(
-        'Error: Query can not be executed ',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-    return { response: dbResult } as GeneralResponse;
-  }
-
-  async injectionCheck(query: string): Promise<void> {
-    // https://community.broadcom.com/symantecenterprise/communities/community-home/librarydocuments/viewdocument?DocumentKey=001f5e09-88b4-4a9a-b310-4c20578eecf9&CommunityKey=1ecf5f55-9545-44d6-b0f4-4e4a7f5f5e68&tab=librarydocuments
-    const paranoid = /((%27)|(\\'))|(--)|((%23)|(#))/gi; //Do not allow comments or any Special sql characters
-    const paranoid_css = /((\\%3C)|<)[^\n]+((\\%3E)|>)/gi; //ALl HTML or xml tags are forbidden for Cross Site Scripting
-    const typical = /w*((%27)|('))((%6F)|o|(%4F))((%72)|r|(%52))/gi; //typical sql injection attacks
-    const keywords =
-      /(\W+(DELETE\s|INSERT\s|UPDATE\s|DROP\s|TRUNCATE\s))|^DELETE\s|^INSERT\s|^UPDATE\s|^DROP\s|^TRUNCATE\s|(SELECT \* FROM)/gi;
-
-    const sqlChecks = [paranoid, paranoid_css, typical, keywords];
-    sqlChecks.forEach((check) => {
-      if (check.test(query)) {
-        throw new HttpException(
-          'Error: Query can not be executed, because of a sql injection risk.',
-          HttpStatus.FORBIDDEN,
-        );
-      }
-    });
-  }
-
-  /**
-   * Explanation:
    * Function which prepares the user's input for the actual database query and which return the actual result
    * This function is used as the wrapper for all geometry-like interfaces
    */
   async calculateMethode(
-    args: ParameterDto,
-    dbBuilderParameter: dbRequestBuilderSample,
+    args: GeospatialRequest,
+    qb: SelectQueryBuilder<GeospatialResultEntity>,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     try {
-      return await this.generelRoutine(args, dbBuilderParameter);
+      return await this.generelRoutine(args, qb);
     } catch (e) {
       switch (e.constructor) {
         case QueryFailedError: {
@@ -718,37 +345,28 @@ export class GeneralService {
    * This function is used as the wrapper for all geometry-like interfaces
    */
   async generelRoutine(
-    args: ParameterDto,
-    dbBuilderParameter: dbRequestBuilderSample,
+    args: GeospatialRequest,
+    qb: SelectQueryBuilder<GeospatialResultEntity>,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
-    await this.dynamicValidation(args);
+    await this.dynamicValidation(args.topics);
 
     const geoInput = this.transformService.normalizeInputGeometries(
       args.inputGeometries,
     );
 
-    // iterate through all geometries
-    const queryArray: string[] = [];
+    const dbResult = await qb.getRawMany<GeospatialResultEntity>();
+    const requestParams = {
+      outputFormat: args.outputFormat,
+      outSRS: args.outSRS,
+      returnGeometry: args.returnGeometry,
+    };
+    const idParameterMap = new Map(
+      geoInput.map((geo, index) => [
+        this.getAndSetGeoID(geo, index),
+        geo.properties,
+      ]),
+    );
 
-    const requestParams = this.setRequestParameterForResponse(args);
-    let index = 0;
-    const idParameterMap = new Map<string, any>();
-    for await (const geo of geoInput) {
-      const id = this.getAndSetGeoID(geo, index);
-      idParameterMap.set(id, geo.properties);
-      index++;
-      const query = await this.generateQuery(geo, args, dbBuilderParameter);
-      queryArray.push(query);
-    }
-    let queryString = '';
-    for (const query of queryArray) {
-      if (queryString) {
-        queryString += ' UNION ALL ' + query;
-      } else {
-        queryString = query;
-      }
-    }
-    const dbResult = await this.dataSource.query(queryString);
     const result = this.prepareDBResponse(
       dbResult,
       requestParams,
@@ -762,4 +380,40 @@ export class GeneralService {
     }
     return result;
   }
+}
+
+export interface GeospatialResultEntity {
+  id: string;
+  response: GeoJSONFeatureCollectionDto;
+  topic: string;
+}
+
+/**
+ * Represents one individual request out of the `m * n` logical requests represented by a `GeospatialRequest` with `m` features and `n` topics.
+ */
+export interface GeospatialLogicalRequest {
+  feature: GeoJSONFeatureDto;
+  featureIndex: number;
+  fieldsToQuery: string[];
+  topic: string;
+  topicIndex: number;
+}
+
+/**
+ * Common parameters to the analytical endpoints.
+ */
+export interface GeospatialRequest {
+  topics: string[];
+
+  inputGeometries:
+    | EsriJsonDto[]
+    | GeoJSONFeatureDto[]
+    | GeoJSONFeatureCollectionDto
+    | GeoJSONFeatureCollectionDto[];
+
+  outputFormat: string;
+
+  outSRS: number;
+
+  returnGeometry: boolean;
 }

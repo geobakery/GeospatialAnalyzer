@@ -42,6 +42,6 @@ export class NearestNeighbourController {
   async nearestNeighbour(
     @Body() args: ParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
-    return await this.nearestNeighbourService.calculateNearestNeighbour(args);
+    return await this.nearestNeighbourService.handleRequest(args);
   }
 }
