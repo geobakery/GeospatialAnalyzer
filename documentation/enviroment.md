@@ -10,14 +10,22 @@ TODO: Complete documentation
     "identifiers": ["verw_land_f"],
     "title": "Verwaltung Landkreise",
     "description": "analyzes federal states and neighbouring states.",
-    "__source__": "spatialyzer_demo.verw_land_f",
+    "__source__": {
+      "name": "unused",
+      "source": "spatialyzer_demo.verw_land_f",
+      "srid": 25833
+    },
     "__attributes__": ["id00", "name", "bundesland", "geom"],
     "__supports__": ["intersect","within", "nearestNeighbour"]
   },{
     "identifiers": ["hoehe2m_r"],
     "title": "Höhenwerte für Dresden",
     "description": "Contains information on terrain elevation and surface elevation in Saxony.",
-    "__source__": "spatialyzer_demo.hoehe2m_r",
+    "__source__": {
+        "name": "unused",
+        "source": "spatialyzer_demo.hoehe2m_r",
+        "srid": 25833
+    },
     "__attributes__": [],
     "__supports__": ["valuesAtPoint"]
   }

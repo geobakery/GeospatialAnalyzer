@@ -49,11 +49,13 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
     for (const [sourceIndex, source] of sources.entries()) {
       const featureValue = this.getValueArRasterString(
         queryBuilder,
+        source.srid,
         feature,
         featureIndex,
       );
       const featureIntersect = this.getFeatureIntersectString(
         queryBuilder,
+        source.srid,
         feature,
         featureIndex,
       );
@@ -87,6 +89,7 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
   }
   private getValueArRasterString(
     queryStart: SelectQueryBuilder<unknown>,
+    srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
@@ -97,7 +100,7 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
     );
     const queryFeature = this.adapter.transformFeature(
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
-      this.generalService.database_srid,
+      srid,
     );
     const dbFeature = 'rast';
 
@@ -110,6 +113,7 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
 
   private getFeatureIntersectString(
     queryStart: SelectQueryBuilder<unknown>,
+    srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
@@ -120,7 +124,7 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
     );
     const queryFeature = this.adapter.transformFeature(
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
-      this.generalService.database_srid,
+      srid,
     );
     const dbFeature = 'rast';
 

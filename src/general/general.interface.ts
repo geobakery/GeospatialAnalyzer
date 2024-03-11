@@ -13,15 +13,13 @@ export interface DBResponse {
   id: string;
 }
 
-export interface topicDefinition {
+export type topicDefinition = {
   identifiers: string[];
   title: string;
   description?: string;
-  __source__: string;
   __attributes__?: string[];
   __supports__?: string[];
-  __multipleSources__?: multipleSource[];
-}
+} & ({ __source__: Source } | { __multipleSources__: Source[] });
 
 export interface topicDefinitionOutside {
   identifiers: string[];
@@ -43,9 +41,13 @@ export interface tempResult {
   id: string;
 }
 
-export interface multipleSource {
+export interface Source {
+  /** The (possibly schema-qualified) name of the database relation. */
   source: string;
+  /** A human-readable name to identify the source by. */
   name: string;
+  /** The spatial reference system identifier used by this source. */
+  srid: number;
 }
 
 export interface SqlLiteral {

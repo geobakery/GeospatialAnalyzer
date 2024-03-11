@@ -7,7 +7,11 @@
       ],
       "title": "User adress", // title for end user
       "description": "lists the addresses of all user.", // description for end user
-      "__source__": "schmema.table_adress", // database source [not published for end user]
+      "__source__": { // database source [not published for end user]
+        "name": "unused",
+        "source": "schmema.table_adress",
+        "srid": 4326
+      },
       "__attributes__": [ // attributes to show for the end user [not published for end user]
         "title",
         "name",

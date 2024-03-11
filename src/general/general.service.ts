@@ -20,7 +20,7 @@ import {
 } from './general.constants';
 import {
   DBResponse,
-  multipleSource,
+  Source,
   SupportedTopics,
   tempResult,
   topicDefinition,
@@ -31,14 +31,14 @@ import {
 export class GeneralService {
   adapter: DbAdapterService = this.getDbAdapter();
   topicsArray: string[] = [];
-  identifierSourceMap: Map<string, string> = new Map<string, string>();
+  identifierSourceMap: Map<string, Source> = new Map<string, Source>();
   identifierAllowedAttributesMap: Map<string, string[]> = new Map<
     string,
     string[]
   >();
-  identifierMultipleSourcesMap: Map<string, multipleSource[]> = new Map<
+  identifierMultipleSourcesMap: Map<string, Source[]> = new Map<
     string,
-    multipleSource[]
+    Source[]
   >();
   methodeTopicSupport: SupportedTopics = {
     intersect: [],
@@ -46,7 +46,6 @@ export class GeneralService {
     nearestNeighbour: [],
     valuesAtPoint: [],
   };
-  database_srid = 0;
 
   constructor(
     private configService: ConfigService,
@@ -57,9 +56,6 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    if (process.env.geospatial_analyzer_srid) {
-      this.database_srid = Number(process.env.geospatial_analyzer_srid);
-    }
     const t = this.configService.get<topicDefinition[]>('__topicsConfig__');
     // TODO check if t is valid
     this._setDynamicTopicsConfigurations(t);
@@ -123,17 +119,20 @@ export class GeneralService {
       for (const identifier of t.identifiers) {
         this.topicsArray.push(identifier);
 
-        this.identifierSourceMap.set(identifier, t.__source__);
-        if (t.__attributes__) {
-          this.identifierAllowedAttributesMap.set(identifier, t.__attributes__);
-        } else {
-          this.identifierAllowedAttributesMap.set(identifier, ['*']);
+        if ('__source__' in t) {
+          this.identifierSourceMap.set(identifier, t.__source__);
         }
-        if (t.__multipleSources__) {
+        if ('__multipleSources__' in t) {
           this.identifierMultipleSourcesMap.set(
             identifier,
             t.__multipleSources__,
           );
+        }
+
+        if (t.__attributes__) {
+          this.identifierAllowedAttributesMap.set(identifier, t.__attributes__);
+        } else {
+          this.identifierAllowedAttributesMap.set(identifier, ['*']);
         }
       }
     });
@@ -290,11 +289,11 @@ export class GeneralService {
     return resultMap;
   }
 
-  getDBNameForIdentifier(top: string): string {
+  getSourceForIdentifier(top: string): Source {
     return this.identifierSourceMap.get(top);
   }
 
-  getMultipleDBNamesForIdentifier(top: string): multipleSource[] {
+  getMultipleDBNamesForIdentifier(top: string): Source[] {
     return this.identifierMultipleSourcesMap.get(top) ?? [];
   }
 

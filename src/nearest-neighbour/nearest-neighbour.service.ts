@@ -42,6 +42,8 @@ export class NearestNeighbourService extends GeospatialService<ParameterDto> {
     const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
       logicalRequest;
 
+    const topicSource = this.generalService.getSourceForIdentifier(topic);
+
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
       // TODO remove topic call => replace in postProcessor to build output-json
@@ -53,13 +55,14 @@ export class NearestNeighbourService extends GeospatialService<ParameterDto> {
       }
       const featureDistanceString = this.getFeatureDistanceString(
         queryBuilder,
+        topicSource.srid,
         feature,
         featureIndex,
       );
       subQuery
         // TODO constante (maybe __dist could be a keyword ??)
         .addSelect(featureDistanceString, DB_DIST_NAME)
-        .from(this.generalService.getDBNameForIdentifier(topic), topic)
+        .from(topicSource.source, topic)
         .orderBy(DB_DIST_NAME)
         .limit(request.count);
 
@@ -75,6 +78,7 @@ export class NearestNeighbourService extends GeospatialService<ParameterDto> {
 
   private getFeatureDistanceString(
     queryStart: SelectQueryBuilder<unknown>,
+    srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
@@ -85,7 +89,7 @@ export class NearestNeighbourService extends GeospatialService<ParameterDto> {
     );
     const queryFeature = this.adapter.transformFeature(
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
-      this.generalService.database_srid,
+      srid,
     );
     const dbFeature = 'geom';
 
