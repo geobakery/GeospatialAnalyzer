@@ -130,7 +130,7 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(heightsGeoJSON.type).toBe('Feature');
 
     const props = heightsGeoJSON.properties;
-    expect(props['__name']).toBe('height');
+    expect(props['__name']).toBe('dgm_height');
     expect(props['__topic']).toBe('hoehe2m_r');
     expect(props['__height']).toBe(24886);
 
