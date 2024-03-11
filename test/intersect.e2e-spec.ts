@@ -114,6 +114,38 @@ describe('IntersectController (e2e)', () => {
     await resultIsGeoJSONFeatureWithoutGeometry(result);
   });
 
+  it('/POST Intersect with aliased topic', async () => {
+    const input = getGeoJSONFeature({
+      topics: ['sn_verw_kreis_f', 'verw_kreis_f'],
+    });
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST Intersect with aliased topic';
+    await testStatus200(implName, result);
+
+    const geoJsonArray = await getGeoJSONFeatureFromResponse(result);
+    expect(geoJsonArray).toHaveLength(2);
+    expect(geoJsonArray).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          properties: expect.objectContaining({
+            __topic: 'sn_verw_kreis_f',
+          }),
+        }),
+        expect.objectContaining({
+          properties: expect.objectContaining({
+            __topic: 'verw_kreis_f',
+          }),
+        }),
+      ]),
+    );
+  });
+
   it('/POST Intersect custom without geometry', async () => {
     const input = await getGeoJSONFeature({
       topics: ['verw_kreis_f', 'verw_land_f'],

@@ -7,14 +7,14 @@ TODO: Complete documentation
 ```json
 [
   {
-    "identifier": "verw_land_f",
+    "identifiers": ["verw_land_f"],
     "title": "Verwaltung Landkreise",
     "description": "analyzes federal states and neighbouring states.",
     "__source__": "spatialyzer_demo.verw_land_f",
     "__attributes__": ["id00", "name", "bundesland", "geom"],
     "__supports__": ["intersect","within", "nearestNeighbour"]
   },{
-    "identifier": "hoehe2m_r",
+    "identifiers": ["hoehe2m_r"],
     "title": "Höhenwerte für Dresden",
     "description": "Contains information on terrain elevation and surface elevation in Saxony.",
     "__source__": "spatialyzer_demo.hoehe2m_r",

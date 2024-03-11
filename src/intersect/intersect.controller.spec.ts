@@ -55,7 +55,7 @@ describe('IntersectController', () => {
     const topics = controller.topic();
     expect(topics.length).toBeGreaterThan(0);
     const topicsElement = topics[0];
-    expect(topicsElement.identifier).toBeDefined();
+    expect(topicsElement.identifiers).toBeDefined();
     expect(topicsElement.title).toBeDefined();
     expect(topicsElement.description).toBeDefined();
     expect(topicsElement.supports).toBeUndefined();
