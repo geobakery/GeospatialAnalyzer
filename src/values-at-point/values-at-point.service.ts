@@ -80,6 +80,7 @@ export class ValuesAtPointService extends GeospatialService<ParameterDto> {
       heightQueries.push(heightQueryBuilder.getQuery());
       Object.assign(params, heightQueryBuilder.getParameters());
     }
+    // TODO add to adapter
     const heightQuery = '((' + heightQueries.join(') UNION ALL (') + '))';
     queryBuilder.setParameters(params);
     queryBuilder.from(heightQuery, this.adapter.getJsonRecordAlias());

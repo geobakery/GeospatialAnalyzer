@@ -70,6 +70,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
       }
     }
 
+    // TODO add to adapter
     const query = '((' + queries.join(') UNION ALL (') + '))';
     const qb = this.dataSource
       .createQueryBuilder()
