@@ -40,6 +40,8 @@ export class IntersectService extends GeospatialService<ParameterDto> {
     const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
       logicalRequest;
 
+    const topicSource = this.generalService.getSourceForIdentifier(topic);
+
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
       // TODO remove topic call => replace in postProcessor to build output-json
@@ -49,12 +51,13 @@ export class IntersectService extends GeospatialService<ParameterDto> {
       if (!fieldsToQuery.includes('geom')) {
         subQuery.addSelect('geom');
       }
-      subQuery.from(this.generalService.getDBNameForIdentifier(topic), topic);
+      subQuery.from(topicSource.source, topic);
       return subQuery;
     }, this.adapter.getJsonRecordAlias());
 
     const featureIntersect = this.getFeatureIntersectString(
       queryBuilder,
+      topicSource.srid,
       feature,
       featureIndex,
     );
@@ -63,6 +66,7 @@ export class IntersectService extends GeospatialService<ParameterDto> {
 
   private getFeatureIntersectString(
     queryStart: SelectQueryBuilder<unknown>,
+    srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
@@ -73,7 +77,7 @@ export class IntersectService extends GeospatialService<ParameterDto> {
     );
     const queryFeature = this.adapter.transformFeature(
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
-      this.generalService.database_srid,
+      srid,
     );
     const dbFeature = 'geom';
 
