@@ -14,7 +14,7 @@ export interface DBResponse {
 }
 
 export interface topicDefinition {
-  identifier: string;
+  identifiers: string[];
   title: string;
   description?: string;
   __source__: string;
@@ -24,7 +24,7 @@ export interface topicDefinition {
 }
 
 export interface topicDefinitionOutside {
-  identifier: string;
+  identifiers: string[];
   title: string;
   description?: string;
   supports?: string[];

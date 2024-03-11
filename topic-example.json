@@ -1,7 +1,10 @@
 {
   "__topicsConfig__": [
     {
-      "identifier": "my_id", // identifier for end user
+      "identifiers": [ // identifiers for end user
+        "my_id",
+        "My aliased ID"
+      ],
       "title": "User adress", // title for end user
       "description": "lists the addresses of all user.", // description for end user
       "__source__": "schmema.table_adress", // database source [not published for end user]

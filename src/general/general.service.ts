@@ -106,26 +106,11 @@ export class GeneralService {
     }
 
     td.forEach((t) => {
-      this.topicsArray.push(t.identifier);
-
       const definition = {
-        identifier: t.identifier,
+        identifiers: t.identifiers,
         title: t.title,
         description: t.description,
       } as topicDefinitionOutside;
-
-      this.identifierSourceMap.set(t.identifier, t.__source__);
-      if (t.__attributes__) {
-        this.identifierAllowedAttributesMap.set(t.identifier, t.__attributes__);
-      } else {
-        this.identifierAllowedAttributesMap.set(t.identifier, ['*']);
-      }
-      if (t.__multipleSources__) {
-        this.identifierMultipleSourcesMap.set(
-          t.identifier,
-          t.__multipleSources__,
-        );
-      }
 
       Object.entries(this.methodeTopicSupport).forEach(([key, value]) => {
         if (!t.__supports__.length) {
@@ -134,6 +119,23 @@ export class GeneralService {
           value.push(definition);
         }
       });
+
+      for (const identifier of t.identifiers) {
+        this.topicsArray.push(identifier);
+
+        this.identifierSourceMap.set(identifier, t.__source__);
+        if (t.__attributes__) {
+          this.identifierAllowedAttributesMap.set(identifier, t.__attributes__);
+        } else {
+          this.identifierAllowedAttributesMap.set(identifier, ['*']);
+        }
+        if (t.__multipleSources__) {
+          this.identifierMultipleSourcesMap.set(
+            identifier,
+            t.__multipleSources__,
+          );
+        }
+      }
     });
   }
 

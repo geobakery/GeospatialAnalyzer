@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class TopicDefinitonOutsideDto {
-  @ApiProperty({ example: 'verwaltung_landkreise_id' })
-  identifier: string;
+  @ApiProperty({ example: ['verwaltung_landkreise_id'] })
+  identifiers: string[];
 
   @ApiProperty({ example: 'Verwaltung Landkreise' })
   title: string;
