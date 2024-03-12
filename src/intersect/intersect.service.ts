@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { ParameterDto } from '../general/dto/parameter.dto';
+import { IntersectParameterDto } from '../general/dto/parameter.dto';
 import {
   QUERY_FEATURE_INDEX,
   QUERY_TOPIC,
@@ -18,7 +18,7 @@ import { GeospatialService } from '../general/geospatial.service';
 import { TransformService } from '../transform/transform.service';
 
 @Injectable()
-export class IntersectService extends GeospatialService<ParameterDto> {
+export class IntersectService extends GeospatialService<IntersectParameterDto> {
   constructor(
     dataSource: DataSource,
     generalService: GeneralService,

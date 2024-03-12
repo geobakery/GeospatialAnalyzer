@@ -25,9 +25,6 @@ export const getGeoJSONFeature = (
       base[key] = value;
     });
   }
-  if (opts.count) {
-    base.count = opts.count;
-  }
   return base;
 };
 
@@ -51,9 +48,6 @@ export const getEsriJSONFeature = (
   }
   if (opts.outputFormat) {
     base.outputFormat = opts.outputFormat;
-  }
-  if (opts.count) {
-    base.count = opts.count;
   }
   if (opts.additionalAttributes) {
     opts.additionalAttributes.forEach((value, key) => {

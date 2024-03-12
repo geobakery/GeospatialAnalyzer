@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, LessThanOrEqual, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { ParameterDto } from '../general/dto/parameter.dto';
+import {
+  NearestNeighbourParameterDto,
+  ParameterDto,
+} from '../general/dto/parameter.dto';
 import {
   DB_DIST_NAME,
   QUERY_FEATURE_INDEX,
@@ -19,7 +22,7 @@ import { GeospatialService } from '../general/geospatial.service';
 import { TransformService } from '../transform/transform.service';
 
 @Injectable()
-export class NearestNeighbourService extends GeospatialService<ParameterDto> {
+export class NearestNeighbourService extends GeospatialService<NearestNeighbourParameterDto> {
   constructor(
     dataSource: DataSource,
     generalService: GeneralService,
@@ -37,7 +40,7 @@ export class NearestNeighbourService extends GeospatialService<ParameterDto> {
   protected override handleLogicalRequest(
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
-    request: ParameterDto,
+    request: NearestNeighbourParameterDto,
   ): void {
     const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
       logicalRequest;

@@ -17,10 +17,8 @@ export const GEOJSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
     },
   ],
   topics: ['verw_kreis_f'],
-  count: 0,
   returnGeometry: false,
   outputFormat: 'geojson',
-  maxDistanceToNeighbour: 0,
   outSRS: 4326,
 };
 export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
@@ -43,8 +41,6 @@ export const ESRI_JSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
   returnGeometry: false,
   outputFormat: 'esrijson',
   outSRS: 25833,
-  maxDistanceToNeighbour: 0,
-  count: 0,
 };
 
 export const HEADERS_JSON = {
@@ -70,7 +66,6 @@ export interface testDataParameterGeoJSONFeature {
   topics?: string[];
   additionalAttributes?: Map<string, any>;
   outputFormat?: string;
-  count?: number;
 }
 
 export interface testDataParameterEsriJSONFeature {
@@ -80,5 +75,4 @@ export interface testDataParameterEsriJSONFeature {
   outputFormat?: string;
   topics?: string[];
   additionalAttributes?: Map<string, any>;
-  count?: number;
 }

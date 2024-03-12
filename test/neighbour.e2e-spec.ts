@@ -7,10 +7,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
+import { NearestNeighbourParameterDto } from '../src/general/dto/parameter.dto';
 import { DB_DIST_NAME } from '../src/general/general.constants';
 import { GeneralModule } from '../src/general/general.module';
 import { NearestNeighbourController } from '../src/nearest-neighbour/nearest-neighbour.controller';
 import { NearestNeighbourService } from '../src/nearest-neighbour/nearest-neighbour.service';
+import { TransformModule } from '../src/transform/transform.module';
 import {
   GET,
   HEADERS_JSON,
@@ -33,7 +35,6 @@ import {
   getEsriJSONFeature,
   getGeoJSONFeature,
 } from './common/testDataPreparer';
-import { TransformModule } from '../src/transform/transform.module';
 
 describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -84,15 +85,18 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour with geometry', async () => {
-    const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
-      returnGeometry: true,
+    const input: NearestNeighbourParameterDto = {
+      ...getGeoJSONFeature({
+        topics: ['verw_kreis_f'],
+        returnGeometry: true,
+        fixGeometry: {
+          type: 'Point',
+          coordinates: [15.75, 51.072],
+        },
+      }),
       count: 2,
-      fixGeometry: {
-        type: 'Point',
-        coordinates: [15.75, 51.072],
-      },
-    });
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
@@ -110,15 +114,18 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour without geometry', async () => {
-    const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
-      returnGeometry: false,
+    const input: NearestNeighbourParameterDto = {
+      ...getGeoJSONFeature({
+        topics: ['verw_kreis_f'],
+        returnGeometry: false,
+        fixGeometry: {
+          type: 'Point',
+          coordinates: [15.75, 51.072],
+        },
+      }),
       count: 2,
-      fixGeometry: {
-        type: 'Point',
-        coordinates: [15.75, 51.072],
-      },
-    });
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
@@ -131,15 +138,18 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour custom without geometry', async () => {
-    const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f', 'verw_land_f'],
-      returnGeometry: false,
-      fixGeometry: {
-        type: 'Point',
-        coordinates: [15.746, 51.072],
-      },
+    const input: NearestNeighbourParameterDto = {
+      ...getGeoJSONFeature({
+        topics: ['verw_kreis_f', 'verw_land_f'],
+        returnGeometry: false,
+        fixGeometry: {
+          type: 'Point',
+          coordinates: [15.746, 51.072],
+        },
+      }),
       count: 2,
-    });
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
@@ -207,12 +217,15 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour with esri input and output', async () => {
-    const input = getEsriJSONFeature({
-      returnGeometry: true,
-      outputFormat: 'esrijson',
-      topics: ['verw_kreis_f'],
+    const input: NearestNeighbourParameterDto = {
+      ...getEsriJSONFeature({
+        returnGeometry: true,
+        outputFormat: 'esrijson',
+        topics: ['verw_kreis_f'],
+      }),
       count: 1,
-    });
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
@@ -257,11 +270,15 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour without count', async () => {
-    const input = getEsriJSONFeature({
-      returnGeometry: false,
-      outputFormat: 'esrijson',
-      topics: ['verw_kreis_f'],
-    });
+    const input: NearestNeighbourParameterDto = {
+      ...getEsriJSONFeature({
+        returnGeometry: false,
+        outputFormat: 'esrijson',
+        topics: ['verw_kreis_f'],
+      }),
+      count: 0,
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
@@ -273,12 +290,15 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it('/POST Nearest neighbour with false topic', async () => {
-    const input = getEsriJSONFeature({
-      returnGeometry: false,
-      outputFormat: 'esrijson',
-      topics: ['verw_test_f'],
+    const input: NearestNeighbourParameterDto = {
+      ...getEsriJSONFeature({
+        returnGeometry: false,
+        outputFormat: 'esrijson',
+        topics: ['verw_test_f'],
+      }),
       count: 1,
-    });
+      maxDistanceToNeighbour: 0,
+    };
     const result = await app.inject({
       method: POST,
       url: URL_START + NEAREST_URL,
