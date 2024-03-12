@@ -25,17 +25,12 @@ export const getGeoJSONFeature = (
       base[key] = value;
     });
   }
-  if (opts.count) {
-    base.count = opts.count;
-  }
   return base;
 };
 
 export const getEsriJSONFeature = (
   opts: testDataParameterEsriJSONFeature,
-  // ): ParameterDto => { // TODO check after Swagger update
-): any => {
-  console.log(opts);
+): ParameterDto => {
   const base = { ...ESRI_JSON_WITHOUT_GEOMETRY_KREIS };
   if (opts.returnGeometry) {
     base.returnGeometry = opts.returnGeometry;
@@ -44,16 +39,10 @@ export const getEsriJSONFeature = (
     base.topics = opts.topics;
   }
   if (opts.fixGeometry) {
-    // TODO check after swagger update
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     base.inputGeometries = opts.fixGeometry;
   }
   if (opts.outputFormat) {
     base.outputFormat = opts.outputFormat;
-  }
-  if (opts.count) {
-    base.count = opts.count;
   }
   if (opts.additionalAttributes) {
     opts.additionalAttributes.forEach((value, key) => {

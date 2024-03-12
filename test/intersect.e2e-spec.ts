@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
@@ -112,6 +113,21 @@ describe('IntersectController (e2e)', () => {
     const implName = '/POST Intersect without geometry';
     await testStatus200(implName, result);
     await resultIsGeoJSONFeatureWithoutGeometry(result);
+  });
+
+  it('/POST Intersect with duplicate topics', async () => {
+    const input = getGeoJSONFeature({
+      topics: ['verw_kreis_f', 'verw_kreis_f'],
+    });
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
   });
 
   it('/POST Intersect with aliased topic', async () => {

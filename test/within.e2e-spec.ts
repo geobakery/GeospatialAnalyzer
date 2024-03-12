@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
+import { WithinParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { WithinController } from '../src/within/within.controller';
 import { WithinService } from '../src/within/within.service';
@@ -105,8 +106,6 @@ describe('WithinController (e2e)', () => {
     await topicTest(WITHIN, geoJSON[0], 'verw_kreis_f');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
-
-  //TODO maxDistanceToNeighbour missing
 
   it('/POST within without geometry', async () => {
     const input = await getGeoJSONFeature({
@@ -244,7 +243,6 @@ describe('WithinController (e2e)', () => {
       returnGeometry: false,
       outputFormat: 'esrijson',
       topics: ['verw_test_f'],
-      count: 1,
     });
     const result = await app.inject({
       method: POST,

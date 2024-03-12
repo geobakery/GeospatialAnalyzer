@@ -9,7 +9,7 @@ import {
 import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { ParameterDto } from '../general/dto/parameter.dto';
+import { IntersectParameterDto } from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
@@ -51,7 +51,7 @@ export class IntersectController {
   @HttpCode(200)
   @Post('intersect')
   async intersect(
-    @Body() args: ParameterDto,
+    @Body() args: IntersectParameterDto,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     return await this.intersectService.handleRequest(args);
   }

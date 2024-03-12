@@ -12,6 +12,7 @@ export class ParameterDto implements GeospatialRequest {
     description: 'the topic name to check for',
     example: ['verw_kreis_f'],
     minItems: 1,
+    uniqueItems: true,
   })
   topics: string[];
 
@@ -82,12 +83,20 @@ export class ParameterDto implements GeospatialRequest {
   @ApiProperty({ example: false })
   returnGeometry: boolean;
 
+  @ApiProperty({ example: 4326 })
+  outSRS: number;
+}
+
+export class IntersectParameterDto extends ParameterDto {}
+export class NearestNeighbourParameterDto extends ParameterDto {
   @ApiProperty({ example: 3 })
   count: number;
 
   @ApiProperty({ example: 10000 })
   maxDistanceToNeighbour: number;
-
-  @ApiProperty({ example: 4326 })
-  outSRS: number;
 }
+export class ValuesAtPointParameterDto extends ParameterDto {
+  @ApiProperty({ example: ['hoehe2m_r'] })
+  topics: string[];
+}
+export class WithinParameterDto extends ParameterDto {}
