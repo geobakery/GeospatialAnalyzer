@@ -12,6 +12,7 @@ export class ParameterDto implements GeospatialRequest {
     description: 'the topic name to check for',
     example: ['verw_kreis_f'],
     minItems: 1,
+    uniqueItems: true,
   })
   topics: string[];
 
