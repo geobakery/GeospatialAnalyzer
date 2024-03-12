@@ -30,9 +30,7 @@ export const getGeoJSONFeature = (
 
 export const getEsriJSONFeature = (
   opts: testDataParameterEsriJSONFeature,
-  // ): ParameterDto => { // TODO check after Swagger update
-): any => {
-  console.log(opts);
+): ParameterDto => {
   const base = { ...ESRI_JSON_WITHOUT_GEOMETRY_KREIS };
   if (opts.returnGeometry) {
     base.returnGeometry = opts.returnGeometry;
@@ -41,9 +39,6 @@ export const getEsriJSONFeature = (
     base.topics = opts.topics;
   }
   if (opts.fixGeometry) {
-    // TODO check after swagger update
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     base.inputGeometries = opts.fixGeometry;
   }
   if (opts.outputFormat) {

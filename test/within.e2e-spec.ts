@@ -107,8 +107,6 @@ describe('WithinController (e2e)', () => {
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
-  //TODO maxDistanceToNeighbour missing
-
   it('/POST within without geometry', async () => {
     const input = await getGeoJSONFeature({
       topics: ['verw_kreis_f'],
