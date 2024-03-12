@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { IntersectController } from '../src/intersect/intersect.controller';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GeneralModule } from '../src/general/general.module';
-import { IntersectService } from '../src/intersect/intersect.service';
 import configuration from '../src/config/configuration';
-import { ConfigModule } from '@nestjs/config';
+import { GeneralModule } from '../src/general/general.module';
+import { IntersectController } from '../src/intersect/intersect.controller';
+import { IntersectService } from '../src/intersect/intersect.service';
+import { TransformModule } from '../src/transform/transform.module';
 import {
   HEADERS_JSON,
   INTERSECT_URL,
@@ -16,8 +17,6 @@ import {
   URL_START,
 } from './common/constants';
 import { getGeoJSONFeature } from './common/testDataPreparer';
-import * as big_json from './common/big_geojson_coordinate.json';
-import { TransformModule } from '../src/transform/transform.module';
 
 describe('EdgeCases (e2e)', () => {
   let app: NestFastifyApplication;
@@ -90,7 +89,7 @@ describe('EdgeCases (e2e)', () => {
       payload: input,
       headers: HEADERS_JSON,
     });
-    expect(result.statusCode).toEqual(408);
-    expect(result.statusMessage).toBe('Request Timeout');
+    expect(result.statusCode).toEqual(422);
+    expect(result.statusMessage).toBe('Unprocessable Entity');
   });
 });

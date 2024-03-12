@@ -14,6 +14,7 @@ import {
   GEO_IDENTIFIER,
   GEO_PARAMETER,
   GEOJSON_PARAMETER,
+  HTTP_STATUS_SQL_TIMEOUT,
   REQUESTPARAMS,
   STANDARD_CRS,
   supportedDatabase,
@@ -322,21 +323,21 @@ export class GeneralService {
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
     try {
       return await this.generelRoutine(args, qb);
-    } catch (e) {
-      switch (e.constructor) {
-        case QueryFailedError: {
-          throw new HttpException(e.message, HttpStatus.REQUEST_TIMEOUT);
-        }
-        case HttpException: {
-          throw new HttpException(
-            e.message,
-            e.status ? e.status : HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-        default: {
-          throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    } catch (e: unknown) {
+      // HttpExceptions are used for control flow, so we can simply forward them.
+      if (e instanceof HttpException) {
+        throw e;
       }
+
+      if (e instanceof QueryFailedError && e.message === 'Query read timeout') {
+        throw new HttpException(
+          'The request cannot be processed in a timely manner',
+          HTTP_STATUS_SQL_TIMEOUT,
+        );
+      }
+
+      // Fallback: Any other error is unknown/unexpected, so a generic 500 must suffice.
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

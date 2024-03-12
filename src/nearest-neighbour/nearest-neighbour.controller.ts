@@ -4,6 +4,7 @@ import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ParameterDto } from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { NearestNeighbourService } from './nearest-neighbour.service';
 
@@ -36,6 +37,11 @@ export class NearestNeighbourController {
         { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
       ],
     },
+  })
+  @ApiResponse({
+    description:
+      'The request is too complex to be processed in a timely manner (currently).',
+    status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
   @Post('nearestNeighbour')
