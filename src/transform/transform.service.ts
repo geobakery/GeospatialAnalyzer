@@ -183,15 +183,25 @@ export class TransformService {
     return geoJsonArray;
   }
 
+  /**
+   * @TODO: This modifies the given coordinates in place. This makes it easy to
+   *        accidentally change the request's original input geometries. We
+   *        should create new coordinates instead.
+   */
   transformCoordinates(
-    coordinates: any,
+    coordinates: number[] | number[][] | number[][][],
     fromEpsgString: string,
     toEpsgString: string,
   ) {
     this.registerCRS(fromEpsgString);
     this.registerCRS(toEpsgString);
-    if (Array.isArray(coordinates[0])) {
-      coordinates.map((coordinate) =>
+
+    function isFlat(c: number[] | number[][] | number[][][]): c is number[] {
+      return c.length === 0 || typeof c[0] === 'number';
+    }
+
+    if (!isFlat(coordinates)) {
+      coordinates.map((coordinate: number[] | number[][]) =>
         this.transformCoordinates(coordinate, fromEpsgString, toEpsgString),
       );
     } else {

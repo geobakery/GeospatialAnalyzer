@@ -263,6 +263,9 @@ describe('IntersectController (e2e)', () => {
     // test geometry
     const geo = verwGemGeoJSON.geometry;
     expect(geo.type).toBe('Polygon');
+    if (geo.type !== 'Polygon')
+      throw new Error('Unreachable error, just for TypeScript type narrowing');
+
     expect(geo.coordinates.length).toBeGreaterThan(0);
     const coordinates = geo.coordinates;
     expect(geo.coordinates.length).toBeGreaterThan(0);
@@ -366,6 +369,9 @@ describe('IntersectController (e2e)', () => {
     // test geometry
     const geo = verwGemGeoJSON.geometry;
     expect(geo.type).toBe('Polygon');
+    if (geo.type !== 'Polygon')
+      throw new Error('Unreachable error, just for TypeScript type narrowing');
+
     expect(geo.coordinates.length).toBeGreaterThan(0);
     const coordinates = geo.coordinates;
     expect(geo.coordinates.length).toBeGreaterThan(0);

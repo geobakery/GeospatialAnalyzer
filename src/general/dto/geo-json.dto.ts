@@ -1,18 +1,37 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { GeoGeometryDto } from './geo-geometry.dto';
+import {
+  GeoJSONLineString,
+  GeoJSONObject,
+  GeoJSONPoint,
+  GeoJSONPolygon,
+} from './geo-geometry.dto';
 
-@ApiExtraModels(GeoGeometryDto)
+@ApiExtraModels(GeoJSONLineString, GeoJSONPoint, GeoJSONPolygon)
 export class GeoJSONFeatureDto {
   @ApiProperty({ enum: ['Feature'] })
   type: 'Feature';
 
   @ApiProperty({
-    anyOf: [{ $ref: getSchemaPath(GeoGeometryDto) }],
+    anyOf: [
+      { $ref: getSchemaPath(GeoJSONLineString) },
+      { $ref: getSchemaPath(GeoJSONPoint) },
+      { $ref: getSchemaPath(GeoJSONPolygon) },
+    ],
     nullable: true,
   })
-  @Type(() => GeoGeometryDto)
-  geometry: GeoGeometryDto | null;
+  @Type(() => GeoJSONObject, {
+    discriminator: {
+      property: 'type',
+      subTypes: [
+        { name: 'LineString', value: GeoJSONLineString },
+        { name: 'Point', value: GeoJSONPoint },
+        { name: 'Polygon', value: GeoJSONPolygon },
+      ],
+    },
+    keepDiscriminatorProperty: true,
+  })
+  geometry: GeoJSONLineString | GeoJSONPoint | GeoJSONPolygon | null;
 
   @ApiProperty()
   properties: object | null;
