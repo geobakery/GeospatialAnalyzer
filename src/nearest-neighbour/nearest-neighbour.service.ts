@@ -49,9 +49,6 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // TODO remove topic call => replace in postProcessor to build output-json
-      subQuery.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
-      subQuery.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
       // Notice: geom is needed to calculate the distance
       if (!fieldsToQuery.includes('geom')) {
         subQuery.addSelect('geom');

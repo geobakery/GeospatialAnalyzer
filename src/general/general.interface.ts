@@ -11,6 +11,7 @@ export interface ErrorResponse {
 export interface DBResponse {
   response: GeoJSONFeatureCollectionDto;
   id: string;
+  topic: string;
 }
 
 export type topicDefinition = {
@@ -39,6 +40,7 @@ export interface tempResult {
   result: GeoJSONFeatureCollectionDto;
   parameter: any;
   id: string;
+  topic: string;
 }
 
 export interface Source {

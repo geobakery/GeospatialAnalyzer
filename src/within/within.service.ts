@@ -42,9 +42,6 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // TODO remove topic call => replace in postProcessor to build output-json
-      subQuery.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
-      subQuery.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
       // Notice: geom is needed for filtering in the where condition
       if (!fieldsToQuery.includes('geom')) {
         subQuery.addSelect('geom');

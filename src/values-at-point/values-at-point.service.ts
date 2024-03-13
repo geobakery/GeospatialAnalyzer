@@ -75,9 +75,6 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       this.adapter.injectDummyWKTStringToQuery(heightQueryBuilder);
 
       fieldsToQuery.forEach((field) => heightQueryBuilder.addSelect(field));
-      // TODO remove topic call => replace in postProcessor to build output-json
-      heightQueryBuilder.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
-      heightQueryBuilder.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
 
       heightQueries.push(heightQueryBuilder.getQuery());
       Object.assign(params, heightQueryBuilder.getParameters());

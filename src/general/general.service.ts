@@ -188,6 +188,7 @@ export class GeneralService {
         result.push({
           result: r.response,
           id: r.id,
+          topic: r.topic,
           parameter: {},
         });
       });
@@ -243,6 +244,7 @@ export class GeneralService {
       if (!features?.length) {
         const props = {
           NO_RESULT: 'No result to request',
+          __topic: result.topic,
         };
         props[REQUESTPARAMS] = requestParams;
         props[GEO_PARAMETER] = map.get(result.id);
@@ -259,6 +261,7 @@ export class GeneralService {
         features.forEach((feature) => {
           feature.properties[REQUESTPARAMS] = requestParams;
           feature.properties[GEO_PARAMETER] = map.get(result.id);
+          feature.properties['__topic'] = result.topic;
         });
       }
     });
