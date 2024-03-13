@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
@@ -57,9 +62,43 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    const t = this.configService.get<topicDefinition[]>('__topicsConfig__');
-    // TODO check if t is valid
-    this._setDynamicTopicsConfigurations(t);
+    const configurationFromTopicJson =
+      this.configService.get<topicDefinition[]>('__topicsConfig__');
+    const check = this.checkTopicDefinition(configurationFromTopicJson);
+    if (!check) {
+      throw new InternalServerErrorException(
+        `Topic.json is deprecated. Administration needs to update the definition.`,
+      );
+    }
+    this._setDynamicTopicsConfigurations(configurationFromTopicJson);
+  }
+
+  private checkTopicDefinition(
+    topicArray: any[],
+  ): topicArray is topicDefinition[] {
+    return topicArray.every((t) => {
+      // check mandatory values
+      if (!('identifiers' in t && Array.isArray(t['identifiers']))) {
+        return false;
+      }
+      if (!('title' in t && typeof t['title'] === 'string')) {
+        return false;
+      }
+
+      // check source object
+      const checkSource = (s: Source) =>
+        'source' in s && 'name' in s && 'srid' in s;
+
+      if ('__source__' in t) {
+        const source = t['__source__'];
+        return checkSource(source);
+      } else if ('__multipleSources__' in t) {
+        const sources = t['__multipleSources__'];
+        return Array.isArray(sources) && sources.every((s) => checkSource(s));
+      } else {
+        return false;
+      }
+    });
   }
 
   getDbAdapter(): DbAdapterService {
@@ -95,7 +134,6 @@ export class GeneralService {
   }
 
   _setDynamicTopicsConfigurations(td: topicDefinition[]) {
-    //TODO check if td is valid
     if (!td.length) {
       // error handling ?
       console.error('No topic definition set');
