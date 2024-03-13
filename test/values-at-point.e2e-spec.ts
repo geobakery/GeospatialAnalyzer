@@ -78,7 +78,7 @@ describe('ValuesAtPointController (e2e)', () => {
 
   it('/POST ValuesAtPoint without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['hoehe2m_r'],
+      topics: ['hoehe'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -96,13 +96,13 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(2);
-    await topicTest(VAlUES_AT_POINT, geoJSON[0], 'hoehe2m_r');
-    await topicTest(VAlUES_AT_POINT, geoJSON[1], 'hoehe2m_r');
+    await topicTest(VAlUES_AT_POINT, geoJSON[0], 'hoehe');
+    await topicTest(VAlUES_AT_POINT, geoJSON[1], 'hoehe');
     await resultIsGeoJSONFeatureWithoutGeometry(result);
   });
   it('/POST within custom without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['hoehe2m_r'],
+      topics: ['hoehe'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -130,8 +130,8 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(heightsGeoJSON.type).toBe('Feature');
 
     const props = heightsGeoJSON.properties;
-    expect(props['__name']).toBe('dgm_height');
-    expect(props['__topic']).toBe('hoehe2m_r');
+    expect(props['__name']).toBe('hoehe_gelaende_dgm2');
+    expect(props['__topic']).toBe('hoehe');
     expect(props['__height']).toBe(24886);
 
     const geoProps = props['__geoProperties'];
@@ -148,8 +148,8 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(domGeoJSON.type).toBe('Feature');
 
     const propsLand = domGeoJSON.properties;
-    expect(propsLand['__name']).toBe('dom_height');
-    expect(propsLand['__topic']).toBe('hoehe2m_r');
+    expect(propsLand['__name']).toBe('hoehe_oberflaeche_dom2');
+    expect(propsLand['__topic']).toBe('hoehe');
     expect(propsLand['__height']).toBe(24886);
 
     const geoPropsLand = propsLand['__geoProperties'];

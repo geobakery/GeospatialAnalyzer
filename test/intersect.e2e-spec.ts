@@ -223,7 +223,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect custom with geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['verw_gem_f'],
+      topics: ['gemeinde'],
       returnGeometry: true,
       fixGeometry: {
         type: 'Point',
@@ -249,7 +249,7 @@ describe('IntersectController (e2e)', () => {
 
     const props = verwGemGeoJSON.properties;
     expect(props['name']).toBe('Stadt Dresden');
-    expect(props['__topic']).toBe('verw_gem_f');
+    expect(props['__topic']).toBe('gemeinde');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
