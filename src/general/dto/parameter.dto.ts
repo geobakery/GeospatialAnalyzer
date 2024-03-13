@@ -96,7 +96,7 @@ export class NearestNeighbourParameterDto extends ParameterDto {
   maxDistanceToNeighbour: number;
 }
 export class ValuesAtPointParameterDto extends ParameterDto {
-  @ApiProperty({ example: ['hoehe2m_r'] })
+  @ApiProperty({ example: ['hoehe'] })
   topics: string[];
 }
 export class WithinParameterDto extends ParameterDto {}
