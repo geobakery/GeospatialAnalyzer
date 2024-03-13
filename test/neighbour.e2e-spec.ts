@@ -87,7 +87,7 @@ describe('NearestNeighbourController (e2e)', () => {
   it('/POST Nearest neighbour with geometry', async () => {
     const input: NearestNeighbourParameterDto = {
       ...getGeoJSONFeature({
-        topics: ['verw_kreis_f'],
+        topics: ['kreis'],
         returnGeometry: true,
         fixGeometry: {
           type: 'Point',
@@ -109,14 +109,14 @@ describe('NearestNeighbourController (e2e)', () => {
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     console.log(geoJSON);
     expect(geoJSON.length).toBe(2);
-    await topicTest(INTERSECT, geoJSON[0], 'verw_kreis_f');
+    await topicTest(INTERSECT, geoJSON[0], 'kreis');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
   it('/POST Nearest neighbour without geometry', async () => {
     const input: NearestNeighbourParameterDto = {
       ...getGeoJSONFeature({
-        topics: ['verw_kreis_f'],
+        topics: ['kreis'],
         returnGeometry: false,
         fixGeometry: {
           type: 'Point',
@@ -140,7 +140,7 @@ describe('NearestNeighbourController (e2e)', () => {
   it('/POST Nearest neighbour custom without geometry', async () => {
     const input: NearestNeighbourParameterDto = {
       ...getGeoJSONFeature({
-        topics: ['verw_kreis_f', 'verw_land_f'],
+        topics: ['kreis', 'land'],
         returnGeometry: false,
         fixGeometry: {
           type: 'Point',
@@ -167,7 +167,7 @@ describe('NearestNeighbourController (e2e)', () => {
     const verwKreisGeoJSON1 = geojsonArray[1];
     const verwLandGeoJSON = geojsonArray[2];
 
-    // test verw_kreis_f response
+    // test kreis response
     expect(verwKreisGeoJSON.geometry === null).toBeTruthy();
     expect(verwKreisGeoJSON.type).toBe('Feature');
     expect(verwKreisGeoJSON1.geometry === null).toBeTruthy();
@@ -175,14 +175,14 @@ describe('NearestNeighbourController (e2e)', () => {
 
     const props = verwKreisGeoJSON.properties;
     expect(props['name']).toBe('Landkreis Bautzen');
-    expect(props['__topic']).toBe('verw_kreis_f');
+    expect(props['__topic']).toBe('kreis');
     // approx result
     expect(props[DB_DIST_NAME]).toBeGreaterThan(74076);
     expect(props[DB_DIST_NAME]).toBeLessThan(74077);
 
     const props1 = verwKreisGeoJSON1.properties;
     expect(props1['name']).toBe('Landkreis Sächsische Schweiz-Osterzgebirge');
-    expect(props1['__topic']).toBe('verw_kreis_f');
+    expect(props1['__topic']).toBe('kreis');
     // approx result
     expect(props1[DB_DIST_NAME]).toBeGreaterThan(95639);
     expect(props1[DB_DIST_NAME]).toBeLessThan(95640);
@@ -196,13 +196,13 @@ describe('NearestNeighbourController (e2e)', () => {
     expect(geoProps['test']).toBe(9);
     expect(geoProps['__geometryIdentifier__']).toBeDefined();
 
-    // test verw_land_f response
+    // test land response
     expect(verwLandGeoJSON.geometry === null).toBeTruthy();
     expect(verwLandGeoJSON.type).toBe('Feature');
 
     const propsLand = verwLandGeoJSON.properties;
     expect(propsLand['name']).toBe('Sachsen');
-    expect(propsLand['__topic']).toBe('verw_land_f');
+    expect(propsLand['__topic']).toBe('land');
     expect(propsLand[DB_DIST_NAME]).toBeGreaterThan(52689);
     expect(propsLand[DB_DIST_NAME]).toBeLessThan(52690);
 
@@ -221,7 +221,7 @@ describe('NearestNeighbourController (e2e)', () => {
       ...getEsriJSONFeature({
         returnGeometry: true,
         outputFormat: 'esrijson',
-        topics: ['verw_kreis_f'],
+        topics: ['kreis'],
       }),
       count: 1,
       maxDistanceToNeighbour: 0,
@@ -239,13 +239,13 @@ describe('NearestNeighbourController (e2e)', () => {
     expect(esrijsonArray.length).toBe(1);
     const verwEsri = esrijsonArray[0];
 
-    // test verw_kreis_f response
+    // test kreis response
     expect(verwEsri.geometry !== null).toBeTruthy();
     expect(verwEsri.attributes).toBeDefined();
 
     const props = verwEsri.attributes;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('verw_kreis_f');
+    expect(props['__topic']).toBe('kreis');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -274,7 +274,7 @@ describe('NearestNeighbourController (e2e)', () => {
       ...getEsriJSONFeature({
         returnGeometry: false,
         outputFormat: 'esrijson',
-        topics: ['verw_kreis_f'],
+        topics: ['kreis'],
       }),
       count: 0,
       maxDistanceToNeighbour: 0,

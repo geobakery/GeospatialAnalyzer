@@ -85,7 +85,7 @@ describe('WithinController (e2e)', () => {
 
   it('/POST within with geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
+      topics: ['kreis'],
       returnGeometry: true,
       fixGeometry: {
         type: 'Point',
@@ -103,13 +103,13 @@ describe('WithinController (e2e)', () => {
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(1);
-    await topicTest(WITHIN, geoJSON[0], 'verw_kreis_f');
+    await topicTest(WITHIN, geoJSON[0], 'kreis');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
   it('/POST within without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
+      topics: ['kreis'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -129,7 +129,7 @@ describe('WithinController (e2e)', () => {
 
   it('/POST within custom without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f', 'verw_land_f'],
+      topics: ['kreis', 'land'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -152,7 +152,7 @@ describe('WithinController (e2e)', () => {
     const verwKreisGeoJSON = geojsonArray[0];
     const verwLandGeoJSON = geojsonArray[1];
 
-    // test verw_kreis_f response
+    // test kreis response
     expect(verwKreisGeoJSON.geometry === null).toBeTruthy();
     expect(verwKreisGeoJSON.type).toBe('Feature');
 
@@ -160,7 +160,7 @@ describe('WithinController (e2e)', () => {
 
     const props = verwKreisGeoJSON.properties;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('verw_kreis_f');
+    expect(props['__topic']).toBe('kreis');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -171,13 +171,13 @@ describe('WithinController (e2e)', () => {
     expect(geoProps['test']).toBe(9);
     expect(geoProps['__geometryIdentifier__']).toBeDefined();
 
-    // test verw_land_f response
+    // test land response
     expect(verwLandGeoJSON.geometry === null).toBeTruthy();
     expect(verwLandGeoJSON.type).toBe('Feature');
 
     const propsLand = verwLandGeoJSON.properties;
     expect(propsLand['name']).toBe('Sachsen');
-    expect(propsLand['__topic']).toBe('verw_land_f');
+    expect(propsLand['__topic']).toBe('land');
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
@@ -193,7 +193,7 @@ describe('WithinController (e2e)', () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
       outputFormat: 'esrijson',
-      topics: ['verw_kreis_f'],
+      topics: ['kreis'],
     });
     const result = await app.inject({
       method: POST,
@@ -208,13 +208,13 @@ describe('WithinController (e2e)', () => {
     expect(esrijsonArray.length).toBe(1);
     const verwEsri = esrijsonArray[0];
 
-    // test verw_kreis_f response
+    // test kreis response
     expect(verwEsri.geometry !== null).toBeTruthy();
     expect(verwEsri.attributes).toBeDefined();
 
     const props = verwEsri.attributes;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('verw_kreis_f');
+    expect(props['__topic']).toBe('kreis');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];

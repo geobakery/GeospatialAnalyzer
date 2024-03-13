@@ -125,7 +125,7 @@ describe('ValuesAtPointController (e2e)', () => {
     const heightsGeoJSON = geojsonArray[0];
     const domGeoJSON = geojsonArray[1];
 
-    // test verw_kreis_f response
+    // test kreis response
     expect(heightsGeoJSON.geometry === null).toBeTruthy();
     expect(heightsGeoJSON.type).toBe('Feature');
 
@@ -143,7 +143,7 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(geoProps['test']).toBe(9);
     expect(geoProps['__geometryIdentifier__']).toBeDefined();
 
-    // test verw_land_f response
+    // test land response
     expect(domGeoJSON.geometry === null).toBeTruthy();
     expect(domGeoJSON.type).toBe('Feature');
 
