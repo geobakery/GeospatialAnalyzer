@@ -63,7 +63,7 @@ describe('EdgeCases (e2e)', () => {
 
   // it('/POST Payload too large', async () => {
   //   const input = await getGeoJSONFeature({
-  //     topics: ['verw_kreis_f'],
+  //     topics: ['kreis'],
   //     returnGeometry: true,
   //     fixGeometry: { type: 'Polygon', coordinates: big_json },
   //   });
@@ -79,7 +79,7 @@ describe('EdgeCases (e2e)', () => {
 
   it('/POST extrem low query time', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['verw_kreis_f'],
+      topics: ['kreis'],
       returnGeometry: true,
       fixGeometry: { type: 'Point', coordinates: [0, 1] },
     });

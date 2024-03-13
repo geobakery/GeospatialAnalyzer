@@ -24,7 +24,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["verw_kreis_f"]
+  "topics": ["kreis"]
 }
 ```
 
@@ -41,7 +41,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["verw_kreis_f", "verw_land_f"]
+  "topics": ["kreis", "land"]
 }
 ```
 
@@ -58,7 +58,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["verw_kreis_f"]
+  "topics": ["kreis"]
 }
 ```
 
@@ -77,7 +77,7 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "testname"
     }
   }],
-  "topics": ["verw_kreis_f"],
+  "topics": ["kreis"],
   "returnGeometry": true
 }
 ```

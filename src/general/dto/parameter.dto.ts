@@ -10,7 +10,7 @@ import { GeoJSONFeatureCollectionDto, GeoJSONFeatureDto } from './geo-json.dto';
 export class ParameterDto implements GeospatialRequest {
   @ApiProperty({
     description: 'the topic name to check for',
-    example: ['verw_kreis_f'],
+    example: ['kreis'],
     minItems: 1,
     uniqueItems: true,
   })
@@ -96,7 +96,7 @@ export class NearestNeighbourParameterDto extends ParameterDto {
   maxDistanceToNeighbour: number;
 }
 export class ValuesAtPointParameterDto extends ParameterDto {
-  @ApiProperty({ example: ['hoehe2m_r'] })
+  @ApiProperty({ example: ['hoehe'] })
   topics: string[];
 }
 export class WithinParameterDto extends ParameterDto {}

@@ -1,7 +1,7 @@
 {
   "__topicsConfig__": [
     {
-      "identifiers": ["verw_land_f"],
+      "identifiers": ["sn_land", "land"],
       "title": "Verwaltung Landkreise",
       "description": "analyzes federal states and neighbouring states.",
       "__source__": {
@@ -9,14 +9,20 @@
         "source": "spatialyzer_demo.verw_land_f",
         "srid": 25833
       },
-      "__attributes__": ["bundesland","egm_code", "id", "land", "name", "nuts_code", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "bundesland",
+        "egm_code",
+        "id",
+        "land",
+        "name",
+        "nuts_code",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": [
-        "sn_verw_kreis_f",
-        "verw_kreis_f"
-      ],
+      "identifiers": ["sn_kreis", "kreis"],
       "title": "Verwaltung Kreise",
       "description": "analyzes the districts in Saxony.",
       "__source__": {
@@ -24,32 +30,43 @@
         "source": "spatialyzer_demo.verw_kreis_f",
         "srid": 25833
       },
-      "__attributes__": ["country", "country_cl", "id_localid", "id_namespace", "ifcid", "name", "nationalcode", "nationallevel", "nationallevel_cl", "upperlevelunit", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "country",
+        "country_cl",
+        "id_localid",
+        "id_namespace",
+        "ifcid",
+        "name",
+        "nationalcode",
+        "nationallevel",
+        "nationallevel_cl",
+        "upperlevelunit",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["hoehe2m_r"],
-      "title": "Höhenwerte für Dresden",
+      "identifiers": ["sn_hoehe", "hoehe"],
+      "title": "Höhenwerte für Sachsen",
       "description": "Contains information on terrain elevation and surface elevation in Saxony.",
       "__multipleSources__": [
         {
-          "name": "dgm_height",
+          "name": "hoehe_gelaende_dgm2",
           "source": "spatialyzer_demo.hoehe2m_r",
           "srid": 25833
         },
         {
-          "name": "dom_height",
-          "source":  "spatialyzer_demo.hoehe2m_dom_r",
+          "name": "hoehe_oberflaeche_dom2",
+          "source": "spatialyzer_demo.hoehe2m_dom_r",
           "srid": 25833
         }
       ],
       "__attributes__": [],
-      "__supports__": [
-        "valuesAtPoint"
-      ]
+      "__supports__": ["valuesAtPoint"]
     },
     {
-      "identifiers": ["verw_gem_f"],
+      "identifiers": ["sn_gemeinde", "gemeinde"],
       "title": "Verwaltung Gemeinden",
       "description": "analyzes the municipalities in Saxony.",
       "__source__": {
@@ -57,11 +74,24 @@
         "source": "spatialyzer_demo.verw_gem_f",
         "srid": 25833
       },
-      "__attributes__": ["country", "country_cl", "id_localid", "id_namespace", "ifcid", "name", "nationalcode", "nationallevel", "nationallevel_cl", "upperlevelunit", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "country",
+        "country_cl",
+        "id_localid",
+        "id_namespace",
+        "ifcid",
+        "name",
+        "nationalcode",
+        "nationallevel",
+        "nationallevel_cl",
+        "upperlevelunit",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["umw_wassersch_f"],
+      "identifiers": ["sn_wasserschutzgebiet", "wasserschutzgebiet"],
       "title": "Wasserschutz",
       "description": "analyzes water protection areas inm Saxony.",
       "__source__": {
@@ -69,35 +99,75 @@
         "source": "spatialyzer_demo.umw_wassersch_f",
         "srid": 25833
       },
-      "__attributes__": ["datenstand", "ezg", "flaeche_in_ha", "gml_id", "inkrafttreten", "landesdirektion", "landkreis", "name", "nummer", "teilzone", "typ", "zone", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "datenstand",
+        "ezg",
+        "flaeche_in_ha",
+        "gml_id",
+        "inkrafttreten",
+        "landesdirektion",
+        "landkreis",
+        "name",
+        "nummer",
+        "teilzone",
+        "typ",
+        "zone",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["umw_nat2000_f"],
-      "title": "Nat2000 Fläche",
+      "identifiers": ["sn_natura2000_gebiet", "natura2000_gebiet"],
+      "title": "NATURA 2000 Gebiete",
       "description": "analyzes Fauna-Flora-Habitat areas in Saxony.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_nat2000_f",
         "srid": 25833
       },
-      "__attributes__": ["erfassung", "eu_nr", "gebiet", "gml_id", "info", "legende", "meldeflaec", "sn_nr", "teilfl", "typ", "rechts_gl", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "erfassung",
+        "eu_nr",
+        "gebiet",
+        "gml_id",
+        "info",
+        "legende",
+        "meldeflaec",
+        "sn_nr",
+        "teilfl",
+        "typ",
+        "rechts_gl",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["umw_nat2000_p"],
-      "title": "Nat2000 Punkte",
+      "identifiers": ["sn_natura2000_ort", "natura2000_ort"],
+      "title": "NATURA 2000 Orte",
       "description": "analyzes bat roosts in Saxony.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_nat2000_p",
         "srid": 25833
       },
-      "__attributes__": ["erfassung", "eu_nr", "gebiet", "gml_id", "info", "legende", "meldeflaec", "sn_nr", "teilfl", "typ"],
+      "__attributes__": [
+        "erfassung",
+        "eu_nr",
+        "gebiet",
+        "gml_id",
+        "info",
+        "legende",
+        "meldeflaec",
+        "sn_nr",
+        "teilfl",
+        "typ"
+      ],
       "__supports__": ["intersect", "nearestNeighbour"]
     },
     {
-      "identifiers": ["umw_schutzgeb_f"],
+      "identifiers": ["sn_schutzgebiet", "schutzgebiet"],
       "title": "Umweltschutzgebiete",
       "description": "analyzes nature reserves in Saxony.",
       "__source__": {
@@ -105,11 +175,26 @@
         "source": "spatialyzer_demo.umw_schutzgeb_f",
         "srid": 25833
       },
-      "__attributes__": ["erfdat", "gml_id", "id_zo", "kategorie", "name", "praezi", "sg_nr", "status", "teilarea", "typ", "uebdat", "zone", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "erfdat",
+        "gml_id",
+        "id_zo",
+        "kategorie",
+        "name",
+        "praezi",
+        "sg_nr",
+        "status",
+        "teilarea",
+        "typ",
+        "uebdat",
+        "zone",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["geol_hohlraumbas_f"],
+      "identifiers": ["sn_hohlraum-bergaufsicht", "hohlraum-bergaufsicht"],
       "title": "Hohlraum",
       "description": "analyzes cavities in Saxony (underground cavities that are subject to the scope of the Federal Mining Act, areas with mine workings under mining supervision).",
       "__source__": {
@@ -117,11 +202,16 @@
         "source": "spatialyzer_demo.geol_hohlraumbas_f",
         "srid": 25833
       },
-      "__attributes__": ["objectid", "perimeter", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "objectid",
+        "perimeter",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["geol_hohlraumuih_f"],
+      "identifiers": ["sn_hohlraum-unterirdisch", "hohlraum-unterirdisch"],
       "title": "Holraum",
       "description": "analyzes cavities in Saxony (areas where underground cavities are to be expected or known).",
       "__source__": {
@@ -129,11 +219,17 @@
         "source": "spatialyzer_demo.geol_hohlraumuih_f",
         "srid": 25833
       },
-      "__attributes__": ["id_geom_re", "bufferval", "idart_list", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "id_geom_re",
+        "bufferval",
+        "idart_list",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["adressen_p"],
+      "identifiers": ["sn_adresse", "adresse"],
       "title": "Adressen Sachsen",
       "description": "analyzes addresses in Saxony.",
       "__source__": {
@@ -145,7 +241,7 @@
       "__supports__": ["intersect", "nearestNeighbour"]
     },
     {
-      "identifiers": ["gesu_aspsz_f"],
+      "identifiers": ["sn_asp-sperrzone", "asp-sperrzone"],
       "title": "Afrikanische Schweinepest",
       "description": "analyzes exclusion zones due to findings of african swine fever.",
       "__source__": {
@@ -157,7 +253,7 @@
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["kat_gemark_f"],
+      "identifiers": ["sn_gemarkung", "gemarkung"],
       "title": "Gemarkungen",
       "description": "analyzes the districts in Saxony.",
       "__source__": {
@@ -165,11 +261,22 @@
         "source": "spatialyzer_demo.kat_gemark_f",
         "srid": 25833
       },
-      "__attributes__": ["id_localid", "id_namespace", "ifcid", "level_", "level_cl", "name", "schluessel", "nationalcadastalzoningref", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "id_localid",
+        "id_namespace",
+        "ifcid",
+        "level_",
+        "level_cl",
+        "name",
+        "schluessel",
+        "nationalcadastalzoningref",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["kat_flurst_f"],
+      "identifiers": ["sn_flurstueck", "flurstueck"],
       "title": "Flurstücke",
       "description": "analyzes the parcels in Saxony.",
       "__source__": {
@@ -177,19 +284,37 @@
         "source": "spatialyzer_demo.kat_flurst_f",
         "srid": 25833
       },
-      "__attributes__": ["admunit", "areavalue", "areavalue_uom", "gemarkung_name", "id_localid", "id_namespace", "ifcid", "label", "nationalcadastralref", "zoning", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "admunit",
+        "areavalue",
+        "areavalue_uom",
+        "gemarkung_name",
+        "id_localid",
+        "id_namespace",
+        "ifcid",
+        "label",
+        "nationalcadastralref",
+        "zoning",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     },
     {
-      "identifiers": ["efa/thueringen"],
+      "identifiers": ["th_verwaltungseinheit"],
       "title": "EfA Thüringen",
       "description": "EfA Thüringen",
       "__source__": {
         "name": "unused",
         "source": "efa.thueringen",
-        "srid": 25833
+        "srid": 25832
       },
-      "__attributes__": ["name", "nationalcode", "geometrieflaeche", "geometrieflaeche_eh"],
+      "__attributes__": [
+        "name",
+        "nationalcode",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
       "__supports__": ["intersect", "within", "nearestNeighbour"]
     }
   ]
