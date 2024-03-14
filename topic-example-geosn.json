@@ -2,8 +2,8 @@
   "__topicsConfig__": [
     {
       "identifiers": ["sn_land", "land"],
-      "title": "Verwaltung Landkreise",
-      "description": "analyzes federal states and neighbouring states.",
+      "title": "Bundesländer und Länder",
+      "description": "An Sachsen grenzende Bundesländer und Länder.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.verw_land_f",
@@ -23,8 +23,8 @@
     },
     {
       "identifiers": ["sn_kreis", "kreis"],
-      "title": "Verwaltung Kreise",
-      "description": "analyzes the districts in Saxony.",
+      "title": "Landkreise/Kreise",
+      "description": "Landkreise und kreisfreie Städe in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.verw_kreis_f",
@@ -48,8 +48,8 @@
     },
     {
       "identifiers": ["sn_hoehe", "hoehe"],
-      "title": "Höhenwerte für Sachsen",
-      "description": "Contains information on terrain elevation and surface elevation in Saxony.",
+      "title": "Gelände- und Oberflächenhöhen",
+      "description": "Gelände- und Oberflächenhöhen Sachsens basierend auf DGM bzw. DOM.",
       "__multipleSources__": [
         {
           "name": "hoehe_gelaende_dgm2",
@@ -67,8 +67,8 @@
     },
     {
       "identifiers": ["sn_gemeinde", "gemeinde"],
-      "title": "Verwaltung Gemeinden",
-      "description": "analyzes the municipalities in Saxony.",
+      "title": "Gemeinden",
+      "description": "Gemeinden in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.verw_gem_f",
@@ -92,8 +92,8 @@
     },
     {
       "identifiers": ["sn_wasserschutzgebiet", "wasserschutzgebiet"],
-      "title": "Wasserschutz",
-      "description": "analyzes water protection areas inm Saxony.",
+      "title": "Wasserschutzgebiete",
+      "description": "Wasserschutzgebiete in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_wassersch_f",
@@ -120,7 +120,7 @@
     {
       "identifiers": ["sn_natura2000_gebiet", "natura2000_gebiet"],
       "title": "NATURA 2000 Gebiete",
-      "description": "analyzes Fauna-Flora-Habitat areas in Saxony.",
+      "description": "Europäische Vogelschutzgebiete und Fauna-Flora-Habitate in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_nat2000_f",
@@ -146,7 +146,7 @@
     {
       "identifiers": ["sn_natura2000_ort", "natura2000_ort"],
       "title": "NATURA 2000 Orte",
-      "description": "analyzes bat roosts in Saxony.",
+      "description": "Fledermausquartiere in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_nat2000_p",
@@ -169,7 +169,7 @@
     {
       "identifiers": ["sn_schutzgebiet", "schutzgebiet"],
       "title": "Umweltschutzgebiete",
-      "description": "analyzes nature reserves in Saxony.",
+      "description": "Naturschutzgebiete, Naturparks, Nationalparks, Landschaftsschutzgebiete, Flächennaturdenkmäler und Biosphärenreservate in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.umw_schutzgeb_f",
@@ -195,8 +195,8 @@
     },
     {
       "identifiers": ["sn_hohlraum-bergaufsicht", "hohlraum-bergaufsicht"],
-      "title": "Hohlraum",
-      "description": "analyzes cavities in Saxony (underground cavities that are subject to the scope of the Federal Mining Act, areas with mine workings under mining supervision).",
+      "title": "Unterirdische Hohlräume unter Bergaufsicht",
+      "description": "Nachrichtliche Information über unterirdische Hohlräume in Sachsen, die dem Geltungsbereich des Bundesberggesetzes unterliegen (Gebiete mit Grubenbauen unter Bergaufsicht).",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.geol_hohlraumbas_f",
@@ -212,8 +212,8 @@
     },
     {
       "identifiers": ["sn_hohlraum-unterirdisch", "hohlraum-unterirdisch"],
-      "title": "Holraum",
-      "description": "analyzes cavities in Saxony (areas where underground cavities are to be expected or known).",
+      "title": "Unterirdische Hohlräume",
+      "description": "Unterirdische Hohlräume (Hohlraumgebiete) in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.geol_hohlraumuih_f",
@@ -230,8 +230,8 @@
     },
     {
       "identifiers": ["sn_adresse", "adresse"],
-      "title": "Adressen Sachsen",
-      "description": "analyzes addresses in Saxony.",
+      "title": "Adressen",
+      "description": "Adressen in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.adressen_p",
@@ -242,8 +242,8 @@
     },
     {
       "identifiers": ["sn_asp-sperrzone", "asp-sperrzone"],
-      "title": "Afrikanische Schweinepest",
-      "description": "analyzes exclusion zones due to findings of african swine fever.",
+      "title": "Afrikanische Schweinepest-Sperrzonen",
+      "description": "Afrikanische Schweinepest (ASP) -Sperrzonen in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.gesu_aspsz_f",
@@ -255,7 +255,7 @@
     {
       "identifiers": ["sn_gemarkung", "gemarkung"],
       "title": "Gemarkungen",
-      "description": "analyzes the districts in Saxony.",
+      "description": "Gemarkungen in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.kat_gemark_f",
@@ -278,7 +278,7 @@
     {
       "identifiers": ["sn_flurstueck", "flurstueck"],
       "title": "Flurstücke",
-      "description": "analyzes the parcels in Saxony.",
+      "description": "Flurstücke in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.kat_flurst_f",
@@ -302,8 +302,8 @@
     },
     {
       "identifiers": ["th_verwaltungseinheit"],
-      "title": "EfA Thüringen",
-      "description": "EfA Thüringen",
+      "title": "Verwaltungseinheiten in Thüringen",
+      "description": "Thüringer Verwaltungseinheiten aus dem ATKIS Basis-DLM. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Thüringen.",
       "__source__": {
         "name": "unused",
         "source": "efa.thueringen",
