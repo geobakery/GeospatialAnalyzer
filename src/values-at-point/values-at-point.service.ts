@@ -5,9 +5,7 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
   QUERY_FEATURE_INDEX,
-  QUERY_TOPIC,
   STANDARD_SRID,
-  TOPIC_ID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
@@ -36,8 +34,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
-      logicalRequest;
+    const { fieldsToQuery, topicIndex, feature, featureIndex } = logicalRequest;
 
     const sources = this.generalService.getMultipleDBNamesForIdentifier(
       logicalRequest.topic,
@@ -75,9 +72,6 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       this.adapter.injectDummyWKTStringToQuery(heightQueryBuilder);
 
       fieldsToQuery.forEach((field) => heightQueryBuilder.addSelect(field));
-      // TODO remove topic call => replace in postProcessor to build output-json
-      heightQueryBuilder.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
-      heightQueryBuilder.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
 
       heightQueries.push(heightQueryBuilder.getQuery());
       Object.assign(params, heightQueryBuilder.getParameters());

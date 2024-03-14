@@ -5,9 +5,7 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { IntersectParameterDto } from '../general/dto/parameter.dto';
 import {
   QUERY_FEATURE_INDEX,
-  QUERY_TOPIC,
   STANDARD_SRID,
-  TOPIC_ID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
@@ -37,16 +35,12 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
-      logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // TODO remove topic call => replace in postProcessor to build output-json
-      subQuery.setParameter(`${QUERY_TOPIC}${topicIndex}`, topic);
-      subQuery.addSelect(`:${QUERY_TOPIC}${topicIndex}`, TOPIC_ID);
       // Notice: geom is needed for filtering in the where condition
       if (!fieldsToQuery.includes('geom')) {
         subQuery.addSelect('geom');
