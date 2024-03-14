@@ -29,15 +29,10 @@ export class TransformService {
 
     for (const geoJSON of geoInput) {
       try {
-        const geoElement: GeoGeometryDto & {
-          crs?: { properties?: { name?: string } };
-        } = geoJSON.geometry;
-        if (geoElement) {
-          const currentCRS = STANDARD_EPSG + STANDARD_CRS;
-
+        if (geoJSON.geometry) {
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
-            currentCRS,
+            STANDARD_EPSG + STANDARD_CRS,
             epsgString,
           );
         }
