@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
+import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
 import { NearestNeighbourParameterDto } from '../src/general/dto/parameter.dto';
 import { DB_DIST_NAME } from '../src/general/general.constants';
 import { GeneralModule } from '../src/general/general.module';
@@ -240,7 +241,7 @@ describe('NearestNeighbourController (e2e)', () => {
     const verwEsri = esrijsonArray[0];
 
     // test kreis response
-    expect(verwEsri.geometry !== null).toBeTruthy();
+    expect(verwEsri.geometry).toBeDefined();
     expect(verwEsri.attributes).toBeDefined();
 
     const props = verwEsri.attributes;
@@ -262,11 +263,13 @@ describe('NearestNeighbourController (e2e)', () => {
     expect(geo.spatialReference).toBeDefined();
     expect(geo.spatialReference.wkid).toBeDefined();
     expect(geo.spatialReference.wkid).toBe(25833);
-    expect(geo.rings).toBeDefined();
-    expect(geo.rings.length).toBeGreaterThan(0);
-    const coordinates = geo.rings;
-    expect(coordinates.length).toBeGreaterThan(0);
-    // TODO after swagger update add tests for rigns with number[][][]
+    expect((geo as EsriPolygonDto).rings).toBeDefined();
+    const coordinates = (geo as EsriPolygonDto).rings;
+    expect(coordinates).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([expect.arrayContaining([expect.any(Number)])]),
+      ]),
+    );
   });
 
   it('/POST Nearest neighbour without count', async () => {
