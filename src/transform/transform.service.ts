@@ -22,7 +22,6 @@ import {
 export class TransformService {
   convertGeoJSONToEsriJSON(args: TransformGeoToEsriDto): EsriJsonDto[] {
     const epsgString = STANDARD_EPSG + args.epsg;
-    this.checkCRS(epsgString);
 
     const esriJsonArray = new Array<EsriJsonDto>();
 
@@ -34,14 +33,11 @@ export class TransformService {
           crs?: { properties?: { name?: string } };
         } = geoJSON.geometry;
         if (geoElement) {
-          const currentCRS = geoElement?.crs?.properties?.name
-            ? geoElement?.crs?.properties?.name
-            : STANDARD_CRS;
+          const currentCRS = STANDARD_EPSG + STANDARD_CRS;
 
-          this.checkCRS('EPSG:' + currentCRS);
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
-            'EPSG:' + String(currentCRS),
+            currentCRS,
             epsgString,
           );
         }
@@ -114,8 +110,6 @@ export class TransformService {
       const crs = geometry.crs.properties?.name;
       if (crs) {
         try {
-          this.checkCRS(crs);
-
           this.transformCoordinates(
             geo.geometry.coordinates,
             crs,
@@ -138,7 +132,6 @@ export class TransformService {
     for (const esriJSON of args.input) {
       const epsgString =
         STANDARD_EPSG + esriJSON.geometry.spatialReference.wkid;
-      this.checkCRS(epsgString);
 
       try {
         const geo = esriJSON.geometry;
@@ -196,6 +189,8 @@ export class TransformService {
     fromEpsgString: string,
     toEpsgString: string,
   ) {
+    this.checkCRS(fromEpsgString);
+    this.checkCRS(toEpsgString);
     if (Array.isArray(coordinates[0])) {
       coordinates.map((coordinate) =>
         this.transformCoordinates(coordinate, fromEpsgString, toEpsgString),
