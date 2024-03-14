@@ -109,7 +109,9 @@ export class GeneralService {
         };
 
         if ('__source__' in t) {
-          return checkSource(t as topicDefinition);
+          return checkSource(
+            (t as topicDefinition & { __source__: unknown }).__source__,
+          );
         } else if ('__multipleSources__' in t) {
           const sources = (
             t as topicDefinition & { __multipleSources__: unknown }
