@@ -21,17 +21,7 @@ export class TransformGeoToEsriDto {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [125.6, 10.1],
-        },
-        properties: {
-          name: 'Dinagat Islands',
-        },
-      },
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [125.6, 10.1],
+          coordinates: [13.8192, 51.0206],
         },
         properties: {
           name: 'Dinagat Islands',
@@ -55,7 +45,7 @@ export class TransformGeoToEsriDto {
     | GeoJSONFeatureCollectionDto;
 
   @ApiProperty({
-    example: 3035,
+    example: 25833,
   })
   epsg: number;
 }
