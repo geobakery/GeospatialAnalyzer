@@ -5,9 +5,7 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { IntersectParameterDto } from '../general/dto/parameter.dto';
 import {
   QUERY_FEATURE_INDEX,
-  QUERY_TOPIC,
   STANDARD_SRID,
-  TOPIC_ID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
@@ -37,8 +35,7 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topicIndex, topic, feature, featureIndex } =
-      logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
