@@ -62,8 +62,8 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    const configurationFromTopicJson =
-      this.configService.get<topicDefinition[]>('__topicsConfig__');
+    const configurationFromTopicJson: unknown =
+      this.configService.get('__topicsConfig__');
     const check = this.checkTopicDefinition(configurationFromTopicJson);
     if (!check) {
       throw new InternalServerErrorException(
@@ -73,32 +73,56 @@ export class GeneralService {
     this._setDynamicTopicsConfigurations(configurationFromTopicJson);
   }
 
+  private isObject(x: unknown): x is object {
+    try {
+      return '' in (x as object) || true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   private checkTopicDefinition(
-    topicArray: any[],
+    topicArray: unknown,
   ): topicArray is topicDefinition[] {
-    return topicArray.every((t) => {
-      // check mandatory values
-      if (!('identifiers' in t && Array.isArray(t['identifiers']))) {
-        return false;
-      }
-      if (!('title' in t && typeof t['title'] === 'string')) {
-        return false;
-      }
+    return (
+      Array.isArray(topicArray) &&
+      topicArray.every((t: unknown): t is topicDefinition => {
+        if (!this.isObject(t)) {
+          return false;
+        }
 
-      // check source object
-      const checkSource = (s: Source) =>
-        'source' in s && 'name' in s && 'srid' in s;
+        // check mandatory values
+        if (!Array.isArray((t as topicDefinition).identifiers)) {
+          return false;
+        }
+        if (!(typeof (t as topicDefinition).title === 'string')) {
+          return false;
+        }
 
-      if ('__source__' in t) {
-        const source = t['__source__'];
-        return checkSource(source);
-      } else if ('__multipleSources__' in t) {
-        const sources = t['__multipleSources__'];
-        return Array.isArray(sources) && sources.every((s) => checkSource(s));
-      } else {
-        return false;
-      }
-    });
+        // check source object
+        const checkSource = (s: unknown): s is Source => {
+          return (
+            typeof (s as Source).source == 'string' &&
+            typeof (s as Source).name == 'string' &&
+            typeof (s as Source).srid == 'number'
+          );
+        };
+
+        if ('__source__' in t) {
+          return checkSource(t as topicDefinition);
+        } else if ('__multipleSources__' in t) {
+          const sources = (
+            t as topicDefinition & { __multipleSources__: unknown }
+          ).__multipleSources__;
+          return (
+            Array.isArray(sources) &&
+            sources.every((s: unknown) => checkSource(s))
+          );
+        } else {
+          return false;
+        }
+      })
+    );
   }
 
   getDbAdapter(): DbAdapterService {

@@ -15,7 +15,7 @@ export interface DBResponse {
 
 /**
  * Update notice:
- * Please update "checkTopicDefinition" from general.service.ts corresponding to topicDefinition
+ * Please update {@link GeneralService.checkTopicDefinition} corresponding to topicDefinition
  */
 export type topicDefinition = {
   identifiers: string[];
