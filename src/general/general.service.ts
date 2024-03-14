@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
@@ -57,9 +62,69 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    const t = this.configService.get<topicDefinition[]>('__topicsConfig__');
-    // TODO check if t is valid
-    this._setDynamicTopicsConfigurations(t);
+    const configurationFromTopicJson: unknown =
+      this.configService.get('__topicsConfig__');
+    const check = this.checkTopicDefinition(configurationFromTopicJson);
+    if (!check) {
+      throw new InternalServerErrorException(
+        `Topic.json is deprecated. Administration needs to update the definition.`,
+      );
+    }
+    this._setDynamicTopicsConfigurations(configurationFromTopicJson);
+  }
+
+  private isObject(x: unknown): x is object {
+    try {
+      return '' in (x as object) || true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private checkTopicDefinition(
+    topicArray: unknown,
+  ): topicArray is topicDefinition[] {
+    return (
+      Array.isArray(topicArray) &&
+      topicArray.every((t: unknown): t is topicDefinition => {
+        if (!this.isObject(t)) {
+          return false;
+        }
+
+        // check mandatory values
+        if (!Array.isArray((t as topicDefinition).identifiers)) {
+          return false;
+        }
+        if (!(typeof (t as topicDefinition).title === 'string')) {
+          return false;
+        }
+
+        // check source object
+        const checkSource = (s: unknown): s is Source => {
+          return (
+            typeof (s as Source).source == 'string' &&
+            typeof (s as Source).name == 'string' &&
+            typeof (s as Source).srid == 'number'
+          );
+        };
+
+        if ('__source__' in t) {
+          return checkSource(
+            (t as topicDefinition & { __source__: unknown }).__source__,
+          );
+        } else if ('__multipleSources__' in t) {
+          const sources = (
+            t as topicDefinition & { __multipleSources__: unknown }
+          ).__multipleSources__;
+          return (
+            Array.isArray(sources) &&
+            sources.every((s: unknown) => checkSource(s))
+          );
+        } else {
+          return false;
+        }
+      })
+    );
   }
 
   getDbAdapter(): DbAdapterService {
@@ -95,7 +160,6 @@ export class GeneralService {
   }
 
   _setDynamicTopicsConfigurations(td: topicDefinition[]) {
-    //TODO check if td is valid
     if (!td.length) {
       // error handling ?
       console.error('No topic definition set');

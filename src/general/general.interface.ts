@@ -14,6 +14,10 @@ export interface DBResponse {
   topic: string;
 }
 
+/**
+ * Update notice:
+ * Please update {@link GeneralService.checkTopicDefinition} corresponding to topicDefinition
+ */
 export type topicDefinition = {
   identifiers: string[];
   title: string;
