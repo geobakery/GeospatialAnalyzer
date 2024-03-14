@@ -37,12 +37,11 @@ export class TransformService {
           const currentCRS = geoElement?.crs?.properties?.name
             ? geoElement?.crs?.properties?.name
             : STANDARD_CRS;
-          if (STANDARD_CRS != currentCRS) {
-            this.checkCRS(currentCRS);
-          }
+
+          this.checkCRS('EPSG:' + currentCRS);
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
-            String(currentCRS),
+            'EPSG:' + String(currentCRS),
             epsgString,
           );
         }

@@ -8,22 +8,10 @@ export class TransformEsriToGeoDto {
     example: [
       {
         geometry: {
-          x: 12879178.72502107,
-          y: 7470965.153461802,
+          x: 417183.931568,
+          y: 5652786.443955,
           spatialReference: {
-            wkid: '3035',
-          },
-        },
-        attributes: {
-          name: 'Dinagat Islands',
-        },
-      },
-      {
-        geometry: {
-          x: 12879178.72502107,
-          y: 7470965.153461802,
-          spatialReference: {
-            wkid: '3035',
+            wkid: 25833,
           },
         },
         attributes: {
