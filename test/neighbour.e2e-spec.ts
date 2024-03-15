@@ -315,4 +315,25 @@ describe('NearestNeighbourController (e2e)', () => {
     expect(data).toBeDefined();
     expect(data.message).toContain('Unsupported topic');
   });
+
+  it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
+    const payload: NearestNeighbourParameterDto = {
+      count: 1,
+      inputGeometries: [],
+      maxDistanceToNeighbour: 0,
+      outputFormat: 'geojson',
+      outSRS: 12345,
+      returnGeometry: false,
+      topics: ['kreis'],
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(400);
+  });
 });

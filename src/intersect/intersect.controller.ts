@@ -1,15 +1,16 @@
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
-import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
+  ApiBody,
+  ApiExtraModels,
+  ApiResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { IntersectParameterDto } from '../general/dto/parameter.dto';
+import {
+  IntersectParameterDto,
+  SCHEMA_VALID_OUT_SRS,
+} from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
@@ -19,6 +20,7 @@ import { IntersectService } from './intersect.service';
   version: '1',
 })
 @Controller('intersect')
+@ApiExtraModels(IntersectParameterDto)
 export class IntersectController {
   constructor(private readonly intersectService: IntersectService) {}
 
@@ -33,6 +35,14 @@ export class IntersectController {
     return this.intersectService.getTopics();
   }
 
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(IntersectParameterDto) },
+        SCHEMA_VALID_OUT_SRS,
+      ],
+    },
+  })
   @ApiResponse({
     status: 200,
     description: 'Calculate the intersections',

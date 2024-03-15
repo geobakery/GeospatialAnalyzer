@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
 import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
+import { IntersectParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { IntersectController } from '../src/intersect/intersect.controller';
 import { IntersectService } from '../src/intersect/intersect.service';
@@ -337,6 +338,7 @@ describe('IntersectController (e2e)', () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
       outputFormat: 'geojson',
+      outSRS: 4326,
       topics: ['kreis'],
     });
     const result = await app.inject({
@@ -387,5 +389,24 @@ describe('IntersectController (e2e)', () => {
     expect(singleCoordinate[0]).toBeLessThan(14);
     expect(singleCoordinate[1]).toBeGreaterThan(50);
     expect(singleCoordinate[1]).toBeLessThan(51);
+  });
+
+  it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
+    const payload: IntersectParameterDto = {
+      inputGeometries: [],
+      outputFormat: 'geojson',
+      outSRS: 12345,
+      returnGeometry: false,
+      topics: ['kreis'],
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(400);
   });
 });

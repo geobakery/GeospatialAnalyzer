@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
 import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
+import { WithinParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { TransformModule } from '../src/transform/transform.module';
 import { WithinController } from '../src/within/within.controller';
@@ -258,5 +259,24 @@ describe('WithinController (e2e)', () => {
     const data = JSON.parse(result.payload);
     expect(data).toBeDefined();
     expect(data.message).toContain('Unsupported topic');
+  });
+
+  it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
+    const payload: WithinParameterDto = {
+      inputGeometries: [],
+      outputFormat: 'geojson',
+      outSRS: 12345,
+      returnGeometry: false,
+      topics: ['kreis'],
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + WITHIN_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(400);
   });
 });

@@ -1,7 +1,6 @@
 import { EsriJsonDto } from '../../src/general/dto/esri-json.dto';
 import {
   GeoJSONLineString,
-  GeoJSONObject,
   GeoJSONPoint,
   GeoJSONPolygon,
 } from '../../src/general/dto/geo-geometry.dto';
@@ -78,6 +77,7 @@ export interface testDataParameterEsriJSONFeature {
   geometryType?: string;
   fixGeometry?: EsriJsonDto[];
   outputFormat?: string;
+  outSRS?: number;
   topics?: string[];
   additionalAttributes?: Map<string, any>;
 }
