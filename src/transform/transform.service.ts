@@ -5,7 +5,6 @@ import proj4 from 'proj4';
 import * as epsg from 'proj4-list';
 import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
-import { GeoGeometryDto } from '../general/dto/geo-geometry.dto';
 import {
   GeoJSONFeatureCollectionDto,
   GeoJSONFeatureDto,
@@ -75,16 +74,21 @@ export class TransformService {
     return esriJsonArray;
   }
 
-  checkCRS(epsgString: string): boolean {
+  /**
+   * Registers the given EPSG string for projections in {@link proj4}.
+   *
+   * @param epsgString
+   * @throws HttpException If `epsgString` is invalid or unknown.
+   */
+  registerCRS(epsgString: string): void {
     try {
       proj4.defs([epsg[epsgString]]);
     } catch (e) {
       throw new HttpException(
-        'EPSG code is not valid',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        `EPSG code "${epsgString}" is not valid`,
+        HttpStatus.BAD_REQUEST,
       );
     }
-    return true;
   }
 
   transformIncorrectCRSGeoJsonArray(
@@ -184,8 +188,8 @@ export class TransformService {
     fromEpsgString: string,
     toEpsgString: string,
   ) {
-    this.checkCRS(fromEpsgString);
-    this.checkCRS(toEpsgString);
+    this.registerCRS(fromEpsgString);
+    this.registerCRS(toEpsgString);
     if (Array.isArray(coordinates[0])) {
       coordinates.map((coordinate) =>
         this.transformCoordinates(coordinate, fromEpsgString, toEpsgString),
@@ -203,6 +207,8 @@ export class TransformService {
   }
 
   transformSimpleCoordinates(coordinates, fromEpsgString, toEpsgString) {
+    this.registerCRS(fromEpsgString);
+    this.registerCRS(toEpsgString);
     return proj4(fromEpsgString, toEpsgString, coordinates);
   }
 
