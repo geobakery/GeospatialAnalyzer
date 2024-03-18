@@ -1,8 +1,16 @@
 import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
-import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { NearestNeighbourParameterDto } from '../general/dto/parameter.dto';
+import {
+  NearestNeighbourParameterDto,
+  SCHEMA_VALID_OUT_SRS,
+} from '../general/dto/parameter.dto';
 import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
@@ -12,6 +20,7 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
   version: '1',
 })
 @Controller('nearestNeighbour')
+@ApiExtraModels(NearestNeighbourParameterDto)
 export class NearestNeighbourController {
   constructor(
     private readonly nearestNeighbourService: NearestNeighbourService,
@@ -28,6 +37,14 @@ export class NearestNeighbourController {
     return this.nearestNeighbourService.getTopics();
   }
 
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(NearestNeighbourParameterDto) },
+        SCHEMA_VALID_OUT_SRS,
+      ],
+    },
+  })
   @ApiResponse({
     status: 200,
     description: 'Calculate the nearest NEIGHBOUR',

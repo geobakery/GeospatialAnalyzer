@@ -44,6 +44,9 @@ export const getEsriJSONFeature = (
   if (opts.outputFormat) {
     base.outputFormat = opts.outputFormat;
   }
+  if (opts.outSRS) {
+    base.outSRS = opts.outSRS;
+  }
   if (opts.additionalAttributes) {
     opts.additionalAttributes.forEach((value, key) => {
       base[key] = value;

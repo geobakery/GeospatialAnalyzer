@@ -1,10 +1,48 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { Type } from 'class-transformer';
 import { outputFormatEnum } from '../general.constants';
 import { GeospatialRequest } from '../general.service';
 import { EsriJsonDto } from './esri-json.dto';
 import { GeoJSONFeatureCollectionDto, GeoJSONFeatureDto } from './geo-json.dto';
+
+/**
+ * GeoJSON always uses WGS 84, so we want to prevent users from requesting
+ * GeoJSON responses in any other SRS.
+ *
+ * Currently, NestJS does not allow to define schemas on the DTO classes itself.
+ * As a workaround, use this {@link SchemaObject} and merge it into the schema
+ * at the site of use of {@link ParameterDto}.
+ *
+ * @example Merging this SchemaObject with an actual ParameterDto SchemaObject
+ * ```json
+ * {
+ *   // Both the actual DTO and the additional constraint must match
+ *   allOf: [
+ *     // The ParamaterDto-subtype you actually want to use
+ *     { $ref: getSchemaPath(MyParameterDto) },
+ *     // The additional outSRS/outputFormat validation
+ *     SCHEMA_VALID_OUT_SRS,
+ *   ],
+ * }
+ * ```
+ */
+export const SCHEMA_VALID_OUT_SRS: Readonly<SchemaObject> = {
+  anyOf: [
+    {
+      properties: {
+        outSRS: { type: 'number', enum: [4326] },
+        outputFormat: { type: 'string', enum: ['geojson'] },
+      },
+    },
+    {
+      properties: {
+        outputFormat: { type: 'string', enum: ['esrijson'] },
+      },
+    },
+  ],
+};
 
 @ApiExtraModels(EsriJsonDto, GeoJSONFeatureDto, GeoJSONFeatureCollectionDto)
 export class ParameterDto implements GeospatialRequest {

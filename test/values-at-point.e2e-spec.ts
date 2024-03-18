@@ -7,7 +7,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import configuration from '../src/config/configuration';
+import { ValuesAtPointParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
+import { TransformModule } from '../src/transform/transform.module';
 import { ValuesAtPointController } from '../src/values-at-point/values-at-point.controller';
 import { ValuesAtPointService } from '../src/values-at-point/values-at-point.service';
 import {
@@ -26,7 +28,6 @@ import {
   topicTest,
 } from './common/test';
 import { getGeoJSONFeature } from './common/testDataPreparer';
-import { TransformModule } from '../src/transform/transform.module';
 
 describe('ValuesAtPointController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -160,5 +161,24 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(geoPropsLand['name']).toBe('testname');
     expect(geoPropsLand['test']).toBe(9);
     expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
+  });
+
+  it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
+    const payload: ValuesAtPointParameterDto = {
+      inputGeometries: [],
+      outputFormat: 'geojson',
+      outSRS: 12345,
+      returnGeometry: false,
+      topics: ['kreis'],
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + VALUES_AT_POINT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(400);
   });
 });
