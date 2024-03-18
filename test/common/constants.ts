@@ -1,5 +1,10 @@
-import { GeoGeometryDto } from '../../src/general/dto/geo-geometry.dto';
 import { EsriJsonDto } from '../../src/general/dto/esri-json.dto';
+import {
+  GeoJSONLineString,
+  GeoJSONObject,
+  GeoJSONPoint,
+  GeoJSONPolygon,
+} from '../../src/general/dto/geo-geometry.dto';
 import { ParameterDto } from '../../src/general/dto/parameter.dto';
 
 export const GEOJSON_WITHOUT_GEOMETRY_KREIS: ParameterDto = {
@@ -62,7 +67,7 @@ export const VAlUES_AT_POINT: string = 'Values-at-point';
 export interface testDataParameterGeoJSONFeature {
   returnGeometry?: boolean;
   geometryType?: string;
-  fixGeometry?: GeoGeometryDto;
+  fixGeometry?: GeoJSONLineString | GeoJSONPoint | GeoJSONPolygon;
   topics?: string[];
   additionalAttributes?: Map<string, any>;
   outputFormat?: string;

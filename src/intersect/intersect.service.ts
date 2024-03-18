@@ -64,10 +64,17 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
+    // GeoJSON RFC7946: A Feature object's geometry member may be null (section
+    // 3.2), but a Geometry object itself may never be null (section 3.1).
+    const featureWkt =
+      feature.geometry !== null
+        ? geojsonToWKT(feature.geometry)
+        : 'POINT EMPTY';
+
     // setup for left and right side of intersect
     queryStart.setParameter(
       `${QUERY_FEATURE_INDEX}${featureIndex}`,
-      STANDARD_SRID + geojsonToWKT(feature.geometry),
+      STANDARD_SRID + featureWkt,
     );
     const queryFeature = this.adapter.transformFeature(
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },

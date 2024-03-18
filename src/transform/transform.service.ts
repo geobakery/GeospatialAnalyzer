@@ -3,7 +3,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
 import proj4 from 'proj4';
 import * as epsg from 'proj4-list';
-import { EsriGeometryDto } from '../general/dto/esri-geometry.dto';
+import {
+  EsriPointDto,
+  EsriPolygonDto,
+  EsriPolylineDto,
+} from '../general/dto/esri-geometry.dto';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import {
   GeoJSONFeatureCollectionDto,
@@ -44,25 +48,9 @@ export class TransformService {
 
       try {
         const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
-        if (esriJson.geometry?.spatialReference?.wkid) {
+        if (typeof esriJson.geometry !== 'undefined')
           esriJson.geometry.spatialReference.wkid = args.epsg;
-        } else {
-          // TODO clean code
-          if (!esriJson.geometry) {
-            esriJson.geometry = {
-              spatialReference: {
-                wkid: args.epsg,
-              },
-            } as EsriGeometryDto;
-          }
-          if (!esriJson.geometry.spatialReference) {
-            esriJson.geometry = {
-              spatialReference: {
-                wkid: args.epsg,
-              },
-            } as EsriGeometryDto;
-          }
-        }
+
         esriJsonArray.push(esriJson);
       } catch (e) {
         throw new HttpException(
@@ -129,49 +117,56 @@ export class TransformService {
   convertEsriJSONToGeoJSON(args: TransformEsriToGeoDto): GeoJSONFeatureDto[] {
     const geoJsonArray = new Array<GeoJSONFeatureDto>();
     for (const esriJSON of args.input) {
-      const epsgString =
-        STANDARD_EPSG + esriJSON.geometry.spatialReference.wkid;
+      // Convert the geometry's SRS, because GeoJSON always uses WGS 84
+      if (typeof esriJSON.geometry !== 'undefined') {
+        try {
+          const geo = esriJSON.geometry;
+          const epsgString = `${STANDARD_EPSG}${esriJSON.geometry.spatialReference.wkid}`;
 
-      try {
-        const geo = esriJSON.geometry;
-        if (geo.x && geo.y) {
-          const convertedCoordinates = this.transformSimpleCoordinates(
-            [geo.x, geo.y, geo.z | 0, geo.m | 0],
-            epsgString,
-            STANDARD_CRS_STRING,
-          );
+          if (geo instanceof EsriPointDto) {
+            const convertedCoordinates = this.transformSimpleCoordinates(
+              [geo.x, geo.y, geo.z ?? 0, geo.m ?? 0],
+              epsgString,
+              STANDARD_CRS_STRING,
+            );
 
-          geo.x = convertedCoordinates[0];
-          geo.y = convertedCoordinates[1];
+            geo.x = convertedCoordinates[0];
+            geo.y = convertedCoordinates[1];
 
-          if (geo.z) {
-            geo.z = convertedCoordinates[2];
+            if (geo.z) {
+              geo.z = convertedCoordinates[2];
+            }
+            if (geo.m) {
+              geo.m = convertedCoordinates[3];
+            }
+          } else if (geo instanceof EsriPolylineDto) {
+            this.transformCoordinates(
+              geo.paths,
+              epsgString,
+              STANDARD_CRS_STRING,
+            );
+          } else if (geo instanceof EsriPolygonDto) {
+            this.transformCoordinates(
+              geo.rings,
+              epsgString,
+              STANDARD_CRS_STRING,
+            );
           }
-          if (geo.m) {
-            geo.m = convertedCoordinates[3];
-          }
-        } else if (geo.paths || geo.rings || geo.points) {
-          this.transformCoordinates(
-            geo.paths ? geo.paths : geo.rings ? geo.rings : geo.points,
-            epsgString,
-            STANDARD_CRS_STRING,
+
+          // this will remove the "non-standard wkid" warning
+          // The coordinates are already transformed at this point
+          esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
+          esriJSON.geometry.spatialReference.latestWkid = STANDARD_CRS;
+        } catch (e) {
+          throw new HttpException(
+            'Coordinates are not valid',
+            HttpStatus.BAD_REQUEST,
           );
         }
-      } catch (e) {
-        throw new HttpException(
-          'Coordinates are not valid',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
       }
 
       try {
-        // this will remove the "non standard wkid" warning
-        // The coordinates are already transformed at this point
-        if (esriJSON?.geometry?.spatialReference?.wkid) {
-          esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
-        }
-        const geoJson: GeoJSONFeatureDto = arcgisToGeoJSON(esriJSON);
-        geoJsonArray.push(geoJson);
+        geoJsonArray.push(arcgisToGeoJSON(esriJSON));
       } catch (e) {
         throw new HttpException(
           'EsriJSON to GeoJSON conversion failed',
@@ -183,15 +178,25 @@ export class TransformService {
     return geoJsonArray;
   }
 
+  /**
+   * @TODO: This modifies the given coordinates in place. This makes it easy to
+   *        accidentally change the request's original input geometries. We
+   *        should create new coordinates instead.
+   */
   transformCoordinates(
-    coordinates: any,
+    coordinates: number[] | number[][] | number[][][],
     fromEpsgString: string,
     toEpsgString: string,
   ) {
     this.registerCRS(fromEpsgString);
     this.registerCRS(toEpsgString);
-    if (Array.isArray(coordinates[0])) {
-      coordinates.map((coordinate) =>
+
+    function isFlat(c: number[] | number[][] | number[][][]): c is number[] {
+      return c.length === 0 || typeof c[0] === 'number';
+    }
+
+    if (!isFlat(coordinates)) {
+      coordinates.map((coordinate: number[] | number[][]) =>
         this.transformCoordinates(coordinate, fromEpsgString, toEpsgString),
       );
     } else {
