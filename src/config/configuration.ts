@@ -11,7 +11,7 @@ export default async () => {
 
 async function checkTopic(): Promise<void> {
   try {
-    const fileExists = async (path) =>
+    const fileExists = async (path: string) =>
       !!(await fs.promises.stat(path).catch(() => false));
 
     const exist = await fileExists(join(__dirname, './../../topic.json'));

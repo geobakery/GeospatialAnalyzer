@@ -145,11 +145,9 @@ export class GeneralService {
   }
 
   getTopicsInformationForOutsideSpecific(
-    methode: string,
+    methode: keyof SupportedTopics,
   ): topicDefinitionOutside[] {
-    const supportedTopics = this.methodeTopicSupport[
-      methode
-    ] as topicDefinitionOutside[];
+    const supportedTopics = this.methodeTopicSupport[methode];
     if (supportedTopics && supportedTopics.length) {
       return supportedTopics;
     }
@@ -270,21 +268,16 @@ export class GeneralService {
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
-    if (
-      geo.type === 'Feature' &&
-      geo.properties &&
-      geo.properties[GEO_IDENTIFIER]
-    ) {
+    if (geo.properties?.[GEO_IDENTIFIER]) {
       return geo.properties[GEO_IDENTIFIER];
     }
-    if (geo.type === 'Feature') {
-      if (!geo.properties) {
-        geo.properties = {};
-      }
-      geo.properties[GEO_IDENTIFIER] = '__ID_' + index;
-      return geo.properties[GEO_IDENTIFIER];
+
+    if (!geo.properties) {
+      geo.properties = {};
     }
-    return null;
+    geo.properties[GEO_IDENTIFIER] = '__ID_' + index;
+
+    return geo.properties[GEO_IDENTIFIER];
   }
 
   /**
@@ -309,9 +302,9 @@ export class GeneralService {
         const props = {
           NO_RESULT: 'No result to request',
           __topic: result.topic,
+          [REQUESTPARAMS]: requestParams,
+          [GEO_PARAMETER]: map.get(result.id),
         };
-        props[REQUESTPARAMS] = requestParams;
-        props[GEO_PARAMETER] = map.get(result.id);
 
         geo.features = [
           {
