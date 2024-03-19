@@ -16,13 +16,6 @@ export const STANDARD_EPSG = 'EPSG:';
 export const STANDARD_SRID = 'SRID=' + STANDARD_CRS + ';';
 export const STANDARD_CRS_STRING = 'EPSG:4326';
 
-export const META_GEO_IDENTIFIER = '__geometryIdentifier__';
-export const META_GEO_PARAMETER = '__geoProperties';
-export const META_NO_RESULT = 'NO_RESULT';
-export const META_REQUESTPARAMS = '__requestParams';
-
-export const META_TOPIC = '__topic';
-
 export const DB_DIST_NAME = '__dist';
 
 export const DB_FEATURE_ID_NAME = 'id';

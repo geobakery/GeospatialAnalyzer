@@ -18,17 +18,13 @@ import {
   ESRIJSON_PARAMETER,
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
-  META_GEO_IDENTIFIER,
-  META_GEO_PARAMETER,
-  META_NO_RESULT,
-  META_REQUESTPARAMS,
-  META_TOPIC,
   STANDARD_CRS,
   supportedDatabase,
 } from './general.constants';
 import {
   DBResponse,
   Source,
+  SpatialMetadata,
   SupportedTopics,
   tempResult,
   topicDefinition,
@@ -270,16 +266,16 @@ export class GeneralService {
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
-    if (geo.properties?.[META_GEO_IDENTIFIER]) {
-      return geo.properties[META_GEO_IDENTIFIER];
+    if (geo.properties?.__geometryIdentifier__) {
+      return geo.properties.__geometryIdentifier__;
     }
 
     if (!geo.properties) {
       geo.properties = {};
     }
-    geo.properties[META_GEO_IDENTIFIER] = '__ID_' + index;
+    geo.properties.__geometryIdentifier__ = '__ID_' + index;
 
-    return geo.properties[META_GEO_IDENTIFIER];
+    return geo.properties.__geometryIdentifier__;
   }
 
   /**
@@ -301,11 +297,11 @@ export class GeneralService {
       const geo = result.result;
       const features = geo.features;
       if (!features?.length) {
-        const props = {
-          [META_NO_RESULT]: 'No result to request',
-          [META_TOPIC]: result.topic,
-          [META_REQUESTPARAMS]: requestParams,
-          [META_GEO_PARAMETER]: map.get(result.id),
+        const props: SpatialMetadata = {
+          NO_RESULT: 'No result to request',
+          __topic: result.topic,
+          __requestParams: requestParams,
+          __geoProperties: map.get(result.id),
         };
 
         geo.features = [
@@ -318,9 +314,9 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
-          feature.properties[META_REQUESTPARAMS] = requestParams;
-          feature.properties[META_GEO_PARAMETER] = map.get(result.id);
-          feature.properties[META_TOPIC] = result.topic;
+          feature.properties.__requestParams = requestParams;
+          feature.properties.__geoProperties = map.get(result.id);
+          feature.properties.__topic = result.topic;
         });
       }
     });
