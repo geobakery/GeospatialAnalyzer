@@ -331,32 +331,6 @@ export class GeneralService {
     });
   }
 
-  /**
-   * Explanation:
-   * assures that the result is always a GeoJSON[] formate
-   * @TODO Update doc block and method name.
-   */
-  setGeoJSONArray(
-    result: tempResult[],
-    parameter: Pick<GeospatialRequest, 'outputFormat' | 'outSRS'>,
-  ): GeoJSONFeatureDto[] | EsriJsonDto[] {
-    const resultMap = result.flatMap((r) => r.result.features);
-
-    if (parameter.outputFormat === ESRIJSON_PARAMETER) {
-      return this.transformService.convertGeoJSONToEsriJSON({
-        input: resultMap,
-        epsg: parameter.outSRS || STANDARD_CRS,
-      });
-    }
-
-    if (parameter.outputFormat === GEOJSON_PARAMETER) {
-      this.transformService.transformIncorrectCRSGeoJsonArray(resultMap);
-      return resultMap;
-    }
-
-    return resultMap;
-  }
-
   getSourceForIdentifier(top: string): Source {
     return this.identifierSourceMap.get(top);
   }
@@ -373,10 +347,23 @@ export class GeneralService {
     >,
     map: Map<string, Record<string, unknown>>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
-    const tmpResult = this.dbToGeoJSON(query);
-    this.addUserInputToResponse(tmpResult, requestParams, map);
-    //ensure that the result is an GeoJSON[] and not GeoJSON[][]
-    return this.setGeoJSONArray(tmpResult, requestParams);
+    const result = this.dbToGeoJSON(query);
+    this.addUserInputToResponse(result, requestParams, map);
+
+    const features = result.flatMap((r) => r.result.features);
+
+    if (requestParams.outputFormat === ESRIJSON_PARAMETER) {
+      return this.transformService.convertGeoJSONToEsriJSON({
+        input: features,
+        epsg: requestParams.outSRS || STANDARD_CRS,
+      });
+    }
+
+    if (requestParams.outputFormat === GEOJSON_PARAMETER) {
+      return this.transformService.transformIncorrectCRSGeoJsonArray(features);
+    }
+
+    return features;
   }
 
   /**
