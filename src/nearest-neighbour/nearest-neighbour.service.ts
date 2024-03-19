@@ -54,7 +54,6 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
         featureIndex,
       );
       subQuery
-        // TODO constante (maybe __dist could be a keyword ??)
         .addSelect(featureDistanceString, DB_DIST_NAME)
         .from(topicSource.source, topic)
         .orderBy(DB_DIST_NAME)
