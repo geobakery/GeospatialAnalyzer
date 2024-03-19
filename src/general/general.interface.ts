@@ -1,8 +1,10 @@
 import { GeoJSONFeatureCollectionDto } from './dto/geo-json.dto';
 import {
-  GEO_IDENTIFIER,
-  GEO_PARAMETER,
-  REQUESTPARAMS,
+  META_GEO_IDENTIFIER,
+  META_GEO_PARAMETER,
+  META_NO_RESULT,
+  META_REQUESTPARAMS,
+  META_TOPIC,
 } from './general.constants';
 
 export interface GeneralResponse {
@@ -53,11 +55,11 @@ export interface tempResult {
 }
 
 export type SpatialMetadata = Partial<{
-  [GEO_IDENTIFIER]: string;
-  [GEO_PARAMETER]: Record<string, unknown>;
-  [REQUESTPARAMS]: Record<string, unknown>;
-  __topic: string;
-  NO_RESULT: string;
+  [META_GEO_IDENTIFIER]: string;
+  [META_GEO_PARAMETER]: Record<string, unknown>;
+  [META_REQUESTPARAMS]: Record<string, unknown>;
+  [META_TOPIC]: string;
+  [META_NO_RESULT]: string;
 }>;
 
 export interface Source {

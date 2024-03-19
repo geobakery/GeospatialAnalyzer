@@ -16,11 +16,13 @@ import {
 } from './dto/geo-json.dto';
 import {
   ESRIJSON_PARAMETER,
-  GEO_IDENTIFIER,
-  GEO_PARAMETER,
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
-  REQUESTPARAMS,
+  META_GEO_IDENTIFIER,
+  META_GEO_PARAMETER,
+  META_NO_RESULT,
+  META_REQUESTPARAMS,
+  META_TOPIC,
   STANDARD_CRS,
   supportedDatabase,
 } from './general.constants';
@@ -268,16 +270,16 @@ export class GeneralService {
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
-    if (geo.properties?.[GEO_IDENTIFIER]) {
-      return geo.properties[GEO_IDENTIFIER];
+    if (geo.properties?.[META_GEO_IDENTIFIER]) {
+      return geo.properties[META_GEO_IDENTIFIER];
     }
 
     if (!geo.properties) {
       geo.properties = {};
     }
-    geo.properties[GEO_IDENTIFIER] = '__ID_' + index;
+    geo.properties[META_GEO_IDENTIFIER] = '__ID_' + index;
 
-    return geo.properties[GEO_IDENTIFIER];
+    return geo.properties[META_GEO_IDENTIFIER];
   }
 
   /**
@@ -300,10 +302,10 @@ export class GeneralService {
       const features = geo.features;
       if (!features?.length) {
         const props = {
-          NO_RESULT: 'No result to request',
-          __topic: result.topic,
-          [REQUESTPARAMS]: requestParams,
-          [GEO_PARAMETER]: map.get(result.id),
+          [META_NO_RESULT]: 'No result to request',
+          [META_TOPIC]: result.topic,
+          [META_REQUESTPARAMS]: requestParams,
+          [META_GEO_PARAMETER]: map.get(result.id),
         };
 
         geo.features = [
@@ -316,9 +318,9 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
-          feature.properties[REQUESTPARAMS] = requestParams;
-          feature.properties[GEO_PARAMETER] = map.get(result.id);
-          feature.properties['__topic'] = result.topic;
+          feature.properties[META_REQUESTPARAMS] = requestParams;
+          feature.properties[META_GEO_PARAMETER] = map.get(result.id);
+          feature.properties[META_TOPIC] = result.topic;
         });
       }
     });

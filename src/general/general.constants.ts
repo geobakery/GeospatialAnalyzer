@@ -16,24 +16,29 @@ export const STANDARD_EPSG = 'EPSG:';
 export const STANDARD_SRID = 'SRID=' + STANDARD_CRS + ';';
 export const STANDARD_CRS_STRING = 'EPSG:4326';
 
-export const GEO_IDENTIFIER = '__geometryIdentifier__';
-export const GEO_PARAMETER = '__geoProperties';
-export const REQUESTPARAMS = '__requestParams';
+export const META_GEO_IDENTIFIER = '__geometryIdentifier__';
+export const META_GEO_PARAMETER = '__geoProperties';
+export const META_NO_RESULT = 'NO_RESULT';
+export const META_REQUESTPARAMS = '__requestParams';
+
+export const META_TOPIC = '__topic';
 
 export const DB_DIST_NAME = '__dist';
+
+export const DB_FEATURE_ID_NAME = 'id';
 
 export const DB_GEOMETRY_NAME = 'geom';
 
 export const DB_HEIGHT_NAME = '__height';
+export const DB_JSON_STRUCTURE_NAME = 'response';
 
 export const DB_NAME_NAME = '__name';
 
 export const DB_RASTER_DATA_NAME = 'rast';
+export const DB_TOPIC_NAME = 'topic';
 
 export const QUERY_FEATURE_INDEX = 'feature_wkt_';
-export const TOPIC_ID = '__topic';
 
-export const QUERY_TOPIC = 'topic_';
 /**
  * Choosing an appropriate status code is surprisingly unclear:
  * - "408 Request Timeout" is the most prominent option, but should be
