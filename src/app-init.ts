@@ -12,11 +12,31 @@ import inputValidation from 'openapi-validator-middleware';
 @Catch(inputValidation.InputValidationError)
 class InputValidationErrorHandler implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost): any {
-    return host
-      .switchToHttp()
-      .getResponse()
-      .status(400)
-      .send({ more_info: exception.errors });
+    let errorOutput = exception.errors;
+    // If errors are about the input geometry, add notice as first element for invalid input
+    try {
+      if (Array.isArray(exception.errors)) {
+        const onlyInputGeometry = exception.errors.some((e: string) => {
+          if (typeof e === 'string') {
+            return e.includes('/inputGeometries');
+          }
+        });
+        if (onlyInputGeometry) {
+          errorOutput = [
+            'Invalid geometry input. Check the possible following errors. For help have a look at the schema definition of the swagger OpenAPI documentation.',
+          ];
+          errorOutput.push(...exception.errors);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    return host.switchToHttp().getResponse().status(400).send({
+      statusCode: 400,
+      message: 'Invalid user input',
+      detailed_errors: errorOutput,
+    });
   }
 }
 
@@ -46,11 +66,13 @@ export async function setUpOpenAPIAndValidation(
           `Unexpected OpenAPI schema: ${schemaName}.additionalProperties should not be set at this point`,
         );
 
-      schema.additionalProperties = false;
+      // allow esriJSON to have additionalProperties for user friendly usage
+      schema.additionalProperties = schemaName.includes('Esri');
     });
 
   SwaggerModule.setup('api', app, document);
 
+  // Set beautifyErrors to false for schemaPath information
   inputValidation.init(document, {
     beautifyErrors: true,
     framework: 'fastify',
