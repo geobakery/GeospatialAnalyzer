@@ -53,12 +53,8 @@ export class PostgresService extends DbAdapterService {
     return 'custom_from_select';
   }
 
-  /**
-   * @todo think about name and explanation
-   * @param qb
-   */
-  override injectDummyWKTStringToQuery(qb: SelectQueryBuilder<unknown>): void {
-    qb.setParameter('dummyWkt', 'SRID=25833;POINT (0 0)').addSelect(
+  override injectGeometryField(qb: SelectQueryBuilder<unknown>): void {
+    qb.setParameter('dummyWkt', 'POINT EMPTY').addSelect(
       ':dummyWkt::geometry',
       'geom',
     );

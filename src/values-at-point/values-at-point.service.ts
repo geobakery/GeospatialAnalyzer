@@ -68,8 +68,8 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
         .addSelect(featureValue, '__height')
         .from(`${source.source}`, '__hr')
         .andWhere(featureIntersect);
-      // TODO good explanation
-      this.adapter.injectDummyWKTStringToQuery(heightQueryBuilder);
+
+      this.adapter.injectGeometryField(heightQueryBuilder);
 
       fieldsToQuery.forEach((field) => heightQueryBuilder.addSelect(field));
 
