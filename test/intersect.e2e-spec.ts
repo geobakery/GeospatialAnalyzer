@@ -15,7 +15,6 @@ import { IntersectController } from '../src/intersect/intersect.controller';
 import { IntersectService } from '../src/intersect/intersect.service';
 import { TransformModule } from '../src/transform/transform.module';
 import {
-  GEOJSON_WITHOUT_GEOMETRY_KREIS,
   GET,
   HEADERS_JSON,
   INTERSECT,
@@ -109,7 +108,7 @@ describe('IntersectController (e2e)', () => {
     const result = await app.inject({
       method: POST,
       url: URL_START + INTERSECT_URL,
-      payload: GEOJSON_WITHOUT_GEOMETRY_KREIS,
+      payload: getGeoJSONFeature({}),
       headers: HEADERS_JSON,
     });
     const implName = '/POST Intersect without geometry';

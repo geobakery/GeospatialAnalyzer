@@ -1,4 +1,9 @@
 import { GeoJSONFeatureCollectionDto } from './dto/geo-json.dto';
+import {
+  GEO_IDENTIFIER,
+  GEO_PARAMETER,
+  REQUESTPARAMS,
+} from './general.constants';
 
 export interface GeneralResponse {
   response: string;
@@ -46,6 +51,14 @@ export interface tempResult {
   id: string;
   topic: string;
 }
+
+export type SpatialMetadata = Partial<{
+  [GEO_IDENTIFIER]: string;
+  [GEO_PARAMETER]: Record<string, unknown>;
+  [REQUESTPARAMS]: Record<string, unknown>;
+  __topic: string;
+  NO_RESULT: string;
+}>;
 
 export interface Source {
   /** The (possibly schema-qualified) name of the database relation. */

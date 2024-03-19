@@ -297,7 +297,7 @@ export class GeneralService {
       GeospatialRequest,
       'outputFormat' | 'outSRS' | 'returnGeometry'
     >,
-    map: Map<string, object>,
+    map: Map<string, Record<string, unknown>>,
   ): void {
     if (!tmpResult?.length) {
       return;
@@ -371,7 +371,7 @@ export class GeneralService {
       GeospatialRequest,
       'outputFormat' | 'outSRS' | 'returnGeometry'
     >,
-    map: Map<string, object>,
+    map: Map<string, Record<string, unknown>>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
     const tmpResult = this.dbToGeoJSON(query);
     this.addUserInputToResponse(tmpResult, requestParams, map);
