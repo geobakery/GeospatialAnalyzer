@@ -59,10 +59,10 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
 
       const heightQueryBuilder = queryBuilder
         .createQueryBuilder()
-        // TODO
-        .setParameters({
-          [`topic_${topicIndex}_source_name_${sourceIndex}`]: source.name,
-        })
+        .setParameter(
+          `topic_${topicIndex}_source_name_${sourceIndex}`,
+          source.name,
+        )
         .addSelect(`:topic_${topicIndex}_source_name_${sourceIndex}`, '__name')
 
         .addSelect(featureValue, '__height')
