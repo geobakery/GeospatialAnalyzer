@@ -4,6 +4,7 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { WithinParameterDto } from '../general/dto/parameter.dto';
 import {
+  DB_GEOMETRY_NAME,
   QUERY_FEATURE_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
@@ -39,9 +40,9 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // Notice: geom is needed for filtering in the where condition
-      if (!fieldsToQuery.includes('geom')) {
-        subQuery.addSelect('geom');
+      // Notice: the geometry field is needed for filtering in the where condition
+      if (!fieldsToQuery.includes(DB_GEOMETRY_NAME)) {
+        subQuery.addSelect(DB_GEOMETRY_NAME);
       }
       subQuery.from(topicSource.source, topic);
       return subQuery;
@@ -71,12 +72,11 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
       srid,
     );
-    const dbFeature = 'geom';
 
     // Within call
     return this.adapter.isFeatureWithin(
       { raw: true, value: queryFeature },
-      { raw: true, value: dbFeature },
+      { raw: true, value: DB_GEOMETRY_NAME },
     );
   }
 }

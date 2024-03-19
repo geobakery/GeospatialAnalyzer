@@ -4,6 +4,7 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { IntersectParameterDto } from '../general/dto/parameter.dto';
 import {
+  DB_GEOMETRY_NAME,
   QUERY_FEATURE_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
@@ -41,9 +42,9 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // Notice: geom is needed for filtering in the where condition
-      if (!fieldsToQuery.includes('geom')) {
-        subQuery.addSelect('geom');
+      // Notice: the geometry field is needed for filtering in the where condition
+      if (!fieldsToQuery.includes(DB_GEOMETRY_NAME)) {
+        subQuery.addSelect(DB_GEOMETRY_NAME);
       }
       subQuery.from(topicSource.source, topic);
       return subQuery;
@@ -80,12 +81,11 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
       srid,
     );
-    const dbFeature = 'geom';
 
     // intersect call
     return this.adapter.areFeaturesIntersecting(
       { raw: true, value: queryFeature },
-      { raw: true, value: dbFeature },
+      { raw: true, value: DB_GEOMETRY_NAME },
     );
   }
 }

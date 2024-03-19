@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 import { DbAdapterService, SqlParameter } from '../db-adapter.service';
+import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
@@ -56,7 +57,7 @@ export class PostgresService extends DbAdapterService {
   override injectGeometryField(qb: SelectQueryBuilder<unknown>): void {
     qb.setParameter('dummyWkt', 'POINT EMPTY').addSelect(
       ':dummyWkt::geometry',
-      'geom',
+      DB_GEOMETRY_NAME,
     );
   }
 

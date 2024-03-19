@@ -22,6 +22,9 @@ export const REQUESTPARAMS = '__requestParams';
 
 export const DB_DIST_NAME = '__dist';
 
+export const DB_GEOMETRY_NAME = 'geom';
+
+
 export const QUERY_FEATURE_INDEX = 'feature_wkt_';
 export const TOPIC_ID = '__topic';
 export const QUERY_TOPIC = 'topic_';
