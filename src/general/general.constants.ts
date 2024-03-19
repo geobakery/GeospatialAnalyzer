@@ -24,11 +24,16 @@ export const DB_DIST_NAME = '__dist';
 
 export const DB_GEOMETRY_NAME = 'geom';
 
+export const DB_HEIGHT_NAME = '__height';
+
+export const DB_NAME_NAME = '__name';
+
+export const DB_RASTER_DATA_NAME = 'rast';
 
 export const QUERY_FEATURE_INDEX = 'feature_wkt_';
 export const TOPIC_ID = '__topic';
-export const QUERY_TOPIC = 'topic_';
 
+export const QUERY_TOPIC = 'topic_';
 /**
  * Choosing an appropriate status code is surprisingly unclear:
  * - "408 Request Timeout" is the most prominent option, but should be

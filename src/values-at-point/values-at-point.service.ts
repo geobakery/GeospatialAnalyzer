@@ -4,6 +4,9 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
+  DB_HEIGHT_NAME,
+  DB_NAME_NAME,
+  DB_RASTER_DATA_NAME,
   QUERY_FEATURE_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
@@ -57,16 +60,13 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
         featureIndex,
       );
 
+      const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
       const heightQueryBuilder = queryBuilder
         .createQueryBuilder()
-        .setParameter(
-          `topic_${topicIndex}_source_name_${sourceIndex}`,
-          source.name,
-        )
-        .addSelect(`:topic_${topicIndex}_source_name_${sourceIndex}`, '__name')
-
-        .addSelect(featureValue, '__height')
-        .from(`${source.source}`, '__hr')
+        .setParameter(topicSourceParameterName, source.name)
+        .addSelect(`:${topicSourceParameterName}`, DB_NAME_NAME)
+        .addSelect(featureValue, DB_HEIGHT_NAME)
+        .from(source.source, source.name) // TypeORM demands an alias here, but we do not need any specific one.
         .andWhere(featureIntersect);
 
       this.adapter.injectGeometryField(heightQueryBuilder);
@@ -97,12 +97,10 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
       srid,
     );
-    const dbFeature = 'rast';
-
     // intersect call
     return this.adapter.getValueAtFeature(
       { raw: true, value: queryFeature },
-      { raw: true, value: dbFeature },
+      { raw: true, value: DB_RASTER_DATA_NAME },
     );
   }
 
@@ -121,12 +119,11 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
       srid,
     );
-    const dbFeature = 'rast';
 
     // intersect call
     return this.adapter.areFeaturesIntersecting(
       { raw: true, value: queryFeature },
-      { raw: true, value: dbFeature },
+      { raw: true, value: DB_RASTER_DATA_NAME },
     );
   }
 }
