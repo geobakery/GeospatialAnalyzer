@@ -70,12 +70,13 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
       }
     }
 
-    // TODO add to adapter
-    const query = '((' + queries.join(') UNION ALL (') + '))';
     const qb = this.dataSource
       .createQueryBuilder()
       .select('*')
-      .from<GeospatialResultEntity>(query, 'union_query')
+      .from<GeospatialResultEntity>(
+        this.adapter.unionAll(queries),
+        'union_query',
+      )
       .setParameters(params);
 
     return this.generalService.calculateMethode(request, qb);

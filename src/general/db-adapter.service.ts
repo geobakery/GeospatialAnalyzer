@@ -36,4 +36,6 @@ export abstract class DbAdapterService {
   abstract getJsonRecordAlias(): string;
 
   abstract injectDummyWKTStringToQuery(qb: SelectQueryBuilder<unknown>): void;
+
+  abstract unionAll(queries: string[]): string;
 }

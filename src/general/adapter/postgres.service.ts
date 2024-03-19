@@ -63,4 +63,8 @@ export class PostgresService extends DbAdapterService {
       'geom',
     );
   }
+
+  override unionAll(queries: string[]): string {
+    return '((' + queries.join(') UNION ALL (') + '))';
+  }
 }
