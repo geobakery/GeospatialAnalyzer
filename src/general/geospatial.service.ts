@@ -4,6 +4,11 @@ import { TransformService } from '../transform/transform.service';
 import { DbAdapterService } from './db-adapter.service';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { GeoJSONFeatureDto } from './dto/geo-json.dto';
+import {
+  DB_FEATURE_ID_NAME,
+  DB_JSON_STRUCTURE_NAME,
+  DB_TOPIC_NAME,
+} from './general.constants';
 import { SqlLiteral } from './general.interface';
 import {
   GeneralService,
@@ -70,12 +75,13 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
       }
     }
 
-    // TODO add to adapter
-    const query = '((' + queries.join(') UNION ALL (') + '))';
     const qb = this.dataSource
       .createQueryBuilder()
       .select('*')
-      .from<GeospatialResultEntity>(query, 'union_query')
+      .from<GeospatialResultEntity>(
+        this.adapter.unionAll(queries),
+        'union_query',
+      )
       .setParameters(params);
 
     return this.generalService.calculateMethode(request, qb);
@@ -114,12 +120,12 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
       {
         bindingName: `_topic_name_${topicIndex}`,
         value: topic,
-        sqlAlias: 'topic',
+        sqlAlias: DB_TOPIC_NAME,
       },
       {
         bindingName: `_feature_id_${featureIndex}`,
         value: geoId,
-        sqlAlias: 'id',
+        sqlAlias: DB_FEATURE_ID_NAME,
       },
     ];
 
@@ -130,7 +136,10 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     });
 
     // GeoJSON FeatureCollection
-    qb.addSelect(this.adapter.getJsonStructure(returnGeometry), 'response');
+    qb.addSelect(
+      this.adapter.getJsonStructure(returnGeometry),
+      DB_JSON_STRUCTURE_NAME,
+    );
 
     return qb;
   }

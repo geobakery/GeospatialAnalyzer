@@ -5,6 +5,7 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { SpatialMetadata } from '../general.interface';
 import {
   EsriEmptyPointDto,
   EsriPointDto,
@@ -48,6 +49,6 @@ export class EsriJsonDto {
     | EsriPolylineDto
     | EsriPolygonDto;
 
-  @ApiPropertyOptional()
-  attributes?: object;
+  @ApiPropertyOptional({ type: 'object' })
+  attributes?: Record<string, unknown> & SpatialMetadata;
 }

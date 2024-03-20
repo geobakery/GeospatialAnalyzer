@@ -35,5 +35,15 @@ export abstract class DbAdapterService {
 
   abstract getJsonRecordAlias(): string;
 
-  abstract injectDummyWKTStringToQuery(qb: SelectQueryBuilder<unknown>): void;
+  /**
+   * Adds a `geometry` type column with some default geometry to the query builder's current SELECT clause.
+   *
+   * Some DBMS require a `geometry` column in order to construct the GeoJSON result structure. Not all geospatial
+   * queries have access to such a column, so this method can be used to inject one with a "dummy" value instead.
+   *
+   * @see {@link DbAdapterService.getJsonStructure} This expression might require a `geometry` type column.
+   */
+  abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
+
+  abstract unionAll(queries: string[]): string;
 }

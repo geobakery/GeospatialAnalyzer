@@ -1,3 +1,5 @@
+import { EsriJsonDto } from '../../src/general/dto/esri-json.dto';
+import { GeoJSONFeatureDto } from '../../src/general/dto/geo-json.dto';
 import { ParameterDto } from '../../src/general/dto/parameter.dto';
 import {
   ESRI_JSON_WITHOUT_GEOMETRY_KREIS,
@@ -8,30 +10,24 @@ import {
 
 export const getGeoJSONFeature = (
   opts: testDataParameterGeoJSONFeature,
-): ParameterDto => {
-  const base = { ...GEOJSON_WITHOUT_GEOMETRY_KREIS };
+): ParameterDto & { inputGeometries: GeoJSONFeatureDto[] } => {
+  const base = GEOJSON_WITHOUT_GEOMETRY_KREIS();
   if (opts.returnGeometry) {
     base.returnGeometry = opts.returnGeometry;
   }
   if (opts.topics) {
     base.topics = opts.topics;
   }
-  //FIXME: This modifies the GEOJSON_WITHOUT_GEOMETRY_KREIS' geometries
   if (opts.fixGeometry) {
     base.inputGeometries[0].geometry = { ...opts.fixGeometry };
-  }
-  if (opts.additionalAttributes) {
-    opts.additionalAttributes.forEach((value, key) => {
-      base[key] = value;
-    });
   }
   return base;
 };
 
 export const getEsriJSONFeature = (
   opts: testDataParameterEsriJSONFeature,
-): ParameterDto => {
-  const base = { ...ESRI_JSON_WITHOUT_GEOMETRY_KREIS };
+): ParameterDto & { inputGeometries: EsriJsonDto[] } => {
+  const base = ESRI_JSON_WITHOUT_GEOMETRY_KREIS();
   if (opts.returnGeometry) {
     base.returnGeometry = opts.returnGeometry;
   }
@@ -46,11 +42,6 @@ export const getEsriJSONFeature = (
   }
   if (opts.outSRS) {
     base.outSRS = opts.outSRS;
-  }
-  if (opts.additionalAttributes) {
-    opts.additionalAttributes.forEach((value, key) => {
-      base[key] = value;
-    });
   }
   return base;
 };

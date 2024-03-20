@@ -1,16 +1,10 @@
-import { GeoJSONFeatureDto } from '../../src/general/dto/geo-json.dto';
 import { EsriJsonDto } from '../../src/general/dto/esri-json.dto';
+import { GeoJSONFeatureDto } from '../../src/general/dto/geo-json.dto';
 
 export const testStatus200 = async (implName: string, result: any) => {
   console.log(`testStatus200 for ${implName}`);
 
   expect(result.statusCode).toEqual(200);
-};
-
-export const testStatus500 = async (implName: string, result: any) => {
-  console.log(`testStatus500 for ${implName}`);
-
-  expect(result.statusCode).toEqual(500);
 };
 
 export const testStatus400 = async (implName: string, result: any) => {

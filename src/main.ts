@@ -29,7 +29,7 @@ async function bootstrap() {
 }
 
 async function checkTopic(): Promise<void> {
-  const fileExists = async (path) =>
+  const fileExists = async (path: string) =>
     !!(await fs.promises.stat(path).catch(() => false));
 
   const exist = await fileExists(join(__dirname, './../topic.json'));

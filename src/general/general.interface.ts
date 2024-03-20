@@ -47,6 +47,14 @@ export interface tempResult {
   topic: string;
 }
 
+export type SpatialMetadata = Partial<{
+  __geometryIdentifier__: string;
+  __geoProperties: Record<string, unknown>;
+  __requestParams: Record<string, unknown>;
+  __topic: string;
+  NO_RESULT: string;
+}>;
+
 export interface Source {
   /** The (possibly schema-qualified) name of the database relation. */
   source: string;

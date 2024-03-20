@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { HealthController } from './Health.controller';
-import { GeneralModule } from '../general/general.module';
-import { HealthService } from './Health.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from '../config/configuration';
+import { GeneralModule } from '../general/general.module';
+import { HealthController } from './health.controller';
+import { HealthService } from './health.service';
 
 describe('HealthController', () => {
   let controller: HealthController;

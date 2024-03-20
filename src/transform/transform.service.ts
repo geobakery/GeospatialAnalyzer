@@ -211,7 +211,11 @@ export class TransformService {
     return coordinates;
   }
 
-  transformSimpleCoordinates(coordinates, fromEpsgString, toEpsgString) {
+  transformSimpleCoordinates(
+    coordinates: [number, number, number, number],
+    fromEpsgString: string,
+    toEpsgString: string,
+  ) {
     this.registerCRS(fromEpsgString);
     this.registerCRS(toEpsgString);
     return proj4(fromEpsgString, toEpsgString, coordinates);

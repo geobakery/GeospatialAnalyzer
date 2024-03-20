@@ -16,17 +16,15 @@ import {
 } from './dto/geo-json.dto';
 import {
   ESRIJSON_PARAMETER,
-  GEO_IDENTIFIER,
-  GEO_PARAMETER,
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
-  REQUESTPARAMS,
   STANDARD_CRS,
   supportedDatabase,
 } from './general.constants';
 import {
   DBResponse,
   Source,
+  SpatialMetadata,
   SupportedTopics,
   tempResult,
   topicDefinition,
@@ -145,11 +143,9 @@ export class GeneralService {
   }
 
   getTopicsInformationForOutsideSpecific(
-    methode: string,
+    methode: keyof SupportedTopics,
   ): topicDefinitionOutside[] {
-    const supportedTopics = this.methodeTopicSupport[
-      methode
-    ] as topicDefinitionOutside[];
+    const supportedTopics = this.methodeTopicSupport[methode];
     if (supportedTopics && supportedTopics.length) {
       return supportedTopics;
     }
@@ -270,21 +266,16 @@ export class GeneralService {
    * Checks if the ID of the single geo feature if set and generates otherwise
    */
   getAndSetGeoID(geo: GeoJSONFeatureDto, index: number): string {
-    if (
-      geo.type === 'Feature' &&
-      geo.properties &&
-      geo.properties[GEO_IDENTIFIER]
-    ) {
-      return geo.properties[GEO_IDENTIFIER];
+    if (geo.properties?.__geometryIdentifier__) {
+      return geo.properties.__geometryIdentifier__;
     }
-    if (geo.type === 'Feature') {
-      if (!geo.properties) {
-        geo.properties = {};
-      }
-      geo.properties[GEO_IDENTIFIER] = '__ID_' + index;
-      return geo.properties[GEO_IDENTIFIER];
+
+    if (!geo.properties) {
+      geo.properties = {};
     }
-    return null;
+    geo.properties.__geometryIdentifier__ = '__ID_' + index;
+
+    return geo.properties.__geometryIdentifier__;
   }
 
   /**
@@ -297,7 +288,7 @@ export class GeneralService {
       GeospatialRequest,
       'outputFormat' | 'outSRS' | 'returnGeometry'
     >,
-    map: Map<string, object>,
+    map: Map<string, Record<string, unknown>>,
   ): void {
     if (!tmpResult?.length) {
       return;
@@ -306,12 +297,12 @@ export class GeneralService {
       const geo = result.result;
       const features = geo.features;
       if (!features?.length) {
-        const props = {
+        const props: SpatialMetadata = {
           NO_RESULT: 'No result to request',
           __topic: result.topic,
+          __requestParams: requestParams,
+          __geoProperties: map.get(result.id),
         };
-        props[REQUESTPARAMS] = requestParams;
-        props[GEO_PARAMETER] = map.get(result.id);
 
         geo.features = [
           {
@@ -323,38 +314,12 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
-          feature.properties[REQUESTPARAMS] = requestParams;
-          feature.properties[GEO_PARAMETER] = map.get(result.id);
-          feature.properties['__topic'] = result.topic;
+          feature.properties.__requestParams = requestParams;
+          feature.properties.__geoProperties = map.get(result.id);
+          feature.properties.__topic = result.topic;
         });
       }
     });
-  }
-
-  /**
-   * Explanation:
-   * assures that the result is always a GeoJSON[] formate
-   * @TODO Update doc block and method name.
-   */
-  setGeoJSONArray(
-    result: tempResult[],
-    parameter: Pick<GeospatialRequest, 'outputFormat' | 'outSRS'>,
-  ): GeoJSONFeatureDto[] | EsriJsonDto[] {
-    const resultMap = result.flatMap((r) => r.result.features);
-
-    if (parameter.outputFormat === ESRIJSON_PARAMETER) {
-      return this.transformService.convertGeoJSONToEsriJSON({
-        input: resultMap,
-        epsg: parameter.outSRS || STANDARD_CRS,
-      });
-    }
-
-    if (parameter.outputFormat === GEOJSON_PARAMETER) {
-      this.transformService.transformIncorrectCRSGeoJsonArray(resultMap);
-      return resultMap;
-    }
-
-    return resultMap;
   }
 
   getSourceForIdentifier(top: string): Source {
@@ -371,12 +336,25 @@ export class GeneralService {
       GeospatialRequest,
       'outputFormat' | 'outSRS' | 'returnGeometry'
     >,
-    map: Map<string, object>,
+    map: Map<string, Record<string, unknown>>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
-    const tmpResult = this.dbToGeoJSON(query);
-    this.addUserInputToResponse(tmpResult, requestParams, map);
-    //ensure that the result is an GeoJSON[] and not GeoJSON[][]
-    return this.setGeoJSONArray(tmpResult, requestParams);
+    const result = this.dbToGeoJSON(query);
+    this.addUserInputToResponse(result, requestParams, map);
+
+    const features = result.flatMap((r) => r.result.features);
+
+    if (requestParams.outputFormat === ESRIJSON_PARAMETER) {
+      return this.transformService.convertGeoJSONToEsriJSON({
+        input: features,
+        epsg: requestParams.outSRS || STANDARD_CRS,
+      });
+    }
+
+    if (requestParams.outputFormat === GEOJSON_PARAMETER) {
+      return this.transformService.transformIncorrectCRSGeoJsonArray(features);
+    }
+
+    return features;
   }
 
   /**

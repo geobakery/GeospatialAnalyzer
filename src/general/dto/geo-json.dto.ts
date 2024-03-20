@@ -1,5 +1,6 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { SpatialMetadata } from '../general.interface';
 import {
   GeoJSONLineString,
   GeoJSONObject,
@@ -33,8 +34,8 @@ export class GeoJSONFeatureDto {
   })
   geometry: GeoJSONLineString | GeoJSONPoint | GeoJSONPolygon | null;
 
-  @ApiProperty()
-  properties: object | null;
+  @ApiProperty({ nullable: true, type: 'object' })
+  properties: (Record<string, unknown> & SpatialMetadata) | null;
 
   @ApiProperty({ required: false })
   description?: string;

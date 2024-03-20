@@ -5,6 +5,7 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { NearestNeighbourParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_DIST_NAME,
+  DB_GEOMETRY_NAME,
   QUERY_FEATURE_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
@@ -43,9 +44,9 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
-      // Notice: geom is needed to calculate the distance
-      if (!fieldsToQuery.includes('geom')) {
-        subQuery.addSelect('geom');
+      // Notice: the geometry field is needed to calculate the distance
+      if (!fieldsToQuery.includes(DB_GEOMETRY_NAME)) {
+        subQuery.addSelect(DB_GEOMETRY_NAME);
       }
       const featureDistanceString = this.getFeatureDistanceString(
         queryBuilder,
@@ -54,7 +55,6 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
         featureIndex,
       );
       subQuery
-        // TODO constante (maybe __dist could be a keyword ??)
         .addSelect(featureDistanceString, DB_DIST_NAME)
         .from(topicSource.source, topic)
         .orderBy(DB_DIST_NAME)
@@ -85,12 +85,11 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
       { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
       srid,
     );
-    const dbFeature = 'geom';
 
     // Within call
     return this.adapter.getFeatureDistance(
       { raw: true, value: queryFeature },
-      { raw: true, value: dbFeature },
+      { raw: true, value: DB_GEOMETRY_NAME },
     );
   }
 }

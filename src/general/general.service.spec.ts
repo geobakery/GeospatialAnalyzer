@@ -1,12 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GeneralService } from './general.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Geometry } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from '../config/configuration';
 import { TransformModule } from '../transform/transform.module';
-import { GeneralModule } from './general.module';
-import { HttpException } from '@nestjs/common';
+import { GeneralService } from './general.service';
 
 describe('GeneralService', () => {
   let service: GeneralService;
