@@ -8,6 +8,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import inputValidation, {
+  ErrorDetails,
   InputValidationError,
 } from 'openapi-validator-middleware';
 
@@ -19,11 +20,13 @@ class InputValidationErrorHandler
     let errorOutput = exception.errors;
     // If errors are about the input geometry, add notice as first element for invalid input
 
-    const anyInputGeometryError = exception.errors.some((e: string) => {
-      if (typeof e === 'string') {
-        return e.includes('body/inputGeometries');
-      }
-    });
+    const anyInputGeometryError = exception.errors.some(
+      (e: string | ErrorDetails) => {
+        if (typeof e === 'string') {
+          return e.includes('body/inputGeometries');
+        }
+      },
+    );
     if (anyInputGeometryError) {
       errorOutput = [
         'Invalid geometry input. Check the possible following errors. For help have a look at the schema definition of the swagger OpenAPI documentation.',
