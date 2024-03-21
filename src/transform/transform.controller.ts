@@ -6,13 +6,14 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
 import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
 import { TransformService } from './transform.service';
 
+@ApiTags('Transform')
 @Controller({
   version: '1',
 })

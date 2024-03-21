@@ -7,10 +7,13 @@ import {
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import fs from 'node:fs/promises';
 import inputValidation, {
   ErrorDetails,
   InputValidationError,
 } from 'openapi-validator-middleware';
+import { join } from 'path';
+import * as process from 'process';
 
 @Catch(inputValidation.InputValidationError)
 class InputValidationErrorHandler
@@ -42,14 +45,70 @@ class InputValidationErrorHandler
   }
 }
 
+async function checkFile(
+  fileName: string,
+  pathToExample: string,
+  errorString: string,
+): Promise<void> {
+  const fileExists = async (path: string) =>
+    !!(await fs.stat(path).catch(() => false));
+
+  const exist = await fileExists(join(__dirname, './../' + fileName));
+  if (!exist) {
+    console.warn(errorString);
+    await createDefaultFile(fileName, pathToExample);
+
+    await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+  }
+  return;
+}
+
+async function readDescription(): Promise<string> {
+  await checkDescription();
+  return fs.readFile('./swagger-description.md', 'utf8');
+}
+
+async function checkDescription() {
+  const warning =
+    'No swagger-description.md ist defined. Please read the README and add the specific description file. A default one will be added.';
+  await checkFile(
+    'swagger-description.md',
+    'swagger-description-example.md',
+    warning,
+  );
+}
+
+export async function checkTopic(): Promise<void> {
+  const warning =
+    'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file. A default one will be added.';
+  await checkFile('topic.json', 'topic-example-geosn.json', warning);
+}
+
+async function createDefaultFile(
+  targetFile: string,
+  exampleFile: string,
+): Promise<void> {
+  await fs
+    .copyFile(
+      join(__dirname, './../' + exampleFile),
+      join(__dirname, './../' + targetFile),
+    )
+    .catch((err) => {
+      console.error('Error Found:', err);
+      process.exit(1);
+    });
+}
+
 export async function setUpOpenAPIAndValidation(
   app: NestFastifyApplication,
 ): Promise<void> {
   const config = new DocumentBuilder()
-    .setTitle('GeospatialAnalyzer')
-    .setDescription('API description')
-    .setVersion('1.2.15')
-    .addTag('Geobakery')
+    .setTitle(
+      process.env.geospatial_analyzer_swagger_document_title ||
+        'GeospatialAnalyzer',
+    )
+    .setDescription((await readDescription()) || 'API description')
+    .setVersion(process.env.geospatial_analyzer_swagger_version || '1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
