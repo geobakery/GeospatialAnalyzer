@@ -6,9 +6,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HealthService } from './health.service';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ErrorResponse, GeneralResponse } from '../general/general.interface';
 
+@ApiTags('Health')
 @Controller({
   version: '1',
 })

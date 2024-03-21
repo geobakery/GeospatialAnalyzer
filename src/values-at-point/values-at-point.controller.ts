@@ -3,6 +3,7 @@ import {
   ApiBody,
   ApiExtraModels,
   ApiResponse,
+  ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
@@ -16,6 +17,7 @@ import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { ValuesAtPointService } from './values-at-point.service';
 
+@ApiTags('ValuesAtPoint')
 @Controller({
   version: '1',
 })
