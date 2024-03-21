@@ -10,6 +10,7 @@ COPY tsconfig.build.json ./
 COPY .env.dev ./
 COPY .env ./
 COPY topic.json ./
+COPY swagger-description*.md ./
 COPY nest-cli.json ./
 
 RUN npm install --global pnpm \
