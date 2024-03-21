@@ -11,6 +11,7 @@ import inputValidation, {
   ErrorDetails,
   InputValidationError,
 } from 'openapi-validator-middleware';
+import * as process from 'process';
 
 @Catch(inputValidation.InputValidationError)
 class InputValidationErrorHandler
@@ -46,10 +47,12 @@ export async function setUpOpenAPIAndValidation(
   app: NestFastifyApplication,
 ): Promise<void> {
   const config = new DocumentBuilder()
-    .setTitle('GeospatialAnalyzer')
+    .setTitle(
+      process.env.geospatial_analyzer_swagger_document_title ||
+        'GeospatialAnalyzer',
+    )
     .setDescription('API description')
-    .setVersion('1.2.15')
-    .addTag('Geobakery')
+    .setVersion(process.env.geospatial_analyzer_swagger_version || '1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
