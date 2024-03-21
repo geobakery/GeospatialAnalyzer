@@ -10,6 +10,8 @@ The project uses the `.env`, respectively the `env.dev` file for configuring you
 Additional you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
 The topic.json is added to the `.gitignore` to save your personal data conventions.
 
+Optional you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you dont want to create an own, the example swagger description markdown file will be used to generate ths file.
+
 ## Database
 You need an accessible database connection for querying the testdata. For the first version, a Postgres (v15) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.   
 The database itself can be set up by three different approaches:

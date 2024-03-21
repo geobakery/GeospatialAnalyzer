@@ -24,7 +24,10 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["kreis"]
+  "topics": ["kreis"],
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
 }
 ```
 
@@ -41,7 +44,10 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["kreis", "land"]
+  "topics": ["kreis", "land"],
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
 }
 ```
 
@@ -58,7 +64,10 @@ Post-call http://localhost:3000/v1/within with JSON body:
       "name": "example"
     }
   }],
-  "topics": ["kreis"]
+  "topics": ["kreis"],
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
 }
 ```
 
@@ -78,17 +87,11 @@ Post-call http://localhost:3000/v1/within with JSON body:
     }
   }],
   "topics": ["kreis"],
-  "returnGeometry": true
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
 }
 ```
-
-## Known Limitations - Work in progres
-
-- Currently, unsupported user parameter
-  - buffer
-- Complete parameter validation
-- API token authentication
-
 
 ## Known Limitations - Not planned to implement
 - Unsupported geo-types in GeoJSON

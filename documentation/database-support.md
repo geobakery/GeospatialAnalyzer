@@ -31,9 +31,9 @@ export class NewdatabaseService extends DbAdapterService {
     constructor() {
         super();
     }
-    getSelect(): string {
-        return 'FANCY_SELECT'; // instead of 'SELECT'
-    }
+  override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
+    return `ST_TRANSFORM(${featureWkt.value}::text, ${toCrs})`; // Use your equivalent to Postgis ST_TRANSFORM
+  }
 
     // ... overwrite all methods
 }
