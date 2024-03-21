@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import configuration from './config/configuration';
 import { GeneralModule } from './general/general.module';
 import { HealthModule } from './health/health.module';
@@ -61,7 +59,5 @@ import { WithinModule } from './within/within.module';
     HealthModule,
     NearestNeighbourModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
