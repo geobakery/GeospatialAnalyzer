@@ -5,6 +5,19 @@ import {
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { SpatialReferenceDto } from './spatial-reference.dto';
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+
+const EsriJSONPositionSchemaObject: Omit<SchemaObject, 'required'> = {
+  items: { type: 'number' },
+  minItems: 2,
+  maxItems: 4,
+  type: 'array',
+};
+
+type EsriJSONPosition =
+  | [number, number]
+  | [number, number, number]
+  | [number, number, number, number];
 
 @ApiExtraModels(SpatialReferenceDto)
 export abstract class EsriGeometryDto {
@@ -48,19 +61,13 @@ export class EsriPolylineDto extends EsriGeometryDto {
 
   @ApiProperty({
     items: {
-      oneOf: [
-        { maxLength: 2, minLength: 2, type: 'number' },
-        { maxLength: 3, minLength: 3, type: 'number' },
-        { maxLength: 4, minLength: 4, type: 'number' },
-      ],
+      items: EsriJSONPositionSchemaObject,
+      type: 'array',
     },
-    maxLength: 1, // More than one path would correspond to a GeoJSON MultiLineString, which we do not support.
     type: 'array',
+    maxLength: 1, // More than one ring would correspond to a GeoJSON MultiLineString, which we do not support.
   })
-  paths:
-    | [number, number][]
-    | [number, number, number][]
-    | [number, number, number, number][];
+  paths: EsriJSONPosition[];
 }
 
 export class EsriPolygonDto extends EsriGeometryDto {
@@ -72,17 +79,11 @@ export class EsriPolygonDto extends EsriGeometryDto {
 
   @ApiProperty({
     items: {
-      oneOf: [
-        { maxLength: 2, minLength: 2, type: 'number' },
-        { maxLength: 3, minLength: 3, type: 'number' },
-        { maxLength: 4, minLength: 4, type: 'number' },
-      ],
+      items: EsriJSONPositionSchemaObject,
+      type: 'array',
     },
-    maxLength: 1, // More than one ring would correspond to a GeoJSON MultiPolygon, which we do not support.
     type: 'array',
+    maxLength: 1, // More than one ring would correspond to a GeoJSON MultiPolygon, which we do not support.
   })
-  rings:
-    | [number, number][]
-    | [number, number, number][]
-    | [number, number, number, number][];
+  rings: EsriJSONPosition[][];
 }

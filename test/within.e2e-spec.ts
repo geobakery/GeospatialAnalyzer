@@ -190,6 +190,73 @@ describe('WithinController (e2e)', () => {
     expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
   });
 
+  it('/POST within with esri input polygon', async () => {
+    const input = getEsriJSONFeature({
+      returnGeometry: true,
+      outputFormat: 'esrijson',
+      topics: ['kreis'],
+      fixGeometry: [
+        {
+          geometry: {
+            spatialReference: {
+              wkid: 25833,
+            },
+            rings: [
+              [
+                [412426.28763768595, 5656880.454086961],
+                [416095.2723333469, 5656880.454086961],
+                [416095.2723333469, 5652447.097579705],
+                [412426.28763768595, 5652447.097579705],
+                [412426.28763768595, 5656880.454086961],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + WITHIN_URL,
+      payload: input,
+      headers: HEADERS_JSON,
+    });
+    const implName = '/POST within custom with geometry';
+    await testStatus200(implName, result);
+
+    const esrijsonArray = await getESRISONFeatureFromResponse(result);
+    expect(esrijsonArray.length).toBe(1);
+    const verwEsri = esrijsonArray[0];
+
+    // test kreis response
+    expect(verwEsri.geometry).toBeDefined();
+    expect(verwEsri.attributes).toBeDefined();
+
+    const props = verwEsri.attributes;
+    expect(props['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(props['__topic']).toBe('kreis');
+
+    const geoProps = props['__geoProperties'];
+    const requestProps = props['__requestParams'];
+    expect(requestProps['returnGeometry']).toBe(true);
+    expect(requestProps['outSRS']).toBe(25833);
+    expect(requestProps['outputFormat']).toBe('esrijson');
+
+    expect(geoProps['__geometryIdentifier__']).toBeDefined();
+
+    // test geometry
+    const geo = verwEsri.geometry;
+    expect(geo.spatialReference).toBeDefined();
+    expect(geo.spatialReference.wkid).toBeDefined();
+    expect(geo.spatialReference.wkid).toBe(25833);
+    expect((geo as EsriPolygonDto).rings).toBeDefined();
+    const coordinates = (geo as EsriPolygonDto).rings;
+    expect(coordinates).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([expect.arrayContaining([expect.any(Number)])]),
+      ]),
+    );
+  });
+
   it('/POST within with esri input and output', async () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
