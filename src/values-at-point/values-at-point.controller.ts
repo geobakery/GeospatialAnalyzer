@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiExtraModels,
+  ApiOperation,
   ApiResponse,
   ApiTags,
   getSchemaPath,
@@ -32,6 +33,9 @@ export class ValuesAtPointController {
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
+  @ApiOperation({
+    summary: 'Outputs all the possible valuesAtPoint topics',
+  })
   @Get('valuesAtPoint/topics')
   topic(): topicDefinitionOutside[] {
     return this.valuesAtPointService.getTopics();
@@ -61,6 +65,10 @@ export class ValuesAtPointController {
     status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Returns the values at the transferred point (currently only to identifier "hoehe") ',
+  })
   @Post('valuesAtPoint')
   async valuesAtPoint(
     @Body() args: ValuesAtPointParameterDto,

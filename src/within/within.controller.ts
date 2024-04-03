@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiExtraModels,
+  ApiOperation,
   ApiResponse,
   ApiTags,
   getSchemaPath,
@@ -32,6 +33,9 @@ export class WithinController {
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
+  @ApiOperation({
+    summary: 'Outputs all the possible within topics',
+  })
   @Get('within/topics')
   topic(): topicDefinitionOutside[] {
     return this.withinService.getTopics();
@@ -61,6 +65,10 @@ export class WithinController {
     status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      ' Return all features in which the transferred geometries are completely contained',
+  })
   @Post('within')
   async intersect(
     @Body() args: WithinParameterDto,

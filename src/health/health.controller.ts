@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HealthService } from './health.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ErrorResponse, GeneralResponse } from '../general/general.interface';
 
 @ApiTags('Health')
@@ -24,6 +24,9 @@ export class HealthController {
     isArray: false,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary: ' Returns the status of availability',
+  })
   @Get('health')
   async getHealth(): Promise<GeneralResponse | ErrorResponse | any[]> {
     try {
