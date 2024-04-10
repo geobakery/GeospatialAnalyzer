@@ -1,0 +1,49 @@
+publiccode-yaml-version: "http://w3id.org/publiccode/version/0.1"
+
+name: "GeospatialAnalyzer"
+
+url: "https://github.com/geobakery/GeospatialAnalyzer"
+
+releaseDate: "" #TODO
+
+softwareVersion: "1.0"
+
+platforms: web #TODO its the only truth? possible choices:  [web, windows, mac, linux, ios, android]
+
+categories: 
+  - geographic-information-systems
+  - agile-project-management
+  - data-analytics
+
+developmentStatus: development
+
+softwareType: standalone/backend
+
+description:
+  localisedName: GeospatialAnalyzer
+  genericName: Geodaten Analyseschnittstelle
+  shortDescription: >
+   Schnittstelle zur Analyse von Geoobjekten und Rückgabe von Lageinformationen der übergebenen Geometrie 
+  longDescription: >
+    Die E-Government-Schnittstelle Analyseschnittstelle ist ein Webservice, welcher über die E-Government-Basiskomponente Geodaten (GeoBAK) bereitgestellt wird. Die Analyseschnittstelle gibt für ein oder mehrere Grafik-Objekte (Punkt, Linie, Polygon, Kreis als Polygon) nach einer wählbaren räumlichen Zuordnung Sachdaten zu verschiedenen, hauptsächlich flächenhafte Objektarten (z.B. Landkreise/kreisfreie Städte, Flurstücke) zurück. Der Webservice ist hinsichtlich Performance optimiert und überträgt deshalb im Gegensatz zu einem WFS keine Geometrie. Einen Überblick über die bei der Analyseschnittstelle abfragbaren Objektarten und deren Attributstruktur gibt das Dokument „GeoBAK Analyseschnittstelle – Übersicht Geodatenthemen“. Schwerpunktmäßig werden INSPIRE Themen verwendet. Als räumlichen Zuordnungen (Operatoren) sind bisher intersect, within, nearestneighbour und valuesatpoint eingerichtet. Die Operationen intersect und within sind so definiert, dass sich beide ausschließen. Intersect (Standardwert): Gibt alle Features zurück die von den übergebenen Geometrien berührt werden. Within: Gibt alle Features zurück, in dem die übergebenen Geometrien vollständig enthalten sind. Nearestneighbour: Rückgabe von Features mit der kürzest möglichen Distanz. Verwendung für die Ermittlung der nächsten Adresse (Reverse Geocoding). Valuesatpoint: Es werden die Werte am übergebenen Punkt zurückgegeben. Es erfolgt eine Verschneidung mit Rasterdaten. Als Antwort liefert die Analyseschnittstelle ein JSON-Array mit ggf. mehreren Objekten zusammengefasst für die verschiedenen Objektarten. Eine Durchnummerierung der Objekte (objectNo) erfolgt in analoger Weise, wie die Objekte übergeben worden sind. Dies ermöglicht es Anwendungen und elektronischen Fachverfahren Koordinaten und Geoobjekte zu übergeben und zahlreiche Informationen eines Objektes abzurufen. 
+
+legal:
+  license: GPLv3 
+  repoOwner: Landesamt für Geobasisinformation Sachsen (GeoSN)
+
+maintenance: 
+  type: "community" #TODO Klären, ob  ["internal", "community", "none"]
+  contacts: 
+      name: Sebe Weiß
+      email: "Sebe.Weiß@geosn.sachsen.de"
+      affiliation: Landesamt für Geobasisinformation Sachsen (GeoSN)
+
+localisation:
+  localisationReady: none
+
+de:
+  leika: 
+    - themenfeld: “Geodaten Aufbereitung”
+      lebenslage: “Geodaten”
+      ozg-id: “ ”           #TODO Wo kriege ich die IDs her?
+      leika-id: “ ”

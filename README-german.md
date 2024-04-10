@@ -49,3 +49,9 @@ Bitte schauen sie für die umfangreiche Installations- und Entwicklungsanweisung
 
 ## Lizenz
 GPL 
+
+## Kontakt
+
+Dieses Projekt wurde vom Landesamt für Geobasisinformation Sachsen und con terra GmbH entwickelt.
+
+geospatialanalyzer@geosn.sachsen.de   <!-- TODO: richtiges Funktionspostfach ergänzen -->

@@ -55,3 +55,9 @@ Please have a look to our comprehensive area for more information about installi
 
 ## License
 GPL 
+
+## Contact
+
+This project was developed by Landesamt für Geobasisinformation Sachsen and con terra GmbH.
+
+geospatialanalyzer@geosn.sachsen.de   <!-- TODO: richtiges Funktionspostfach ergänzen -->
