@@ -1,6 +1,6 @@
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/geobakery/GeospatialAnalyzer/tree/readme-wip/README.md)
-[![deu](https://img.shields.io/badge/lang-deu-green.svg)](https://github.com/geobakery/GeospatialAnalyzer/tree/readme-wip/README-german.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
+[![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README-german.md)
 
 - [] Logo
 

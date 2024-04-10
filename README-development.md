@@ -45,7 +45,7 @@ $ pnpm install
 ```
 
 ## Running the app
-Run one of the following command to start the service.  The ~~actual~~ current scripts and params are defined in the `package.json` file.
+Run one of the following command to start the service.  The current scripts and params are defined in the `package.json` file.
 
 Compile and run the service:
 ```bash
