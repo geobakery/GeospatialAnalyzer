@@ -60,4 +60,5 @@ GPL
 
 This project was developed by Landesamt für Geobasisinformation Sachsen and con terra GmbH.
 
-geospatialanalyzer@geosn.sachsen.de   <!-- TODO: richtiges Funktionspostfach ergänzen -->
+Responsible person: Sebe Weiß
+Email: servicedesk@geosn.sachsen.de   
