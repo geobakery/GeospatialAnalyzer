@@ -55,4 +55,5 @@ GPL
 Dieses Projekt wurde vom Landesamt für Geobasisinformation Sachsen und con terra GmbH entwickelt.
 
 Verantwortlicher: Sebe Weiß
+
 Email: servicedesk@geosn.sachsen.de 
