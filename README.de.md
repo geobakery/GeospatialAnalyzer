@@ -1,59 +1,59 @@
-
 [![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
-[![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README-german.md)
+[![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
 - [] Logo
 
-## GeospatialAnalyzer
+# GeospatialAnalyzer
 
-Das ist ein Open-Source-Projekt des Landesamt für Geobasisinformation Sachsen (GeoSN) mit freundlicher Unterstützung in der Entwicklung von con terra GmbH. 
+Dies ist ein Open-Source-Projekt des Landesamtes für Geobasisinformation Sachsen (GeoSN) mit freundlicher Unterstützung in der Entwicklung durch die con terra GmbH.
 
-GeospatialAnalyzer ist ein auf Node.js basierendes Web-Interface und benutzt unter anderem NestJS, TypeORM, fastify und Swagger. 
+GeospatialAnalyzer ist eine auf Node.js basierende HTTP-API, die NestJS, TypeORM, fastify, OpenAPI, Swagger und mehr verwendet.
 
-Dieser Webservice kann in bestimmte elektronische Prozesse eingebunden werden, wie zum Beispiel externe Anwendungen und spezialisierte Prozeduren.
+Dieser Webservice kann in elektronische Prozesse wie Anwendungen und Fachverfahren integriert werden.
 
-Es ermöglicht die Übergabe von Geoobjekten in Form von Koordinaten, um sie gegen verschiedene räumliche Zuordnungen zu prüfen. Zurückgegeben werden die gefundenen, dem Objekt zugeordneten, Attribute und optional ihre Geometrie.
-
-Auf diese Weise kann z.B. automatisiert ermittelt werden, in welchem Landkreis ein übergebenes Objekt liegt.
+Er ermöglicht die Übergabe von Geoobjekten in Form von Koordinaten, um sie gegen verschiedene räumliche Zuordnungen zu prüfen. Zurückgegeben werden die gefundenen, dem Objekt zugeordneten, Attribute und optional ihre Geometrie. Auf diese Weise kann z. B. automatisiert ermittelt werden, in welchem Landkreis ein übergebenes Objekt liegt.
 
 Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach.
 
-### Wichtige Funktionalitäten
+## Wesentliche Funktionalitäten
+
 - Allgemeine Interoperabilität und Schnittstellenarchitektur
 - Grundlegende Unterstützung für verschiedene Datenbanken
-- Intergrierte Docker - Bereitstellung
+- Intergrierte Docker-Bereitstellung
 - Integrierte Swagger UI-Dokumentation
 - Fokus auf Performance
 - Einfache und anpassbare Datenquellenkonfiguration
-- Unterstützung von GeoJSON und EsriJSON als Eingabe und Transformstion in das jeweils andere Format
+- Unterstützung von GeoJSON und EsriJSON als Ein- und Ausgabe und Transformation in das jeweils andere Format
 - beliebige KRS-Wahl
 - Rückgabe der getroffenen Geometrie möglich
 - Unterstützung von Rasterdaten auch als Tile Set
 - Unit- und E2E-Tests
 
-### Vorgefertigte Schnittstellen (räumliche Tests)
-- within
-- intersect
-- nearest-neighbour
-- valuesAtPoint
-- transform
+## Schnittstellen
+
+- [within](documentation/within.md)
+- [intersect](documentation/intersect.md)
+- [nearest-neighbour](documentation/neighbour.md)
+- [valuesAtPoint](documentation/valuesAtPoint.md)
+- [transform](documentation/transform.md)
 - health
 
-## Nutzer- und Entwicklerbereich
+# Nutzer- und Entwicklerbereich
 
-Bitte schauen sie für die umfangreiche Installations- und Entwicklungsanweisungen in folgenden Bereichen:
+Bitte schauen Sie für umfangreiche Installations- und Entwicklungshinweise in folgenden Bereichen:
 
-[Installationsanweisung](./README-development.md#installation-and-debugging)
+[Installationshinweise](./README.development.md#installation-and-debugging)
 
-[Möglichkeiten der Mitentwicklung](./README-development.md#contribution)
+[Möglichkeiten der Mitentwicklung](./README.development.md#contribution)
 
-## Lizenz
-GPL 
+# Lizenz
 
-## Kontakt
+GPL v3
 
-Dieses Projekt wurde vom Landesamt für Geobasisinformation Sachsen und con terra GmbH entwickelt.
+# Kontakt
 
-Verantwortlicher: Sebe Weiß
+Dieses Projekt wurde vom Landesamt für Geobasisinformation Sachsen (GeoSN) und con terra GmbH entwickelt.
 
-Email: servicedesk@geosn.sachsen.de 
+Verantwortlicher: Sebe Weiß (GeoSN)
+
+E-Mail: servicedesk@geosn.sachsen.de
