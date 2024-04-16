@@ -24,7 +24,7 @@
     {
       "identifiers": ["sn_kreis", "kreis"],
       "title": "Landkreise/Kreise",
-      "description": "Landkreise und kreisfreie Städe in Sachsen.",
+      "description": "Landkreise und kreisfreie Städte in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "spatialyzer_demo.verw_kreis_f",
