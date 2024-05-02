@@ -142,6 +142,24 @@ export class GeneralService {
     }
   }
 
+  getAllTopicsInformation(): topicDefinitionOutside[] {
+    const allTopics: topicDefinitionOutside[] = [];
+
+    // Go through all topics and add them to the results list
+    Object.values(this.methodeTopicSupport).forEach((topics) => {
+      allTopics.push(...topics);
+    });
+
+    // Error handling when no topics are found
+    if (allTopics.length === 0) {
+      throw new HttpException(
+        'No topics found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return allTopics;
+  }
+
   getTopicsInformationForOutsideSpecific(
     methode: keyof SupportedTopics,
   ): topicDefinitionOutside[] {
@@ -167,6 +185,7 @@ export class GeneralService {
         identifiers: t.identifiers,
         title: t.title,
         description: t.description,
+        supports: t.__supports__,
       } as topicDefinitionOutside;
 
       Object.entries(this.methodeTopicSupport).forEach(([key, value]) => {

@@ -9,6 +9,7 @@ import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.mo
 import { TransformModule } from './transform/transform.module';
 import { ValuesAtPointModule } from './values-at-point/values-at-point.module';
 import { WithinModule } from './within/within.module';
+import { TopicsModule } from './topics/topics.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { WithinModule } from './within/within.module';
     WithinModule,
     HealthModule,
     NearestNeighbourModule,
+    TopicsModule,
   ],
 })
 export class AppModule {}
