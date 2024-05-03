@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { TopicsService } from './topics.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { topicDefinitionOutside } from '../general/general.interface';
+import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
 
 @ApiTags('Topics')
 @Controller({
@@ -14,8 +15,8 @@ export class TopicsController {
   @ApiResponse({
     status: 200,
     description: 'Show all topics',
-    type: String,
-    isArray: false,
+    type: TopicDefinitonOutsideDto,
+    isArray: true,
   })
   @Get('topics')
   topic(): topicDefinitionOutside[] {
