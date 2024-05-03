@@ -143,20 +143,25 @@ export class GeneralService {
   }
 
   getAllTopicsInformation(): topicDefinitionOutside[] {
-    const allTopics: topicDefinitionOutside[] = [];
+    // Use a Set to avoid duplicates
+    const allTopicsSet: Set<topicDefinitionOutside> = new Set();
 
     // Go through all topics and add them to the results list
     Object.values(this.methodeTopicSupport).forEach((topics) => {
-      allTopics.push(...topics);
+      topics.forEach((topic: topicDefinitionOutside) => {
+        allTopicsSet.add(topic);
+      });
     });
 
     // Error handling when no topics are found
-    if (allTopics.length === 0) {
+    if (allTopicsSet.size === 0) {
       throw new HttpException(
         'No topics found',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    const allTopics: topicDefinitionOutside[] = Array.from(allTopicsSet);
     return allTopics;
   }
 
