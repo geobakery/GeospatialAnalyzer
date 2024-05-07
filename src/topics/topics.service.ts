@@ -1,30 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, SelectQueryBuilder } from 'typeorm';
-import { ParameterDto } from '../general/dto/parameter.dto';
 import { topicDefinitionOutside } from '../general/general.interface';
-import {
-  GeneralService,
-  GeospatialLogicalRequest,
-  GeospatialResultEntity,
-} from '../general/general.service';
-import { GeospatialService } from '../general/geospatial.service';
-import { TransformService } from '../transform/transform.service';
+import { GeneralService } from '../general/general.service';
 
 @Injectable()
-export class TopicsService extends GeospatialService<ParameterDto> {
-  protected override handleLogicalRequest(
-    queryBuilder: SelectQueryBuilder<GeospatialResultEntity>,
-    logicalRequest: GeospatialLogicalRequest,
-    request: ParameterDto,
-  ): void {
-    throw new Error('Method not implemented.');
-  }
-  constructor(
-    dataSource: DataSource,
-    generalService: GeneralService,
-    transformService: TransformService,
-  ) {
-    super(dataSource, generalService, transformService);
+export class TopicsService {
+  private generalService: GeneralService;
+  constructor(generalService: GeneralService) {
+    this.generalService = generalService;
   }
 
   getTopics(): topicDefinitionOutside[] {
