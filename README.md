@@ -41,10 +41,10 @@ For more information have a look in the documentation.
 
 # Prerequisites
 
-You need `node.js` v16 or higher installed on your machine.
-For example, you can run following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
-You also need `pnpm` as package manager. Check the installation [guide](https://pnpm.io/installation).
-You need a database connection, as described in the next section.
+![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
 
 # User- and Developer-Area
 
