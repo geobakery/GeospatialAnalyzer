@@ -48,6 +48,9 @@ this is the REST inspired HTML interface for geospatial analysis
 ## Github
 Visit us on GitHub: [GeospatialAnalyzer](https://github.com/geobakery)
 
+## topic.json special feature
+If you want to use more than one database, your able to use "__multipleSources__" to list them in your topic.json file.
+
 ```
 
 

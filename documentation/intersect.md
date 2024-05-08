@@ -1,6 +1,9 @@
 # Intersect - API Call
 In this document, we will describe important and good-to-know facts about the intersection service
 
+## Functionality
+Returns all features that are touched by the transferred geometries. 
+
 ## Examples
 Post-call http://localhost:3000/v1/intersect with JSON body: 
 

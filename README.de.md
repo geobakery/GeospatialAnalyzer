@@ -23,8 +23,9 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 - Integrierte Swagger UI-Dokumentation
 - Fokus auf Performance
 - Einfache und anpassbare Datenquellenkonfiguration
-- Unterstützung von GeoJSON und EsriJSON als Ein- und Ausgabe und Transformation in das jeweils andere Format
-- beliebige KRS-Wahl
+- Unterstützung von GeoJSON und EsriJSON als Ein- und Ausgabe 
+- Transformation in das jeweils andere Format
+- Beliebige KRS-Wahl
 - Rückgabe der getroffenen Geometrie möglich
 - Unterstützung von Rasterdaten auch als Tile Set
 - Unit- und E2E-Tests

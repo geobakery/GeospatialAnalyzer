@@ -2,6 +2,9 @@
 
 In this document, we will describe important and good-to-know facts about the transform service
 
+## Functionality
+Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code and vice versa.
+
 ## Examples (GeoJSON to EsriJSON)
 
 Post-call http://localhost:3000/v1/transformGeoJSONToEsriJSON with JSON body:

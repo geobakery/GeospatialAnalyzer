@@ -6,8 +6,9 @@
 
 You need `node.js` v16 or higher installed on your machine.
 For example, you can run following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
-You also need `pnpm` as package manager. Check the installation [guide](https://pnpm.io/installation).
-You need a database connection, as described in the next section.
+You also need `pnpm` as package manager. Check the [installation guide](https://pnpm.io/installation).
+You need a database connection, as described in the section after next.
+If you want to use docker to run this project, you need an installed and _running_ docker service. More Information can be found [some sections below](#docker).
 
 ## Configuration
 
@@ -75,7 +76,7 @@ Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hell
 
 Navigate to [http://localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
 
-Navigate to [http://localhost:3000/api](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
+Navigate to [http://localhost:3000/api-json](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
 
 ## Test
 
@@ -141,7 +142,7 @@ docker compose -f docker-compose-prod.yml up --build
 
 If you update your `package.json`, change your docker files, or other problems that lead to a problematic
 start of your docker container; do following: \
-(<b> Beware this will delete all manuell added database data </b>)
+(<b> Beware this will delete all manually added database data </b>)
 
 ```bash
 docker compose down -v
@@ -204,7 +205,7 @@ On most IDE's a click on the address will start a debugger automatically.
 Debug view in IDE: \
 <img src="documentation/images/debug_view_ide.png" alt="Debug view"/>
 
-In your web browser, visit http://localhost:3000/api. Here you can use the "try it out" Swagger function to execute the
+In your web browser, visit [http://localhost:3000/api](http://localhost:3000/api). Here you can use the "try it out" Swagger function to execute the
 REST-API.
 
 Swagger UI: \
@@ -230,6 +231,4 @@ Please note the retention of the license for further development.
 
 ## License
 
-GPL v3
-
-[Jump to the top of the page](#installation-and-debugging)
+[GPL v3](./LICENSE)

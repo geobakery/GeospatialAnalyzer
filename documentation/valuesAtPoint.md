@@ -1,6 +1,9 @@
 # ValuesAtPoint - API Call
 In this document, we will describe important and good-to-know facts about the valuesAtPoint service
 
+## Functionality
+Returns the values at the transferred point.
+
 ## Examples
 Post-call http://localhost:3000/v1/valuesAtPoint with JSON body: 
 
