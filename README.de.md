@@ -37,12 +37,15 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 - [nearest-neighbour](documentation/neighbour.md)
 - [valuesAtPoint](documentation/valuesAtPoint.md)
 - [transform](documentation/transform.md)
-- health
+- [health](documentation/health.md)
+- [topics](documentation/topics.md)
 
-# wichtigste Voraussetzungen
+# Wichtigste Voraussetzungen
 
 ![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)
-![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![NodeJS](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)
+
+oder  
 ![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 # Nutzer- und Entwicklerbereich

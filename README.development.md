@@ -227,6 +227,15 @@ Also you can call the rest API on your common way as long as you connected to th
 
 ## What you need to consider for co-development
 
+Thank you for considering contributing to our project! We appreciate your help in making it better!
+
+(1) Create a new branch for your feature or bug fix.
+(2) Make your changes an ensure they adhere to the project's coding style.
+(3) Commit your changes using Semantic Commit Messages to endure clear and consistent commit history.
+(4) Push your branch to your forked repository.
+(5) Submit a pull request to the main branch, including a clear description of your changes.
+
+
 Please note the retention of the license for further development.
 
 ## License
