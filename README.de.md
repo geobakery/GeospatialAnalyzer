@@ -40,10 +40,12 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 - [health](documentation/health.md)
 - [topics](documentation/topics.md)
 
-# Wichtigste Voraussetzungen
+# Voraussetzungen
 
 ![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)
 ![NodeJS](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)
+
+![Datenbank](https://img.shields.io/badge/Datenbank-%23000000.svg?style=for-the-badge&logoColor=white)
 
 oder  
 ![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
@@ -58,7 +60,7 @@ Bitte schauen Sie für umfangreiche Installations- und Entwicklungshinweise in f
 
 # Lizenz
 
-GPL v3
+[GPL v3](./LICENSE)
 
 # Kontakt
 

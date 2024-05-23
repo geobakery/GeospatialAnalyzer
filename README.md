@@ -18,20 +18,21 @@ For more information have a look in the documentation.
 ## Get Started
 
 (1) Clone the repository 
-> git clone https://github.com/geobakery/GeospatialAnalyzer.git cd GeospatialAnalyzer
+> git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
 
 (2) Install the dependencies
 > pnpm install
 
 (3) Configure your env.dev and topic.json 
 
-(4) Enable a database connection and configuration
+(4) Provide a database connection and the required configuration
 
 (5) Start development server
 > pnpm run dev
 
-(6) Run application with 
-> http://localhost:3000
+(6) Open 
+> http://localhost:3000/api
+to show the SwaggerUI
 
 ## Key features
 

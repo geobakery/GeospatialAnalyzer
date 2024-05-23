@@ -8,7 +8,7 @@ releaseDate: "" #TODO
 
 softwareVersion: "1.0"
 
-platforms: web #TODO its the only truth? possible choices:  [web, windows, mac, linux, ios, android]
+platforms: web, windows, mac, linux
 
 categories: 
   - geographic-information-systems

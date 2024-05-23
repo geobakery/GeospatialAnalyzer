@@ -72,8 +72,6 @@ $ pnpm run start:prod
 
 ## Browser
 
-Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.
-
 Navigate to [http://localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
 
 Navigate to [http://localhost:3000/api-json](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
@@ -229,9 +227,9 @@ Also you can call the rest API on your common way as long as you connected to th
 
 Thank you for considering contributing to our project! We appreciate your help in making it better!
 
-(1) Create a new branch for your feature or bug fix.
+(1) Clone the repository and create a new branch for your feature or bug fix.
 (2) Make your changes an ensure they adhere to the project's coding style.
-(3) Commit your changes using Semantic Commit Messages to endure clear and consistent commit history.
+(3) Commit your changes with a informative summary and description.
 (4) Push your branch to your forked repository.
 (5) Submit a pull request to the main branch, including a clear description of your changes.
 
