@@ -19,7 +19,7 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 
 - Allgemeine Interoperabilität und Schnittstellenarchitektur
 - Grundlegende Unterstützung für verschiedene Datenbanken
-- Intergrierte Docker-Bereitstellung
+- Integrierte Docker-Bereitstellung
 - Integrierte Swagger UI-Dokumentation
 - Fokus auf Performance
 - Einfache und anpassbare Datenquellenkonfiguration
