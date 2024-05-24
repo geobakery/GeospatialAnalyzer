@@ -15,24 +15,7 @@ The response contains attributes of the objects found and optionally their geome
 
 For more information have a look in the documentation.
 
-## Get Started
 
-(1) Clone the repository 
-> git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
-
-(2) Install the dependencies
-> pnpm install
-
-(3) Configure your env.dev and topic.json 
-
-(4) Provide a database connection and the required configuration
-
-(5) Start development server
-> pnpm run dev
-
-(6) Open 
-> http://localhost:3000/api
-to show the SwaggerUI
 
 ## Key features
 
@@ -60,13 +43,41 @@ to show the SwaggerUI
 - [topics](documentation/topics.md)
 
 # Prerequisites
+[![NodeJS](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
 
 [![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/installation)
-[![NodeJS](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
+
+![Datenbank](https://img.shields.io/badge/Datenbank-%23000000.svg?style=for-the-badge&logoColor=white)
 
 or
 [![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/get-docker/)
 
+## Get Started
+
+(1) Clone the repository 
+```
+git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
+```
+
+(2) Install the dependencies
+```
+ pnpm install
+ ```
+
+(3) Configure your env.dev and topic.json 
+
+(4) Provide a database connection and the required configuration
+
+(5) Start development server
+```
+ pnpm run dev
+ ```
+
+(6) Open 
+```
+ http://localhost:3000/api
+ ```
+to show the SwaggerUI
 
 # User- and Developer-Area
 

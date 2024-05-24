@@ -35,7 +35,7 @@ maintenance:
   type: "community" #TODO Klären, ob  ["internal", "community", "none"]
   contacts: 
       name: Sebe Weiß
-      email: "Sebe.Weiß@geosn.sachsen.de"
+      email: "servicedesk@geosn.sachsen.de"
       affiliation: Landesamt für Geobasisinformation Sachsen (GeoSN)
 
 localisation:
