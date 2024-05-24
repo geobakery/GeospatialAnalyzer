@@ -33,6 +33,8 @@ import {
 
 @Injectable()
 export class GeneralService {
+  private uniqueTopicsMap: Map<string, topicDefinitionOutside> = new Map();
+
   adapter: DbAdapterService = this.getDbAdapter();
   topicsArray: string[] = [];
   identifierSourceMap: Map<string, Source> = new Map<string, Source>();
@@ -142,6 +144,19 @@ export class GeneralService {
     }
   }
 
+  getAllTopicsInformation(): topicDefinitionOutside[] {
+    const allTopics = Array.from(this.uniqueTopicsMap.values());
+
+    if (allTopics.length === 0) {
+      throw new HttpException(
+        'No topics found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return allTopics;
+  }
+
   getTopicsInformationForOutsideSpecific(
     methode: keyof SupportedTopics,
   ): topicDefinitionOutside[] {
@@ -167,7 +182,12 @@ export class GeneralService {
         identifiers: t.identifiers,
         title: t.title,
         description: t.description,
+        supports: t.__supports__,
       } as topicDefinitionOutside;
+
+      if (!this.uniqueTopicsMap.has(t.title)) {
+        this.uniqueTopicsMap.set(t.title, definition);
+      }
 
       Object.entries(this.methodeTopicSupport).forEach(([key, value]) => {
         if (!t.__supports__.length) {
