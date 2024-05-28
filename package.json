@@ -1,10 +1,10 @@
 {
-  "name": "analysis-interface",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "geospatialanalyzer",
+  "version": "1.0.0",
+  "description": "GeospatialAnalyzer HTTP-API",
+  "author": "Landesamt für Geobasisinformation Sachsen (GeoSN) and con terra GmbH",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "GPL-3.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
