@@ -5,26 +5,28 @@
 ## Prerequisites
 
 You need `node.js` v16 or higher installed on your machine.
-For example, you can run following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
-You also need `pnpm` as package manager. Check the [installation guide](https://pnpm.io/installation).
+For example, you can run the following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
+You also need `pnpm` as package manager. Check out the [installation guide](https://pnpm.io/installation).
 You need a database connection, as described in the section after next.
 If you want to use docker to run this project, you need an installed and _running_ docker service. More Information can be found [some sections below](#docker).
 
 ## Configuration
 
-The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default config params.
+The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default configuration params.
 
-Additional you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
+Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
 The topic.json is added to the `.gitignore` to save your personal data conventions.
+
+Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
 ## Database
 
-You need an accessible database connection for querying the testdata. For the first version, a Postgres (v15) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.  
-The database itself can be set up by three different approaches:
+You need an accessible database connection for querying the test data. For the first version, a Postgres (v15) database with the PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.  
+The database itself can be set up using three different approaches:
 
-- Set up a database by your own. Follow one of Step-By-Step tutorials for the initial configuration.
-  - Please ensure that the database is accessible by your host. Do not forget to add needed params to the `postgresql.conf` and `pg_hba.conf`
-  - Do also not forget to install the PostGIS extension:
+- Set up a database on your own. Follow one of the step-by-step tutorials for the initial configuration.
+  - Please ensure that the database is accessible by your host. Do not forget to add needed params to `postgresql.conf` and `pg_hba.conf`
+  - Do not forget to install the PostGIS extension:
     ```
     create extension postgis;
     ```
@@ -50,7 +52,7 @@ $ pnpm install
 
 ## Running the app
 
-Run one of the following command to start the service. The current scripts and params are defined in the `package.json` file.
+Run one of the following commands to start the service. The current scripts and parameters are defined in the `package.json` file.
 
 Compile and run the service:
 
@@ -92,13 +94,13 @@ $ pnpm run test:cov
 ## Docker
 
 It is possible to run and develop this project with Docker. The docker file will create an instance of the analysis-interface,
-a postgres database with postgis and some example data will be available. To comfortably check the database state, pgAdmin4 is included.
+a PostgreSQL database with PostGIS and some example data will be available. To comfortably check the database state, pgAdmin4 is included.
 
 ### Docker Prerequisite
 
 You need an installed and _running_ docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
 
-You need to update following lines in your `.env` or `.env.dev` file:
+You need to update the following lines in your `.env` or `.env.dev` file:
 
 ```bash
 db_postgres_host: db
@@ -117,7 +119,7 @@ Then just run:
 docker compose up
 ```
 
-3 container (Nest, Postgres, PgAdmin4) will be created.
+Three containers (Nest, Postgres, PgAdmin4) will be created.
 Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
@@ -138,8 +140,8 @@ docker compose -f docker-compose-prod.yml up --build
 
 ### Troubleshooting
 
-If you update your `package.json`, change your docker files, or other problems that lead to a problematic
-start of your docker container; do following: \
+If you update your `package.json`, change your docker files, or have other problems that lead to a problematic
+start of your docker container; do the following: \
 (<b> Beware this will delete all manually added database data </b>)
 
 ```bash
@@ -153,14 +155,14 @@ docker compose up --build
 /bin/bash^M: bad interpreter: No such file or directory
 ```
 
-check the corresponding file, e.g. `pg_restore.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
-a linux system. Specially for the database, other line ending can lead to execution errors :)
+Check the corresponding file, e.g. `pg_restore.sh` and ensure that your IDE sets the line ending to `LF`. This is necessary, because our docker container uses
+a Linux system. Especially for the database, other line ending can lead to execution errors :)
 
 ---
 
 `ERROR [TypeOrmModule] Unable to connect to the database. Retrying (1)...`
 
-Assure that you have edited your `.env` files. These files are synchronised, but are only read at the start of the application.
+Assure that you have edited your `.env` files. These files are synchronized, but are only read at the start of the application.
 Therefore, you need to restart the container with `docker compose up`.
 
 ## PgAdmin4
@@ -171,7 +173,7 @@ The credentials are:
 User=admin@admin.com
 Password=pgadmin4
 
-To add your local docker database :
+To add to your local docker database :
 
 - In the left-hand sidebar, click Servers to expand the Servers menu.
 - Right-click on Servers and select Register -> Server.
@@ -192,7 +194,7 @@ run:
 pnpm run start:debug
 ```
 
-You will see following lines in your IDE:
+You will see the following lines in your IDE:
 
 Debug start: \
 <img src="documentation/images/debug_start.png" alt="Debug start"/>
@@ -211,7 +213,7 @@ Swagger UI: \
 
 Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools.
 
-Nodejs dev tools: \
+Node.js dev tools: \
 <img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
 
 In the sources tab you can navigate to the TypeScript source files to set breakpoints and debug like you are used to.
@@ -219,7 +221,7 @@ Note: The JavaScript that is actually run is in the `dist` folder but thanks to 
 
 <img src="documentation/images/devTools_debug_sourceMap.png" alt="Dev tools TypeScript"/>
 
-Also you can call the rest API on your common way as long as you connected to the nodejs-dev tools.
+Also you can call the rest API on your common way as long as you are connected to the node.js-dev tools.
 
 # Contribution
 
