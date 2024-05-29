@@ -21,7 +21,7 @@ Optionally you can set a `swagger-descprition.md` to be shown on your Swagger Op
 
 ## Database
 
-You need an accessible database connection for querying the test data. For the first version, a Postgres (v15) database with the PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.  
+You need an accessible database connection for querying the test data. For the first version, a PostgreSQL (v15) database with the PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.  
 The database itself can be set up using three different approaches:
 
 - Set up a database on your own. Follow one of the step-by-step tutorials for the initial configuration.
@@ -74,9 +74,9 @@ $ pnpm run start:prod
 
 ## Browser
 
-Navigate to [http://localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
+Navigate to [http://localhost:3000/api](http://localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
 
-Navigate to [http://localhost:3000/api-json](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
+Navigate to [http://localhost:3000/api-json](http://localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
 
 ## Test
 
@@ -119,8 +119,7 @@ Then just run:
 docker compose up
 ```
 
-Three containers (Nest, Postgres, PgAdmin4) will be created.
-Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.
+Three containers (NestJS, PostgreSQL, PgAdmin4) will be created.
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 
@@ -167,7 +166,7 @@ Therefore, you need to restart the container with `docker compose up`.
 
 ## PgAdmin4
 
-Navigate to [http://localhost:5050](localhost:5050) to check out PgAdmin4.
+Navigate to [http://localhost:5050](http://localhost:5050) to check out PgAdmin4.
 
 The credentials are:
 User=admin@admin.com
@@ -211,10 +210,10 @@ REST-API.
 Swagger UI: \
 <img src="documentation/images/swagger_debug.png" alt="Swagger debug"/>
 
-Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools.
+Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the NodeJS dev tools.
 
 Node.js dev tools: \
-<img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
+<img src="documentation/images/devTools_debug.png" alt="Dev tools NodeJS"/>
 
 In the sources tab you can navigate to the TypeScript source files to set breakpoints and debug like you are used to.
 Note: The JavaScript that is actually run is in the `dist` folder but thanks to source maps we can work with the TypeScript files.
