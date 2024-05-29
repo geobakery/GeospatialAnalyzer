@@ -4,18 +4,18 @@
 
 ## Prerequisites
 
-You need `node.js` v16 or higher installed on your machine.
+You need `Node.js` v16 or higher installed on your machine.
 For example, you can run the following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
 You also need `pnpm` as package manager. Check out the [installation guide](https://pnpm.io/installation).
 You need a database connection, as described in the section after next.
-If you want to use docker to run this project, you need an installed and _running_ docker service. More Information can be found [some sections below](#docker).
+If you want to use docker to run this project, you need an installed and _running_ docker service. More Information can be found in [section _Docker_](#docker).
 
 ## Configuration
 
-The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default configuration params.
+The project uses the `.env` or the `.env.dev` file for configuring your instance. For local development, use the `.env.dev` (added to `.gitignore` by default), which overwrites the default configuration params.
 
 Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
-The topic.json is added to the `.gitignore` to save your personal data conventions.
+The topic.json is added to the `.gitignore` to save your personal credentials.
 
 Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
@@ -210,17 +210,17 @@ REST-API.
 Swagger UI: \
 <img src="documentation/images/swagger_debug.png" alt="Swagger debug"/>
 
-Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the NodeJS dev tools.
+Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Node.js dev tools.
 
 Node.js dev tools: \
-<img src="documentation/images/devTools_debug.png" alt="Dev tools NodeJS"/>
+<img src="documentation/images/devTools_debug.png" alt="Dev tools Node.js"/>
 
 In the sources tab you can navigate to the TypeScript source files to set breakpoints and debug like you are used to.
 Note: The JavaScript that is actually run is in the `dist` folder but thanks to source maps we can work with the TypeScript files.
 
 <img src="documentation/images/devTools_debug_sourceMap.png" alt="Dev tools TypeScript"/>
 
-Also you can call the rest API on your common way as long as you are connected to the node.js-dev tools.
+Also you can call the rest API on your common way as long as you are connected to the Node.js-dev tools.
 
 # Contribution
 
@@ -230,13 +230,13 @@ Thank you for considering contributing to our project! We appreciate your help i
 
 (1) Clone the repository and create a new branch for your feature or bug fix.
 
-(2) Make your changes an ensure they adhere to the project's coding style.
+(2) Make your changes and ensure they adhere to the project's coding style.
 
-(3) Commit your changes with a informative summary and description.
+(3) Commit your changes with an informative summary and description.
 
 (4) Push your branch to your forked repository.
 
-(5) Submit a pull request to the main branch, including a clear description of your changes.
+(5) Submit a pull request to the main branch, with a clear description of your changes.
 
 
 Please note the retention of the license for further development.

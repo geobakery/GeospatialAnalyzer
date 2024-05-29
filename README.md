@@ -1,4 +1,4 @@
-[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)t
 [![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
 
@@ -19,18 +19,21 @@ For more information have a look in the documentation.
 
 ## Key features
 
+- Returns the attributes of the objects, which passed the query
+- Optionally have the geometries in the response
+- Support GeoJSON and EsriJSON as input and output 
+- Transformation into the other format
+- Support for different CRS
+- Support raster data also as tile set
+- Unit- and E2E-Tests
+- Modular codedesign
 - Generic interoperability and interface architecture
 - Fundamental support for several databases
 - Built-in Docker deployment capability
 - Integrated Swagger UI documentation
 - Focus on performance
 - Simple and customizable datasource configuration
-- Support GeoJSON and EsriJSON as input and output 
-- Transformation into the other format
-- Support for different CRS
-- Support raster data also as tile set
-- It is possible to return the geometry
-- Unit- and E2E-Tests
+
 
 ## Interfaces
 
@@ -43,7 +46,7 @@ For more information have a look in the documentation.
 - [topics](documentation/topics.md)
 
 # Prerequisites
-[![NodeJS](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
+[![Node.js](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
 
 [![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/installation)
 
