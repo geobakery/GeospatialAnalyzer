@@ -4,7 +4,7 @@
 
 # GeospatialAnalyzer
 
-This is an Open-Source-Project from Landesamt für Geobasisinformation Sachsen (GeoSN) with friendly development support from con terra GmbH.
+This is an Open-Source-Project from Landesamt für Geobasisinformation Sachsen (GeoSN) with development support from con terra GmbH.
 
 GeospatialAnalyzer is a Node.js based HTTP-API using NestJS, TypeORM, fastify, OpenAPI, Swagger and more.
 
