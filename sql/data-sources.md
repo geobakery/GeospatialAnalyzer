@@ -19,6 +19,10 @@ Data set "Trinkwasserschutzgebiete Fließgewässer" [DL-DE->BY-2.0](https://geom
 
 Data set "Trinkwasserschutzgebiete Grundwasserfassung" [DL-DE->BY-2.0](https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/3bdd3c3e-3cf8-4a34-9b6e-7600fe532074)
 
+Data set "Trinkwasserschutzgebiete Talsperren" [DL-DE->BY-2.0](https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/6f021771-ad1c-4267-834a-49774b1414da)
+
+Data set "Heilquellenschutzgebiete" [DL-DE->BY-2.0](https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/3bdd3c3e-3cf8-4a34-9b6e-7600fe532074)
+
 Data set "Biosphärenreservate" [DL-DE->BY-2.0](https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/8c6087be-1dba-4fb6-beb3-be6e035e42cc)
 
 Data set "Naturparke" [DL-DE->BY-2.0](https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/73020aaa-63b6-4d0d-abfd-54c4d4bc99da)
