@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiExtraModels,
+  ApiOperation,
   ApiResponse,
   ApiTags,
   getSchemaPath,
@@ -34,6 +35,9 @@ export class NearestNeighbourController {
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
+  @ApiOperation({
+    summary: 'Outputs all the possible nearestNeighbour topics',
+  })
   @Get('nearestNeighbour/topics')
   topic(): topicDefinitionOutside[] {
     return this.nearestNeighbourService.getTopics();
@@ -63,6 +67,10 @@ export class NearestNeighbourController {
     status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      ' Return all features that are within a certain distance of the transferred geometries (see maxDistanceToNeighbour). The number of features can be limited using the count parameter.',
+  })
   @Post('nearestNeighbour')
   async nearestNeighbour(
     @Body() args: NearestNeighbourParameterDto,

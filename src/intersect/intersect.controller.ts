@@ -4,7 +4,9 @@ import {
   ApiExtraModels,
   ApiResponse,
   ApiTags,
+  ApiHeader,
   getSchemaPath,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
@@ -18,6 +20,10 @@ import { topicDefinitionOutside } from '../general/general.interface';
 import { IntersectService } from './intersect.service';
 
 @ApiTags('Intersect')
+@ApiHeader({
+  name: 'intersect',
+  description: 'test',
+})
 @Controller({
   version: '1',
 })
@@ -32,6 +38,7 @@ export class IntersectController {
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
+  @ApiOperation({ summary: ' Outputs all the possible intersect topics' })
   @Get('intersect/topics')
   topic(): topicDefinitionOutside[] {
     return this.intersectService.getTopics();
@@ -61,6 +68,10 @@ export class IntersectController {
     status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      ' Return all features that are touched by the transferred geometries',
+  })
   @Post('intersect')
   async intersect(
     @Body() args: IntersectParameterDto,

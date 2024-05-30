@@ -1,205 +1,104 @@
-## Prerequisites
-You need `node.js` with version v16 or higher installed on your machine.
-For example, you can run following [guide](https://learn.microsoft.com/de-de/windows/dev-environment/javascript/nodejs-on-windows) for windows.
-You also need `pnpm` as package manager. Check the installation [guide](https://pnpm.io/installation)
-You need a database connection, as described in the next section
+[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
+[![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
-## Configuration
-The project uses the `.env`, respectively the `env.dev` file for configuring your instance. For local development, use the `env.dev` (added to `.gitignore` by default), which overwrites the default config params. 
 
-Additional you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
-The topic.json is added to the `.gitignore` to save your personal data conventions.
+# GeospatialAnalyzer
 
-Optional you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you dont want to create an own, the example swagger description markdown file will be used to generate ths file.
+This is an Open-Source-Project from Landesamt für Geobasisinformation Sachsen (GeoSN) with development support from con terra GmbH.
 
-## Database
-You need an accessible database connection for querying the testdata. For the first version, a Postgres (v15) database with PostGIS extension is used. Sample data is stored in the `sql\data` dump and must be imported into your local database for testing.   
-The database itself can be set up by three different approaches:
-* Set up a database by your own. Follow one of Step-By-Step tutorials for the initial configuration. 
-  * Please ensure that the database is accessible by your host. Do not forget to add needed params to the `postgresql.conf` and `pg_hba.conf`
-  * Do also not forget to install the PostGIS extension:
-    ```
-    create extension postgis;
-    ```
-    And if you have problems with missing type 'raster':
-     ```
-    create extension postgis_raster;
-    ```
-  * Use psql, pg_restore, pgadmin or any other PostgreSQL client for importing the testdata data dump.
-* You can also check the [installation guide](/documentation/postgresql-without-install.md) for setting up and PostgreSQL instance for missing administrator rights. Guide provides an easy step-by-step instructions for setting up the needed environment.
-* Use the provided docker environment, which will create the needed database + extension + testdata automatically.
+GeospatialAnalyzer is a Node.js based HTTP-API using NestJS, TypeORM, fastify, OpenAPI, Swagger and more.
 
-### Add new database support
-If you want to support another database, read more in [Database support](/documentation/database-support.md)  
+The API can be integrated into different data processing and information systems, such as applications and specialised procedures.
 
-## Installation
-Run the following in your shell. Command will download and install all needed dependencies and packages.
+It enables the transfer of geo-objects in the form of coordinates to check them against certain data topics using spatial tests.
+The response contains attributes of the objects found and optionally their geometry. In this way its possible to automatically determine, for example, in which district or on which parcel a transferred object is located.
 
-```bash
-$ pnpm install
+For more information have a look in the documentation.
+
+
+
+## Key features
+
+- Returns the attributes of the objects, which passed the query
+- Optionally have the geometries in the response
+- Support GeoJSON and EsriJSON as input and output 
+- Transformation into the other format
+- Support for different CRS
+- Support raster data also as tile set
+- Unit- and E2E-Tests
+- Modular codedesign
+- Generic interoperability and interface architecture
+- Fundamental support for several databases
+- Built-in Docker deployment capability
+- Integrated Swagger UI documentation
+- Focus on performance
+- Simple and customizable datasource configuration
+
+
+## Interfaces
+
+- [within](documentation/within.md)
+- [intersect](documentation/intersect.md)
+- [nearest-neighbour](documentation/neighbour.md)
+- [valuesAtPoint](documentation/valuesAtPoint.md)
+- [transform](documentation/transform.md)
+- [health](documentation/health.md)
+- [topics](documentation/topics.md)
+
+# Prerequisites
+[![Node.js](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
+
+[![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/installation)
+
+[![Database](https://img.shields.io/badge/Database-%23000000.svg?style=for-the-badge&logoColor=white)](./README.development.md#database)
+
+or
+
+[![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/get-docker/)
+
+## Get Started
+
+(1) Clone the repository 
+```
+git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
 ```
 
-## Running the app
-Run one of the following command to start the service.  The actual scripts and params are defined in the `package.json` file.
-
-Compile and run the service:
-```bash
-$ pnpm run start
+(2) Install the dependencies
 ```
-Start the service in ``watch mode`` (more information [here](https://docs.nestjs.com/cli/usages#nest-start)), which adds live-reload and debugging  functionalities. For more information about debugging check the corresponding section.
-```bash
-$ pnpm run start:dev
+ pnpm install
+ ```
+
+(3) Configure your env.dev and topic.json 
+
+(4) Provide a database connection and the required configuration
+
+(5) Start server
 ```
+ pnpm run start
+ ```
 
-Compile the service for production usage. This does NOT start the actual service.
-```bash
-$ pnpm run start:prod
+(6) Open 
 ```
+ http://localhost:3000/api
+ ```
+to show the SwaggerUI
 
-## Debugging
+# User- and Developer-Area
 
+Please have a look at our comprehensive section for more information on how to install and contribute to this project.
 
-## Browser
-Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.
+[Installation guide](./README.development.md#prerequisites)
 
-Navigate to [http://localhost:3000/api](localhost:3000/api) to check out the SwaggerUI OpenAPI documentation.
+[Informations for contributors](./README.development.md#contribution)
 
-Navigate to [http://localhost:3000/api](localhost:3000/api-json) to check out the SwaggerUI OpenAPI documentation in json formate.
+# License
 
-## Test
+[GPL v3](./LICENSE)
 
-```bash
-# unit tests
-$ pnpm run test
+# Contact
 
-# e2e tests
-$ pnpm run test:e2e
+This project was developed by Landesamt für Geobasisinformation Sachsen (GeoSN) and con terra GmbH.
 
-# test coverage
-$ pnpm run test:cov
-```
+Responsible person: Sebe Weiß (GeoSN)
 
-## Docker
-It is possible to run and develop this project with Docker. The docker file will create an instance of the analysis-interface,
-a postgres database with postgis and some example data will be available. To comfortably check the database state, pgAdmin4 is included.
-
-### Prerequisite
-You need an installed and *running* docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
-
-You need to update following lines in your `.env` or `.env.dev` file:
-```bash
-db_postgres_host: db
-db_postgres_password: geobakery
-```
-This will asure that the database is taken from the docker network and not from your computer. By default, the name of the service becomes the hostname/address of the container within the Docker network.
-
-Assure that, you have created a `topic.json` file. Have a look at [Configuration](#configuration) for details
-
-### Run
-Then just run:
-```bash
-docker compose up
-```
-
-3 container (Nest, Postgres, PgAdmin4) will be created. \
-Navigate to [http://localhost:3000/v1](localhost:3000/v1) to check out the "Hello World" greeting.\
-
-Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
-
-### Dev / Prod container
-
-To ensure that you use, the developer container run:
-```bash
-docker compose -f docker-compose.yml up --build  
-```
-
-If you want to run the production build, call:
-
-```bash
-docker compose -f docker-compose-prod.yml up --build  
-```
-
-
-### Troubleshooting
-If you update your `package.json`, change your docker files, or other problems that lead to a problematic
-start of your docker container; do following: \
-(<b> Beware this will delete all manuell added database data </b>)
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
-### Common Errors
-
-```bash
-/bin/bash^M: bad interpreter: No such file or directory
-```
-check the corresponding file, e.g. `pg_restore.sh` and ensure that your IDE set the line ending to `LF`. This is necessary, because our docker container use
-a linux system. Specially for the database, other line ending can lead to execution errors :)
-
----
-`ERROR [TypeOrmModule] Unable to connect to the database. Retrying (1)...`
-
-Assure that you have edited your `.env` files. These files are synchronised, but are only read at the start of the application.
-Therefore, you need to restart the container with `docker compose up`.
-
-
-## PgAdmin4
-Navigate to [http://localhost:5050](localhost:5050) to check out PgAdmin4.
-
-The credentials are:\
-User=admin@admin.com\
-Password=pgadmin4
-
-To add your local docker database :
-
-- In the left-hand sidebar, click Servers to expand the Servers menu.
-- Right-click on Servers and select Register -> Server.
-- In the General tab of the Create - Server dialog, you can give the server a name of your choice.
-- In the Connection tab, fill in the following details:
-  - Host name/address: db
-  - Port: 5432
-  - Maintenance database: postgres
-  - Username: postgres
-  - Password: geobakery
-- Click Save to save the server configuration.
-
-## Debug
-
-run:
-```bash
-pnpm run start:debug
-```
-
-You will see following lines in your IDE:
-
-Debug start: \
-<img src="documentation/images/debug_start.png" alt="Debug start"/>
-
-You can connect to the given address (e.g.: ws://127.0.0.1:9229/xxx-xxx-xxx) with a debugger of your choice. 
-On most IDE's a click on the address will start a debugger automatically.
-
-Debug view in IDE: \
-<img src="documentation/images/debug_view_ide.png" alt="Debug view"/>
-
-In your web browser, visit http://localhost:3000/api. Here you can use the "try it out" Swagger function to execute the 
-REST-API.
-
-Swagger UI: \
-<img src="documentation/images/swagger_debug.png" alt="Swagger debug"/>
-
-Open the dev-tools (e.g. F12 on many browser) of your web browser and activate the Nodejs dev tools.
-
-Nodejs dev tools: \
-<img src="documentation/images/devTools_debug.png" alt="Dev tools Nodejs"/>
-
-In the sources tab you can navigate to the TypeScript source files to set breakpoints and debug like you are used to.
-Note: The JavaScript that is actually run is in the `dist` folder but thanks to source maps we can work with the TypeScript files.
-
-<img src="documentation/images/devTools_debug_sourceMap.png" alt="Dev tools TypeScript"/>
-
-Also you can call the rest API on your common way as long as you connected to the nodejs-dev tools.
-
-## License
-GPL 
+E-Mail: servicedesk@geosn.sachsen.de

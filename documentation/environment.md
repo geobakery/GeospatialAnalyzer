@@ -1,5 +1,5 @@
 # Environment
-In this document, we will describe important and good-to-know facts about the basic environment.
+In this document we will describe important and good-to-know facts about the basic environment.
 
 ## Env files
 Consider the `.env` file template for your own `.env.dev`. The dev file will be ignored for git.
@@ -40,15 +40,7 @@ The `topic.json` contains all your relevant data, that you want to display and t
 ```
 
 ## Swagger description
-The swagger description in markdown `swagger-descprition.md` will be shown at your swagger OpenAPI page. 
+The swagger description in markdown `swagger-descprition.md` will be shown on your swagger OpenAPI page. 
 
-``` markdown
-this is the REST inspired HTML interface for geospatial analysis
-
-## Github
-Visit us on GitHub: [GeospatialAnalyzer](https://github.com/geobakery)
-
-```
-
-
-
+## Topic.json special feature
+If you want to use more than one database schema, your able to use "__multipleSources__" to list them in your topic.json file.

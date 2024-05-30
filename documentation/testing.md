@@ -1,13 +1,12 @@
 # Testing
-In this document, we will describe important and good-to-know facts about the testing options. 
-We will differ between "unit tests" and "End-to-End tests" (e2e). Unit tests focus on testing isolated single functions.
-While e2e testing focus on the given input and expected result of the complete feature.
-... more text coming ...
+In this document we will describe important and good-to-know facts about the testing options. 
+We will differ between "unit tests" and "end-to-end tests" (e2e). Unit tests focus on testing isolated single functions.
+While e2e testing focuses on the given input and the expected result of the complete feature.
 
 ## Prerequisite
 
 You need a personal environment file `.env.test` on the top level of your project. It can be a copy of your `.env` or
-`.env.dev` file, but can also lead to a test database or contain test configurations. The path to test file is set in 
+`.env.dev` file, but it can also lead to a test database or contain test configurations. The path to the test file is set in 
 `test/dotenv-config.ts`.
 
 ## Installation
@@ -18,14 +17,14 @@ $ pnpm install
 
 ## Running the unit tests
 
-Run all test cases in the project. Testcases are found by the `.spec.` file extension. 
+Run all test cases in the project. Test cases are found by the `.spec.` file extension. 
 ```bash
 $ pnpm test
 ```
 
-Watches on changes of your testfiles and starts testing after saving. All uncommitted tests are launched.
+Watches on changes of your test files and starts testing after saving. All uncommitted tests are launched.
 After the initial test, a menu will appear with filter option. e.g: 
-Press "p" and insert "general" to only watch and test testcases that contain the string "general".
+Press "p" and insert "general" to only watch and carry out test cases that contain the string "general".
 
 ```bash
 $ pnpm test:watch
@@ -61,11 +60,9 @@ $ pnpm test:e2e:watch
 
 ## Examples
 
-Basic examples for unit tests are in all modules and can be found with the `.spec.` file extension.
+Basic examples for unit tests are included in all modules and can be found with the `.spec.` file extension.
 The most examples with comments are currently in `general.service.spec.ts`.
 The e2e tests are saved in `test/` with the extension `.e2e-spec.`.
-
-... more text and explanation ...
 
 ## Further reading
 

@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { TransformEsriToGeoDto } from '../general/dto/transform-esri-to-geo.dto';
@@ -29,6 +29,10 @@ export class TransformController {
     isArray: true,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code',
+  })
   @Post('transformGeoJSONToEsriJSON')
   transformGeoJSONToEsriJSON(
     @Body() args: TransformGeoToEsriDto,
@@ -49,6 +53,10 @@ export class TransformController {
     isArray: true,
   })
   @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Convert the geometries from EsriJSON with the provided EPSG code to GeoJSON (EPSG:4326)',
+  })
   @Post('transformEsriJSONToGeoJSON')
   transformEsriJSONToGeoJSON(
     @Body() args: TransformEsriToGeoDto,
