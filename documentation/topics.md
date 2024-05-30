@@ -1,5 +1,5 @@
 # Topics - API Call
-In this document, we will describe important and good-to-know facts about the topics service.
+In this document we will describe important and good-to-know facts about the topics service.
 
 ## Functionality
 Show all topics.

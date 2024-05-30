@@ -1,5 +1,5 @@
 # Health - API Call
-In this document, we will describe important and good-to-know facts about the health service.
+In this document we will describe important and good-to-know facts about the health service.
 
 ## Functionality
 Return the availability status of the interface and database.

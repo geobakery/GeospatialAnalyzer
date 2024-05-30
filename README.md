@@ -1,4 +1,4 @@
-[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)t
+[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
 [![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
 
@@ -50,9 +50,10 @@ For more information have a look in the documentation.
 
 [![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/installation)
 
-![Datenbank](https://img.shields.io/badge/Datenbank-%23000000.svg?style=for-the-badge&logoColor=white)
+[![Database](https://img.shields.io/badge/Database-%23000000.svg?style=for-the-badge&logoColor=white)](./README.development.md#database)
 
 or
+
 [![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/get-docker/)
 
 ## Get Started
@@ -71,9 +72,9 @@ git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAn
 
 (4) Provide a database connection and the required configuration
 
-(5) Start development server
+(5) Start server
 ```
- pnpm run dev
+ pnpm run start
  ```
 
 (6) Open 

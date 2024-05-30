@@ -1,18 +1,18 @@
 # Database support
-In this document, we will talk about the database support for this API-backend.
-From start there is full `Postgres` with `Postgis` support.
+In this document we will talk about the database support for this API-backend.
+It natively supports `PostgreSQL` with `PostGIS`.
 Other databases are currently not supported, but can be added as an adapter.
-In General all supported databases from `TypeORM` can be connected.
+In general all supported databases from `TypeORM` can be connected.
 
 This is currently: \
-`MySQL` / `MariaDB` / `Postgres` / `CockroachDB` / `SQLite` / `Microsoft SQL Server` / `Oracle` / `SAP Hana` / `sql.js` / `MongoDB NoSQL database`. \
+`MySQL` / `MariaDB` / `PostgreSQL` / `CockroachDB` / `SQLite` / `Microsoft SQL Server` / `Oracle` / `SAP Hana` / `sql.js` / `MongoDB NoSQL database`. \
 
-It is important to notice that for a geospatial usage an equivalent of `Postgis` is needed for the database. For example `SpatiaLite` for `SQLite`.
+It is important to notice that for geospatial usage an equivalent of `PostGIS` is needed for the database. For example `SpatiaLite` for `SQLite`.
 
 ## Add new database support
 
-To add database support, you need to add a database adapter. The database must be part of the list from above and need an equivalent GIS extension.
-If this is fullfilled following changes are needed:
+To add database support, you need to add a database adapter. The database must be part of the list above and requires an equivalent GIS extension.
+Considering this, following changes are needed:
 
 1. Add your database to `supportedDatabase` in `general.constants`
 

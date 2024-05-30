@@ -1,8 +1,8 @@
 # Within - API Call
-In this document, we will describe important and good-to-know facts about the within service
+In this document we will describe important and good-to-know facts about the within service.
 
 ## Functionality
-Returns all features in which the transferred geometries are completely contained. 
+Returns all features, where the transferred geometries are completely contained. 
 
 ## Examples
 Post-call http://localhost:3000/v1/within with JSON body: 
