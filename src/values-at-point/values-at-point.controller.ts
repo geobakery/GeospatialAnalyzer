@@ -34,7 +34,7 @@ export class ValuesAtPointController {
     isArray: true,
   })
   @ApiOperation({
-    summary: 'Outputs all the possible valuesAtPoint topics',
+    summary: 'Output all the possible valuesAtPoint topics',
   })
   @Get('valuesAtPoint/topics')
   topic(): topicDefinitionOutside[] {
@@ -51,7 +51,7 @@ export class ValuesAtPointController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Calculate the values at point',
+    description: 'Calculates the values at point',
     schema: {
       anyOf: [
         { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
@@ -66,7 +66,7 @@ export class ValuesAtPointController {
   })
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Returns the values at the transferred point',
+    summary: 'Return the values at the transferred point',
   })
   @Post('valuesAtPoint')
   async valuesAtPoint(

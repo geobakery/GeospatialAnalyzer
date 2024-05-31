@@ -31,12 +31,12 @@ export class NearestNeighbourController {
 
   @ApiResponse({
     status: 200,
-    description: 'Shows all attributes and parameters available ',
+    description: 'Shows all attributes and parameters available',
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
   @ApiOperation({
-    summary: 'Outputs all the possible nearestNeighbour topics',
+    summary: 'Output all the possible nearestNeighbour topics',
   })
   @Get('nearestNeighbour/topics')
   topic(): topicDefinitionOutside[] {
@@ -53,7 +53,7 @@ export class NearestNeighbourController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Calculate the nearest NEIGHBOUR',
+    description: 'Calculates the nearest neighbour',
     schema: {
       anyOf: [
         { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
@@ -69,7 +69,7 @@ export class NearestNeighbourController {
   @HttpCode(200)
   @ApiOperation({
     summary:
-      ' Return all features that are within a certain distance of the transferred geometries (see maxDistanceToNeighbour). The number of features can be limited using the count parameter.',
+      'Return all features that are within a certain distance of the transferred geometries (see maxDistanceToNeighbour). The number of features can be limited using the count parameter.',
   })
   @Post('nearestNeighbour')
   async nearestNeighbour(

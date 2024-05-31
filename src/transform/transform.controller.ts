@@ -24,7 +24,7 @@ export class TransformController {
   @ApiResponse({
     status: 200,
     description:
-      'Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code',
+      'Converts the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EPSG code',
     type: EsriJsonDto,
     isArray: true,
   })
@@ -48,7 +48,7 @@ export class TransformController {
   @ApiResponse({
     status: 200,
     description:
-      'Convert the geometries from EsriJSON with the provided EPSG code to GeoJSON (EPSG:4326)',
+      'Converts the geometries from EsriJSON with the provided EPSG code to GeoJSON (EPSG:4326)',
     type: GeoJSONFeatureDto,
     isArray: true,
   })
