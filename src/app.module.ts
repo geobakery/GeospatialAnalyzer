@@ -11,6 +11,51 @@ import { ValuesAtPointModule } from './values-at-point/values-at-point.module';
 import { WithinModule } from './within/within.module';
 import { TopicsModule } from './topics/topics.module';
 
+const handleInvalidEnvironmentValue = (
+  envVariableName: string | null | undefined,
+  envVariableValue: string | null | undefined,
+) => {
+  console.error(
+    `Invalid value for ${envVariableName}: '${envVariableValue}'. Using default value: '${
+      envVariableName === 'geospatial_analyzer_db_synchronize'
+        ? 'false'
+        : 'true'
+    }'.`,
+  );
+};
+
+const synchronize = () => {
+  const envValueSynchronize = process.env.geospatial_analyzer_db_synchronize;
+
+  if (envValueSynchronize === 'true') {
+    return true;
+  } else if (envValueSynchronize === 'false') {
+    return false;
+  } else {
+    handleInvalidEnvironmentValue(
+      'geospatial_analyzer_db_synchronize',
+      envValueSynchronize,
+    );
+    return false;
+  }
+};
+
+const logging = () => {
+  const envValueLogging = process.env.geospatial_analyzer_db_logging;
+
+  if (envValueLogging === 'true') {
+    return true;
+  } else if (envValueLogging === 'false') {
+    return false;
+  } else {
+    handleInvalidEnvironmentValue(
+      'geospatial_analyzer_db_logging',
+      envValueLogging,
+    );
+    return true;
+  }
+};
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,8 +73,8 @@ import { TopicsModule } from './topics/topics.module';
       connectTimeoutMS: process.env.geospatial_analyzer_connectTimeoutMS
         ? Number(process.env.geospatial_analyzer_connectTimeoutMS)
         : 60000,
-      synchronize: JSON.parse(process.env.geospatial_analyzer_db_synchronize),
-      logging: JSON.parse(process.env.geospatial_analyzer_db_logging),
+      synchronize: synchronize(),
+      logging: logging(),
       subscribers: [],
       migrations: [],
       extra: {
