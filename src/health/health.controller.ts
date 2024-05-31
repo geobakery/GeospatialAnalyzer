@@ -25,7 +25,7 @@ export class HealthController {
   })
   @HttpCode(200)
   @ApiOperation({
-    summary: ' Returns the status of availability',
+    summary: 'Return the status of availability',
   })
   @Get('health')
   async getHealth(): Promise<GeneralResponse | ErrorResponse | any[]> {
