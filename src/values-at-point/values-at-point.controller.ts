@@ -66,8 +66,7 @@ export class ValuesAtPointController {
   })
   @HttpCode(200)
   @ApiOperation({
-    summary:
-      'Returns the values at the transferred point (currently only to identifier "hoehe") ',
+    summary: 'Returns the values at the transferred point',
   })
   @Post('valuesAtPoint')
   async valuesAtPoint(
