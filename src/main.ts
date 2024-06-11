@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { checkTopic, setUpOpenAPIAndValidation } from './app-init';
 import { AppModule } from './app.module';
+import cors from '@fastify/cors';
 
 async function bootstrap() {
   await checkTopic();
@@ -22,6 +23,11 @@ async function bootstrap() {
   });
 
   await setUpOpenAPIAndValidation(app);
+
+  // Register the CORS plugin and allow requests from http://localhost:5173
+  app.register(cors, {
+    origin: 'http://localhost:5173',
+  });
 
   await app.listen(3000, '0.0.0.0');
 }
