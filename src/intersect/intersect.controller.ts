@@ -20,10 +20,6 @@ import { topicDefinitionOutside } from '../general/general.interface';
 import { IntersectService } from './intersect.service';
 
 @ApiTags('Intersect')
-@ApiHeader({
-  name: 'intersect',
-  description: 'test',
-})
 @Controller({
   version: '1',
 })
@@ -38,7 +34,7 @@ export class IntersectController {
     type: TopicDefinitonOutsideDto,
     isArray: true,
   })
-  @ApiOperation({ summary: ' Outputs all the possible intersect topics' })
+  @ApiOperation({ summary: 'Output all the possible intersect topics' })
   @Get('intersect/topics')
   topic(): topicDefinitionOutside[] {
     return this.intersectService.getTopics();
@@ -54,7 +50,7 @@ export class IntersectController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Calculate the intersections',
+    description: 'Calculates the intersections',
     schema: {
       anyOf: [
         { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
@@ -70,7 +66,7 @@ export class IntersectController {
   @HttpCode(200)
   @ApiOperation({
     summary:
-      ' Return all features that are touched by the transferred geometries',
+      'Return all features that are intersected by the transferred geometries',
   })
   @Post('intersect')
   async intersect(

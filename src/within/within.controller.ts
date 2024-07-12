@@ -34,7 +34,7 @@ export class WithinController {
     isArray: true,
   })
   @ApiOperation({
-    summary: 'Outputs all the possible within topics',
+    summary: 'Output all the possible within topics',
   })
   @Get('within/topics')
   topic(): topicDefinitionOutside[] {
@@ -51,7 +51,7 @@ export class WithinController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Calculate the within',
+    description: 'Calculates the within',
     schema: {
       anyOf: [
         { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
@@ -67,7 +67,7 @@ export class WithinController {
   @HttpCode(200)
   @ApiOperation({
     summary:
-      ' Return all features in which the transferred geometries are completely contained',
+      'Return all features in which the transferred geometries are completely contained',
   })
   @Post('within')
   async intersect(
