@@ -7,6 +7,7 @@ import {
 import { checkTopic, setUpOpenAPIAndValidation } from './app-init';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import cors from '@fastify/cors';
 
 async function bootstrap() {
   await checkTopic();
@@ -18,6 +19,11 @@ async function bootstrap() {
         : 1048576,
     }),
   );
+
+  // Register the CORS plugin and allow requests from http://localhost:5173
+  await app.register(cors, {
+    origin: 'http://localhost:5173',
+  });
 
   const configService = app.get(ConfigService);
   const urlPrefix = configService.get('GEOSPATIAL_ANALYZER_URL_PREFIX');

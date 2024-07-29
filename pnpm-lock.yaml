@@ -23,6 +23,9 @@ importers:
 
   .:
     dependencies:
+      '@fastify/cors':
+        specifier: ^11.2.0
+        version: 11.2.0
       '@fastify/static':
         specifier: ^9.0.0
         version: 9.0.0
