@@ -18,9 +18,8 @@ COPY topic.json ./
 COPY swagger-description*.md ./
 COPY nest-cli.json ./
 COPY nginx.conf /etc/nginx/nginx.conf
-#COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
-
-#RUN chmod +x /usr/local/bin/wait-for-it.sh
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 RUN npm install --global pnpm \
     && SHELL=bash pnpm setup \
