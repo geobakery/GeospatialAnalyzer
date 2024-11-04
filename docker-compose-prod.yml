@@ -32,7 +32,7 @@ services:
     environment:
       - WDS_SOCKET_HOST=127.0.0.1
     ports:
-      - '127.0.0.1:3000:3000'
+      - '127.0.0.1:${APP_PORT:-3000}:${APP_PORT:-3000}'
     depends_on:
       db:
         condition: service_healthy
@@ -48,7 +48,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./wait-for-it.sh:/usr/local/bin/wait-for-it.sh
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-80}:80"
     depends_on:
       - app
-    entrypoint: ["/usr/local/bin/wait-for-it.sh", "app:3000"]
+    entrypoint: ["/usr/local/bin/wait-for-it.sh", "app:${APP_PORT:-3000}"]
