@@ -1,6 +1,6 @@
 {
   "name": "geospatialanalyzer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GeospatialAnalyzer HTTP-API",
   "author": "Landesamt für Geobasisinformation Sachsen (GeoSN) and con terra GmbH",
   "private": true,
