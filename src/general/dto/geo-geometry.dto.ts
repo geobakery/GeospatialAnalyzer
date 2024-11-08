@@ -3,11 +3,11 @@ import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.inte
 
 type SupportedGeoJSONTypes = 'LineString' | 'Point' | 'Polygon';
 
-const GeoJSONPositionSchemaObject: Omit<SchemaObject, 'required'> = {
-  items: { type: 'number' },
+const GeoJSONPositionSchemaObject = {
+  items: { type: 'number' as const },
   minItems: 2,
   maxItems: 3,
-  type: 'array',
+  type: 'array' as const,
 } as const;
 
 type GeoJSONPosition = [number, number] | [number, number, number];
@@ -22,12 +22,10 @@ export abstract class GeoJSONObject {
 
   @ApiProperty({
     anyOf: [
-      { minItems: 4, maxItems: 4 },
-      { minItems: 6, maxItems: 6 },
+      { minItems: 4, maxItems: 4, type: 'array', items: { type: 'number' } },
+      { minItems: 6, maxItems: 6, type: 'array', items: { type: 'number' } },
     ],
-    items: { type: 'number' },
     required: false,
-    type: 'array',
   })
   bbox?: BoundingBox;
 }

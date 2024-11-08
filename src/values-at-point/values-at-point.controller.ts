@@ -23,7 +23,7 @@ import { ValuesAtPointService } from './values-at-point.service';
   version: '1',
 })
 @Controller('valuesAtPoint')
-@ApiExtraModels(ValuesAtPointParameterDto)
+@ApiExtraModels(ValuesAtPointParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class ValuesAtPointController {
   constructor(private readonly valuesAtPointService: ValuesAtPointService) {}
 
@@ -52,17 +52,24 @@ export class ValuesAtPointController {
   @ApiResponse({
     status: 200,
     description: 'Calculates the values at point',
-    schema: {
-      anyOf: [
-        { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
-        { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
-      ],
+    content: {
+      'application/json': {
+        schema: {
+          anyOf: [
+            { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
+            {
+              type: 'array',
+              items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+            },
+          ],
+        },
+      },
     },
   })
   @ApiResponse({
+    status: HTTP_STATUS_SQL_TIMEOUT,
     description:
       'The request is too complex to be processed in a timely manner (currently).',
-    status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
   @ApiOperation({
