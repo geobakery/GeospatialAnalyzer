@@ -4,7 +4,6 @@ import {
   ApiExtraModels,
   ApiResponse,
   ApiTags,
-  ApiHeader,
   getSchemaPath,
   ApiOperation,
 } from '@nestjs/swagger';
@@ -24,7 +23,7 @@ import { IntersectService } from './intersect.service';
   version: '1',
 })
 @Controller('intersect')
-@ApiExtraModels(IntersectParameterDto)
+@ApiExtraModels(IntersectParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class IntersectController {
   constructor(private readonly intersectService: IntersectService) {}
 
@@ -51,17 +50,24 @@ export class IntersectController {
   @ApiResponse({
     status: 200,
     description: 'Calculates the intersections',
-    schema: {
-      anyOf: [
-        { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
-        { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
-      ],
+    content: {
+      'application/json': {
+        schema: {
+          anyOf: [
+            { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
+            {
+              type: 'array',
+              items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+            },
+          ],
+        },
+      },
     },
   })
   @ApiResponse({
+    status: HTTP_STATUS_SQL_TIMEOUT,
     description:
       'The request is too complex to be processed in a timely manner (currently).',
-    status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
   @ApiOperation({

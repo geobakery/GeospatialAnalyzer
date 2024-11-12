@@ -34,7 +34,7 @@ export class GeoJSONFeatureDto {
   })
   geometry: GeoJSONLineString | GeoJSONPoint | GeoJSONPolygon | null;
 
-  @ApiProperty({ nullable: true, type: 'object' })
+  @ApiProperty({ nullable: true, type: 'object', properties: {} })
   properties: (Record<string, unknown> & SpatialMetadata) | null;
 
   @ApiProperty({ required: false })

@@ -23,7 +23,7 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
   version: '1',
 })
 @Controller('nearestNeighbour')
-@ApiExtraModels(NearestNeighbourParameterDto)
+@ApiExtraModels(NearestNeighbourParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class NearestNeighbourController {
   constructor(
     private readonly nearestNeighbourService: NearestNeighbourService,
@@ -54,17 +54,24 @@ export class NearestNeighbourController {
   @ApiResponse({
     status: 200,
     description: 'Calculates the nearest neighbour',
-    schema: {
-      anyOf: [
-        { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
-        { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
-      ],
+    content: {
+      'application/json': {
+        schema: {
+          anyOf: [
+            { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
+            {
+              type: 'array',
+              items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+            },
+          ],
+        },
+      },
     },
   })
   @ApiResponse({
+    status: HTTP_STATUS_SQL_TIMEOUT,
     description:
       'The request is too complex to be processed in a timely manner (currently).',
-    status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
   @ApiOperation({
