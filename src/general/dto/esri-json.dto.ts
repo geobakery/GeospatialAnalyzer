@@ -49,6 +49,11 @@ export class EsriJsonDto {
     | EsriPolylineDto
     | EsriPolygonDto;
 
-  @ApiPropertyOptional({ type: 'object' })
+  @ApiPropertyOptional({
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+    },
+  })
   attributes?: Record<string, unknown> & SpatialMetadata;
 }

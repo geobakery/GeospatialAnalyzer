@@ -2,22 +2,20 @@ FROM node:20-alpine
 
 ENV NODE_ENV production
 
-RUN apk update
-RUN apk upgrade
-RUN apk add bash
+RUN apk update && apk upgrade && apk add bash
 
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 
-COPY package.json ./
-COPY tsconfig.json ./
-COPY tsconfig.build.json ./
-COPY .env.dev ./
-COPY .env ./
-COPY topic.json ./
-COPY swagger-description*.md ./
-COPY nest-cli.json ./
+COPY \
+  package.json ./ \
+  tsconfig.json ./ \
+  tsconfig.build.json ./ \
+  .env ./ \
+  topic.json ./ \
+  swagger-description*.md ./ \
+  nest-cli.json ./
 
 RUN npm install --global pnpm \
     && SHELL=bash pnpm setup \
@@ -27,11 +25,6 @@ ENV PNPM_HOME=/usr/local/bin
 
 COPY src /app/src
 
-#CMD [ "pnpm", "install" ]
-RUN pnpm install
-#RUN pnpm add -g @nestjs/cli
-RUN pnpm build
+RUN pnpm install && pnpm build
 
-CMD [ "pnpm", "start:prod" ]
-#RUN pnpm start:prod
-
+CMD ["pnpm", "start:prod"]

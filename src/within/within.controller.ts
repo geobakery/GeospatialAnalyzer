@@ -23,7 +23,7 @@ import { WithinService } from './within.service';
   version: '1',
 })
 @Controller('within')
-@ApiExtraModels(WithinParameterDto)
+@ApiExtraModels(WithinParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class WithinController {
   constructor(private readonly withinService: WithinService) {}
 
@@ -52,17 +52,24 @@ export class WithinController {
   @ApiResponse({
     status: 200,
     description: 'Calculates the within',
-    schema: {
-      anyOf: [
-        { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
-        { type: 'array', items: { $ref: getSchemaPath(GeoJSONFeatureDto) } },
-      ],
+    content: {
+      'application/json': {
+        schema: {
+          anyOf: [
+            { type: 'array', items: { $ref: getSchemaPath(EsriJsonDto) } },
+            {
+              type: 'array',
+              items: { $ref: getSchemaPath(GeoJSONFeatureDto) },
+            },
+          ],
+        },
+      },
     },
   })
   @ApiResponse({
+    status: HTTP_STATUS_SQL_TIMEOUT,
     description:
       'The request is too complex to be processed in a timely manner (currently).',
-    status: HTTP_STATUS_SQL_TIMEOUT,
   })
   @HttpCode(200)
   @ApiOperation({
@@ -70,7 +77,7 @@ export class WithinController {
       'Return all features in which the transferred geometries are completely contained',
   })
   @Post('within')
-  async intersect(
+  async within(
     @Body() args: WithinParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
     return await this.withinService.handleRequest(args);
