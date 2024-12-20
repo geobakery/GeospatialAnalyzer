@@ -28,4 +28,12 @@ COPY src /app/src
 
 RUN pnpm install --frozen-lockfile && pnpm build
 
+ARG APP_UID=1001
+ARG APP_GID=1001
+
+RUN addgroup -g ${APP_GID} appgroup || echo "Group already exists" && \
+    adduser -u ${APP_UID} -G appgroup -s /bin/sh -D appuser || echo "User already exists"
+
+USER ${APP_UID}
+
 CMD ["pnpm", "start:prod"]
