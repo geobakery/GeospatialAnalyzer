@@ -10,6 +10,7 @@ WORKDIR /app
 
 COPY \
   package.json ./ \
+  pnpm-lock.yaml ./ \
   tsconfig.json ./ \
   tsconfig.build.json ./ \
   .env ./ \
@@ -25,6 +26,6 @@ ENV PNPM_HOME=/usr/local/bin
 
 COPY src /app/src
 
-RUN pnpm install && pnpm build
+RUN pnpm install --frozen-lockfile && pnpm build
 
 CMD ["pnpm", "start:prod"]
