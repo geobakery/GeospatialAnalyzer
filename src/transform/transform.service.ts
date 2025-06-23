@@ -70,7 +70,7 @@ export class TransformService {
    */
   registerCRS(epsgString: string): void {
     try {
-      proj4.defs([epsg[epsgString]]);
+      proj4.defs(epsgString, epsg[epsgString][1]);
     } catch (e) {
       throw new HttpException(
         `EPSG code "${epsgString}" is not valid`,
