@@ -10,7 +10,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: gsa
+      workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
   strategy:
     type: RollingUpdate
     rollingUpdate:
