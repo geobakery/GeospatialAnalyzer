@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: geospatialanalyzer
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx-dmz
+  tls:
+    - hosts:
+        - geoservices.sachsen.de
+      secretName: honeysens.sachsen.de-replica
+  rules:
+    - host: geoservices.sachsen.de
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: landingpage
+                port:
+                  number: 8080
+          - path: /ga-client
+            pathType: Prefix
+            backend:
+              service:
+                name: client
+                port:
+                  number: 8081
