@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: geospatialanalyzer
+  labels:
+    app: gsa
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gsa
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: gsa
+    spec:
+      containers:
+        - name: nest
+          image: rancher-registry.pzd-svn.de/sk_geospatialanalyzer/geospatialanalyzer:latest
+          imagePullPolicy: Always
+          ports:
+            - name: app
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PGDATABASE
+              value: postgres
+            - name: PGUSER
+              value: postgres
+            - name: PGPORT
+              value: "5432"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 250Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /data
+              name: vol-kl0rd
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            privileged: false
+      volumes:
+        - name: vol-kl0rd
+          persistentVolumeClaim:
+            claimName: gsa-pvc
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: private
+      terminationGracePeriodSeconds: 30
