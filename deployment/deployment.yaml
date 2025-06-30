@@ -11,7 +11,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      workload.user.cattle.io.workloadselector: apps.deployment-geospatialanalyzer-app
+      workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
   strategy:
     rollingUpdate:
       maxSurge: 25%
