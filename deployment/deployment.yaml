@@ -29,13 +29,32 @@ spec:
             - name: app
               containerPort: 3000
               protocol: TCP
-          env:
+          - env:
+            - name: PGHOST
+              valueFrom:
+                configMapKeyRef:
+                  key: PGHOST
+                  name: postgres-config
             - name: PGDATABASE
-              value: postgres
-            - name: PGUSER
-              value: postgres
+              valueFrom:
+                configMapKeyRef:
+                  key: PGDATABASE
+                  name: postgres-config
             - name: PGPORT
-              value: "5432"
+              valueFrom:
+                configMapKeyRef:
+                  key: PGPORT
+                  name: postgres-config
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: PGUSER
+                  name: postgres-secret
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: PGPASSWORD
+                  name: postgres-secret
           resources:
             limits:
               cpu: 500m
