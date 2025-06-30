@@ -20,7 +20,6 @@ spec:
   template:
     metadata:
       labels:
-        app: gsa
         workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
     spec:
       containers:
