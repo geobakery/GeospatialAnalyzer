@@ -4,7 +4,6 @@ metadata:
   name: app
   namespace: geospatialanalyzer
   labels:
-    app: gsa
     workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
 spec:
   progressDeadlineSeconds: 600
