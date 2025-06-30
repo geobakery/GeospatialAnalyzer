@@ -5,78 +5,86 @@ metadata:
   namespace: geospatialanalyzer
   labels:
     app: gsa
+    workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
+      workload.user.cattle.io.workloadselector: apps.deployment-geospatialanalyzer-app
   strategy:
-    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: gsa
+        workload.user.cattle.io/workloadselector: apps.deployment-geospatialanalyzer-app
     spec:
       containers:
-        - name: nest
-          image: rancher-registry.pzd-svn.de/sk_geospatialanalyzer/geospatialanalyzer:latest
-          imagePullPolicy: Always
-          ports:
-            - name: app
-              containerPort: 3000
-              protocol: TCP
-          - env:
-            - name: PGHOST
-              valueFrom:
-                configMapKeyRef:
-                  key: PGHOST
-                  name: postgres-config
-            - name: PGDATABASE
-              valueFrom:
-                configMapKeyRef:
-                  key: PGDATABASE
-                  name: postgres-config
-            - name: PGPORT
-              valueFrom:
-                configMapKeyRef:
-                  key: PGPORT
-                  name: postgres-config
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  key: PGUSER
-                  name: postgres-secret
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: PGPASSWORD
-                  name: postgres-secret
-          resources:
-            limits:
-              cpu: 500m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
-          volumeMounts:
-            - mountPath: /data
-              name: vol-kl0rd
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1001
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            privileged: false
-      volumes:
-        - name: vol-kl0rd
-          persistentVolumeClaim:
-            claimName: gsa-pvc
-      restartPolicy: Always
+      - env:
+        - name: PGHOST
+          valueFrom:
+            configMapKeyRef:
+              key: PGHOST
+              name: postgres-config
+        - name: PGDATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: PGDATABASE
+              name: postgres-config
+        - name: PGPORT
+          valueFrom:
+            configMapKeyRef:
+              key: PGPORT
+              name: postgres-config
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              key: PGUSER
+              name: postgres-secret
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: PGPASSWORD
+              name: postgres-secret
+        image: rancher-registry.pzd-svn.de/sk_geospatialanalyzer/geospatialanalyzer:test
+        imagePullPolicy: Always
+        name: nest
+        ports:
+        - containerPort: 3000
+          name: app
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 250Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {}
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1001
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: vol-kl0rd
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: private
+      - name: private
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
       terminationGracePeriodSeconds: 30
+      volumes:
+      - name: vol-kl0rd
+        persistentVolumeClaim:
+          claimName: gsa-pvc
