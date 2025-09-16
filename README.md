@@ -1,6 +1,10 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
 [![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
+<p align="center">
+  <img src="documentation/images/logo-light.svg#gh-light-mode-only" width="240">
+  <img src="documentation/images/logo-dark.svg#gh-dark-mode-only" width="240">
+</p>
 
 # GeospatialAnalyzer
 
@@ -15,13 +19,11 @@ The response contains attributes of the objects found and optionally their geome
 
 For more information have a look in the documentation.
 
-
-
 ## Key features
 
 - Returns the attributes of the objects, which passed the query
 - Optionally have the geometries in the response
-- Support GeoJSON and EsriJSON as input and output 
+- Support GeoJSON and EsriJSON as input and output
 - Transformation into the other format
 - Support for different CRS
 - Support raster data also as tile set
@@ -34,7 +36,6 @@ For more information have a look in the documentation.
 - Focus on performance
 - Simple and customizable datasource configuration
 
-
 ## Interfaces
 
 - [within](documentation/within.md)
@@ -46,6 +47,7 @@ For more information have a look in the documentation.
 - [topics](documentation/topics.md)
 
 # Prerequisites
+
 [![Node.js](https://img.shields.io/badge/nodejs-_version%20%3E=%2016-red)](https://nodejs.org/en/download/package-manager)
 
 [![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/installation)
@@ -58,29 +60,34 @@ or
 
 ## Get Started
 
-(1) Clone the repository 
+(1) Clone the repository
+
 ```
 git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
 ```
 
 (2) Install the dependencies
+
 ```
  pnpm install
- ```
+```
 
-(3) Configure your env.dev and topic.json 
+(3) Configure your `env.dev` and `topic.json`
 
 (4) Provide a database connection and the required configuration
 
 (5) Start server
+
 ```
  pnpm run start
- ```
+```
 
-(6) Open 
+(6) Open
+
 ```
  http://localhost:3000/api
- ```
+```
+
 to show the SwaggerUI
 
 # User- and Developer-Area
@@ -93,7 +100,7 @@ Please have a look at our comprehensive section for more information on how to i
 
 # License
 
-[GPL v3](./LICENSE)
+This project is licensed under the [GNU General Public License 3 (GPLv3)](./LICENSE).
 
 # Contact
 
