@@ -23,6 +23,21 @@ async function bootstrap() {
 
   await setUpOpenAPIAndValidation(app);
 
+  // graceful shutdown handler
+  const shutdown = async (signal: string) => {
+    console.log(`Got termination signal: ${signal}`);
+    try {
+      await app.close();
+      process.exit(0);
+    } catch (err) {
+      console.error('Error closing the app:', err);
+      process.exit(1);
+    }
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+
   await app.listen(3000, '0.0.0.0');
 }
 
