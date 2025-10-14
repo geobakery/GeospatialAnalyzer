@@ -1,5 +1,5 @@
 # ---------- STAGE 1: Build ----------
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:1ab6fc5a31d515dc7b6b25f6acfda2001821f2c2400252b6cb61044bd9f9ad48 AS builder
 
 ENV NODE_ENV production
 
@@ -30,7 +30,7 @@ COPY src /app/src
 RUN pnpm install --frozen-lockfile --prod && pnpm build
 
 # ---------- STAGE 2: Runtime ----------
-FROM node:20-slim AS runtime
+FROM node:20-slim@sha256:f679d7699517426eb148a5698c717477fd3f8a48f6c1eaf771e390a9bb8268c8 AS runtime
 
 # Nur das Nötigste
 WORKDIR /app
