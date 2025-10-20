@@ -32,10 +32,9 @@ RUN pnpm install --frozen-lockfile --prod && pnpm build
 # ---------- STAGE 2: Runtime ----------
 FROM node:22-slim@sha256:d943bf20249f8b92eff6f605362df2ee9cf2d6ce2ea771a8886e126ec8714f08 AS runtime
 
-# Nur das Nötigste
 WORKDIR /app
 
-# Nur Runtime-Abhängigkeiten
+# only copy relevant runtime dependencies
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/topic.json ./
@@ -50,5 +49,5 @@ RUN addgroup -g ${APP_GID} appgroup || echo "Group already exists" && \
 
 USER ${APP_UID}
 
-# Start der App
+# starting the app
 CMD ["node", "dist/main.js"]
