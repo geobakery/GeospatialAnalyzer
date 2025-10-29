@@ -1,7 +1,10 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
 [![deu](https://img.shields.io/badge/lang-deu-green.svg)](./README.de.md)
 
-
+<p align="center">
+  <img src="documentation/images/logo-light.svg#gh-light-mode-only" width="240">
+  <img src="documentation/images/logo-dark.svg#gh-dark-mode-only" width="240">
+</p>
 
 # GeospatialAnalyzer
 
@@ -19,7 +22,7 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 
 - Gibt die Attribute der Objekte zurück, welche die Anfrage erfüllen
 - Optional kann die Geometrie zurückgegeben werden
-- Unterstützung von GeoJSON und EsriJSON als Ein- und Ausgabe 
+- Unterstützung von GeoJSON und EsriJSON als Ein- und Ausgabe
 - Transformation in das jeweils andere Format
 - Beliebige KRS-Wahl
 - Unterstützung von Rasterdaten auch als Tile Set
@@ -50,35 +53,40 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 
 [![Datenbank](https://img.shields.io/badge/Datenbank-%23000000.svg?style=for-the-badge&logoColor=white)](./README.development.md#database)
 
-oder  
+oder
 
 ![(Docker)](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 ## Get Started
 
-(1) Klonen Sie das Repository 
+(1) Klonen Sie das Repository
+
 ```
 git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAnalyzer
 ```
 
 (2) Installieren Sie die Abhängigkeiten
+
 ```
  pnpm install
- ```
+```
 
-(3) Konfigurieren Sie die env.dev und topic.json 
+(3) Konfigurieren Sie die `env.dev` und `topic.json`
 
 (4) Stellen Sie eine Datenbankverbindung zur Verfügung und konfigurieren Sie sie wie benötigt.
 
 (5) Starten Sie den Server
+
 ```
  pnpm run start
- ```
+```
 
-(6) Öffnen Sie 
+(6) Öffnen Sie
+
 ```
  http://localhost:3000/api
- ```
+```
+
 um die SwaggerUI zu sehen
 
 # Nutzer- und Entwicklerbereich
@@ -91,7 +99,7 @@ Bitte schauen Sie für umfangreiche Installations- und Entwicklungshinweise in f
 
 # Lizenz
 
-[GPL v3](./LICENSE)
+Dieses Projekt ist unter der [GNU General Public License 3 (GPLv3)](./LICENSE) lizenziert.
 
 # Kontakt
 
