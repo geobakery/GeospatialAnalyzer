@@ -58,6 +58,7 @@ describe('IntersectController', () => {
     expect(topicsElement.identifiers).toBeDefined();
     expect(topicsElement.title).toBeDefined();
     expect(topicsElement.description).toBeDefined();
-    expect(topicsElement.supports).toBeUndefined();
+    expect(topicsElement.supports).toBeDefined();
+    expect(Array.isArray(topicsElement.supports)).toBe(true);
   });
 });
