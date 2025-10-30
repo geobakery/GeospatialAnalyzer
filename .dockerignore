@@ -1,11 +1,73 @@
+# =============================================================================
+# Docker ignore file for GeospatialAnalyzer
+# Prevents unnecessary files from being sent to Docker build context
+# =============================================================================
+
+# Docker and container-related files
 .dockerignore
-documentation/
-node_modules/
-**/dist
-*.log
-Dockerfile
-Dockerfile-prod
-docker-compose.yml
-docker-compose-prod.yml
-.git
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# Version control
+.git/
 .gitignore
+.gitattributes
+
+# Documentation and development files
+documentation/
+README*.md
+*.md
+!swagger-description*.md
+
+# Dependencies (will be installed during build)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs (will be created during build)
+dist/
+build/
+coverage/
+
+# Test files and configurations
+test/
+*.test.*
+*.spec.*
+jest*.json
+.nyc_output/
+
+# Development tools and configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+
+# Temporary files and logs
+*.log
+logs/
+tmp/
+temp/
+
+# Operating system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package manager files
+.npm/
+.yarn/
+.pnpm-store/
+
+# Editor backup files
+*~
+*.bak
+*.orig

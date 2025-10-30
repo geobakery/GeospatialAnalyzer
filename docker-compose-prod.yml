@@ -1,54 +1,118 @@
-version: '3.5'
+# =============================================================================
+# Production Docker Compose for GeospatialAnalyzer
+# Basic production setup with database, app, and nginx
+# =============================================================================
+
+# Explicit project name for production
+name: geospatialanalyzer-prod
 
 services:
   db:
     image: postgis/postgis:15-3.4
     restart: always
+    container_name: geospatialanalyzer-postgres-prod
     environment:
       - POSTGRES_PASSWORD=geobakery
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    container_name: postgres
+    
     logging:
+      driver: "json-file"
       options:
         max-size: "100m"
         max-file: "3"
+    
     volumes:
       - ./sql/extensions.sql:/docker-entrypoint-initdb.d/extensions.sql
       - ./sql/pg_restore.sh:/docker-entrypoint-initdb.d/pg_restore.sh
       - ./sql/data:/docker-entrypoint-initdb.d/data
+      - postgres_data:/var/lib/postgresql/data
+    
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    networks:
+      - prod-network
 
   app:
     build:
       context: .
       dockerfile: Dockerfile-prod
-    container_name: nest
+      args:
+        APP_UID: 1001
+        APP_GID: 1001
+    container_name: geospatialanalyzer-app-prod
+    
     logging:
+      driver: "json-file"
       options:
         max-size: "100m"
         max-file: "3"
+    
+    # Security settings
+    user: "1001:1001"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    
     environment:
-      - WDS_SOCKET_HOST=127.0.0.1
+      - NODE_ENV=production
+      - PORT=3000
+    
     ports:
       - '127.0.0.1:${APP_PORT:-3000}:${APP_PORT:-3000}'
+    
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/v1/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
     depends_on:
       db:
         condition: service_healthy
+    
+    networks:
+      - prod-network
 
   nginx:
     image: nginx:latest
     restart: always
+    container_name: geospatialanalyzer-nginx-prod
+    
     logging:
+      driver: "json-file"
       options:
         max-size: "100m"
         max-file: "3"
+    
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+    
     ports:
       - "${NGINX_PORT:-80}:80"
+    
     depends_on:
-      - app
-    entrypoint: ["/usr/local/bin/wait-for-it.sh", "app:${APP_PORT:-3000}"]
+      app:
+        condition: service_healthy
+    
+    networks:
+      - prod-network
+
+# Production network
+networks:
+  prod-network:
+    driver: bridge
+    name: geospatialanalyzer-prod-network
+
+# Production volumes
+volumes:
+  postgres_data:
+    name: geospatialanalyzer-postgres-prod-data
+    driver: local
