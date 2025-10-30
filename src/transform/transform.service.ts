@@ -65,18 +65,31 @@ export class TransformService {
   /**
    * Registers the given EPSG string for projections in {@link proj4}.
    *
+   * Supports both legacy (array-based) and modern (string-based) definitions from {@link proj4-list}.
+   *
    * @param epsgString
    * @throws HttpException If `epsgString` is invalid or unknown.
    */
   registerCRS(epsgString: string): void {
-    try {
-      proj4.defs(epsgString, epsg[epsgString][1]);
-    } catch (e) {
+    const def = epsg[epsgString];
+
+    if (!def) {
       throw new HttpException(
-        `EPSG code "${epsgString}" is not valid`,
+        `EPSG code "${epsgString}" not found`,
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const projDef = Array.isArray(def) ? def[1] : def;
+
+    if (!projDef || typeof projDef !== 'string') {
+      throw new HttpException(
+        `Invalid projection definition for ${epsgString}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    proj4.defs(epsgString, projDef);
   }
 
   transformIncorrectCRSGeoJsonArray(
