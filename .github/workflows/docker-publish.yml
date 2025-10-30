@@ -26,6 +26,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: prepare docker metadata
+        uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+
       - name: Build and push image
         id: push
         uses: docker/build-push-action@v5.0.0
@@ -33,12 +43,12 @@ jobs:
           context: .
           file: ./Dockerfile-prod
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          tags: ${{ steps.meta.outputs.tags }}
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          image: ${{ steps.meta.outputs.tags }}
           format: 'cyclonedx-json'
           output-file: 'sbom.cyclonedx.json'
 
