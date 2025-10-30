@@ -4,6 +4,13 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  attestations: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -19,8 +26,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -f Dockerfile-prod -t ghcr.io/${{ github.repository }}:${GITHUB_REF_NAME} .
+      - name: Build and push image
+        id: push
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: .
+          file: ./Dockerfile-prod
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
 
-      - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}:${GITHUB_REF_NAME}
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          format: 'cyclonedx-json'
+          output-file: 'sbom.cyclonedx.json'
+
+      - name: Attest
+        uses: actions/attest-sbom@v3
+        id: attest
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          sbom-path: 'sbom.cyclonedx.json'
+          push-to-registry: true
