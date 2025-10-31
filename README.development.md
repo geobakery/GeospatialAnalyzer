@@ -93,13 +93,14 @@ $ pnpm run test:cov
 
 ## Docker
 
-It is possible to run and develop this project with Docker. The docker file will create an instance of the analysis-interface, a PostgreSQL database with PostGIS and some example data will be available. To comfortably check the database state, pgAdmin4 is included.
+It is possible to run and develop this project with Docker. The ``docker-compose.yml`` development file will create an instance of the analysis-interface, a PostgreSQL database with PostGIS and some example data will be available. To comfortably check the database state, pgAdmin4 is included. 
+Two Dockerfiles are used to build images for dev or production environments. The compose files run containers based on these Dockerfiles.
 The file structure is based on the following:
 
 ```
 GeospatialAnalyzer/
 ├── docker-compose.yml              # Development
-├── docker-compose-prod.yml         # Production (hardened)
+├── docker-compose-prod.yml         # Production
 ├── Dockerfile                      # Development image
 ├── Dockerfile-prod                 # Production image
 ```
