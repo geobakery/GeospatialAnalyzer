@@ -39,5 +39,4 @@ lerna-debug.log*
 .env.local.dev
 .env.docker.dev
 .env.prod
-topic.json
 swagger-description.md
