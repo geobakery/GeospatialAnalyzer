@@ -41,10 +41,8 @@ COPY --chown=node:node src ./src
 # Install dependencies and build application
 # Use frozen lockfile for reproducible builds
 # Install all dependencies (including dev) for build process
-RUN pnpm install --frozen-lockfile && \
+RUN pnpm install --frozen-lockfile --prod && \
     pnpm build && \
-    # Clean up dev dependencies after build
-    pnpm prune --prod && \
     # Remove unnecessary files to reduce image size
     rm -rf src tsconfig*.json nest-cli.json
 
@@ -63,19 +61,25 @@ ARG APP_GID=1001
 ARG APP_USER=appuser
 ARG APP_GROUP=appgroup
 
-RUN groupadd -g ${APP_GID} ${APP_GROUP} && \
-    useradd -u ${APP_UID} -g ${APP_GROUP} -s /bin/sh -m ${APP_USER}
+RUN groupadd --gid ${APP_GID} ${APP_GROUP} && \
+    useradd --uid ${APP_UID} --gid ${APP_GROUP} --shell /bin/sh --create-home ${APP_USER}
 
 WORKDIR /app
 RUN chown ${APP_USER}:${APP_GROUP} /app
 
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/node_modules ./node_modules
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/dist ./dist
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/topic.json ./
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/swagger-description*.md ./
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/package.json ./
+# Copy directories and main files
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
+  /app/node_modules \
+  /app/dist \
+  ./
 
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/.env ./
+# Copy individual files
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
+  /app/topic.json \
+  /app/package.json \
+  /app/.env \
+  /app/swagger-description*.md \
+  ./
 
 # Security: Switch to non-root user
 USER ${APP_USER}
