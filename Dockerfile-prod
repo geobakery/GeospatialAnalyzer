@@ -1,54 +1,103 @@
-# ---------- STAGE 1: Build ----------
+# ---------- STAGE 1: Build Environment ----------
 FROM node:24-alpine@sha256:f36fed0b2129a8492535e2853c64fbdbd2d29dc1219ee3217023ca48aebd3787 AS builder
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
-RUN apk update && apk upgrade && apk add bash
+RUN apk update && apk upgrade --no-cache && \
+    apk add --no-cache bash && \
+    rm -rf /var/cache/apk/*
 
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 
-COPY \
-  package.json ./ \
-  pnpm-lock.yaml ./ \
-  tsconfig.json ./ \
-  tsconfig.build.json ./ \
-  .env ./ \
-  topic.json ./ \
-  swagger-description*.md ./ \
-  nest-cli.json ./
+# Security: Copy package files first for better layer caching
+# This allows Docker to cache npm install if dependencies haven't changed
+COPY --chown=node:node \
+  package.json \
+  pnpm-lock.yaml \
+  tsconfig.json \
+  tsconfig.build.json \
+  nest-cli.json \
+  ./
 
-RUN npm install --global pnpm \
-    && SHELL=bash pnpm setup \
-    && source /root/.bashrc
+# Copy configuration files
+COPY --chown=node:node \
+  topic.json \
+  swagger-description*.md \
+  ./
+
+# Copy .env file (ensure this file exists or create an empty one)
+COPY --chown=node:node .env ./
+
+RUN npm install --global pnpm@latest && \
+    SHELL=bash pnpm setup && \
+    source /root/.bashrc
 
 ENV PNPM_HOME=/usr/local/bin
 
-COPY src /app/src
+COPY --chown=node:node src ./src
 
-RUN pnpm install --frozen-lockfile --prod && pnpm build
+# Install dependencies and build application
+# Use frozen lockfile for reproducible builds
+# Install all dependencies (including dev) for build process
+RUN pnpm install --frozen-lockfile --prod && \
+    pnpm build && \
+    # Remove unnecessary files to reduce image size
+    rm -rf src tsconfig*.json nest-cli.json
 
-# ---------- STAGE 2: Runtime ----------
+# ---------- STAGE 2: Production Runtime ----------
 FROM node:24-slim@sha256:0f2d677a7152ee7ac390837bd4fc36aca12f595411df5d4209f972660e34a7b6 AS runtime
 
-# Nur das Nötigste
-WORKDIR /app
+ENV NODE_ENV=production
 
-# Nur Runtime-Abhängigkeiten
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/topic.json ./
-COPY --from=builder /app/swagger-description*.md ./
-COPY --from=builder /app/.env ./
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
+# Security: Create non-root user and group with specific IDs
 ARG APP_UID=1001
 ARG APP_GID=1001
+ARG APP_USER=appuser
+ARG APP_GROUP=appgroup
 
-RUN addgroup -g ${APP_GID} appgroup || echo "Group already exists" && \
-    adduser -u ${APP_UID} -G appgroup -s /bin/sh -D appuser || echo "User already exists"
+RUN groupadd --gid ${APP_GID} ${APP_GROUP} && \
+    useradd --uid ${APP_UID} --gid ${APP_GROUP} --shell /bin/sh --create-home ${APP_USER}
 
-USER ${APP_UID}
+WORKDIR /app
+RUN chown ${APP_USER}:${APP_GROUP} /app
 
-# Start der App
+# Copy directories and main files
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
+  /app/node_modules \
+  /app/dist \
+  ./
+
+# Copy individual files
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
+  /app/topic.json \
+  /app/package.json \
+  /app/.env \
+  /app/swagger-description*.md \
+  ./
+
+# Security: Switch to non-root user
+USER ${APP_USER}
+
+EXPOSE 3000
+
+# Create health check by checking if the application is responding on the expected port
+HEALTHCHECK --interval=60s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/v1/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
+
+# Run the application using node
+# This is favored over using pnpm start:prod because it reduces overhead
 CMD ["node", "dist/main.js"]
+
+# Metadata labels for better container management
+LABEL maintainer="Landesamt für Geobasisinformation Sachsen (GeoSN) and con terra GmbH" \
+      description="GeospatialAnalyzer HTTP-API Production Image" \
+      environment="production" \
+      org.opencontainers.image.source="https://github.com/geobakery/GeospatialAnalyzer" \
+      org.opencontainers.image.vendor="GeoSN" \
+      org.opencontainers.image.licenses="GPL-3.0"

@@ -1,56 +1,126 @@
-version: '3.5'
+# =============================================================================
+# Development Docker Compose for GeospatialAnalyzer
+# =============================================================================
+
+name: geospatialanalyzer-dev
 
 services:
+  # PostgreSQL with PostGIS for geospatial data
   db:
     image: postgis/postgis:15-3.4
+    container_name: geospatialanalyzer-postgres-dev
     environment:
       - POSTGRES_PASSWORD=geobakery
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    container_name: postgres
+    
     logging:
+      driver: "json-file"
       options:
-        max-size: 10m
+        max-size: "10m"
         max-file: "3"
+    
+    # Initialize with SQL extensions and data
     volumes:
       - ./sql/extensions.sql:/docker-entrypoint-initdb.d/extensions.sql
       - ./sql/pg_restore.sh:/docker-entrypoint-initdb.d/pg_restore.sh
       - ./sql/data:/docker-entrypoint-initdb.d/data
+      - postgres_data:/var/lib/postgresql/data  # Persistent data
+    
     ports:
       - '5432:5432'
+    
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\""]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    networks:
+      - dev-network
 
+  # GeospatialAnalyzer Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nest
+    container_name: geospatialanalyzer-app-dev
+    
     environment:
+      - NODE_ENV=development
+      - PORT=3000
+      # Hot reloading configuration
       - WDS_SOCKET_HOST=127.0.0.1
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+    
     ports:
       - '3000:3000'
+      - '9229:9229'  # Debug port for Node.js debugging
+    
+    # healthcheck: already included in the image
+    
+    # Wait for database to be ready
     depends_on:
       db:
         condition: service_healthy
+    
+    # Development volumes for hot reloading
     volumes:
-      - ./src:/app/src
-      - ./topic.json:/app/topic.json
-      - ./.env:/app/.env
-      - ./.env.dev:/app/.env.dev
+      - ./src:/app/src:cached               # Source code hot reloading
+      - ./topic.json:/app/topic.json:ro     # Configuration files
+      - ./.env:/app/.env:ro                 # Environment files
+      - ./.env.dev:/app/.env.dev:ro
+      - node_modules:/app/node_modules      # Cache node_modules for performance
+    
+    # Development network
+    networks:
+      - dev-network
+    
+    # Restart policy for development
+    restart: unless-stopped
 
+  # PgAdmin for database management (development tool)
   pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4
+    image: dpage/pgadmin4:latest
+    container_name: geospatialanalyzer-pgadmin-dev
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    
     ports:
       - '5050:80'
+    
+    # Wait for database
     depends_on:
       db:
         condition: service_healthy
-    links:
-      - db
+    
+    # Persistent PgAdmin data
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    
+    # Development network
+    networks:
+      - dev-network
+    
+    # Restart policy
+    restart: unless-stopped
+
+# Development network for service communication
+networks:
+  dev-network:
+    driver: bridge
+    name: geospatialanalyzer-dev-network
+
+# Persistent volumes for development data
+volumes:
+  postgres_data:
+    name: geospatialanalyzer-postgres-dev-data
+  pgadmin_data:
+    name: geospatialanalyzer-pgadmin-dev-data
+  node_modules:
+    name: geospatialanalyzer-node-modules-dev
