@@ -67,6 +67,7 @@ services:
     ports:
       - '127.0.0.1:${APP_PORT:-3000}:${APP_PORT:-3000}'
     
+    # in addition to Dockerfile healthcheck, this is used for nginx service to verify app is running
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/v1/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
