@@ -60,7 +60,7 @@ jobs:
         uses: actions/attest-sbom@v3
         id: attest
         with:
-          subject-name: ghcr.io/${{ github.repository }}
+          subject-name: ghcr.io/${{ github.repository }}/db-hardrestore
           subject-digest: ${{ steps.push.outputs.digest }}
           sbom-path: 'sbom.cyclonedx.json'
           push-to-registry: true
