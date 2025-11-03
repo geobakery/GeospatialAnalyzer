@@ -33,7 +33,7 @@ jobs:
         id: meta
         with:
           images: |
-            ghcr.io/${{ github.repository }}//db-hardrestore
+            ghcr.io/${{ github.repository }}/db-hardrestore
           tags: |
             type=sha
             type=ref,event=tag
