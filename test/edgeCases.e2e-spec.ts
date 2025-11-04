@@ -31,12 +31,12 @@ describe('EdgeCases (e2e)', () => {
           isGlobal: true,
         }),
         TypeOrmModule.forRoot({
-          type: process.env.geospatial_analyzer_db_type,
+          type: process.env.GEOSPATIAL_ANALYZER_DB_TYPE,
           host: 'localhost',
-          port: process.env.geospatial_analyzer_db_port,
-          username: process.env.geospatial_analyzer_db_username,
-          password: process.env.geospatial_analyzer_db_password,
-          database: process.env.geospatial_analyzer_db_database,
+          port: process.env.GEOSPATIAL_ANALYZER_DB_PORT,
+          username: process.env.GEOSPATIAL_ANALYZER_DB_USERNAME,
+          password: process.env.GEOSPATIAL_ANALYZER_DB_PASSWORD,
+          database: process.env.GEOSPATIAL_ANALYZER_DB_DATABASE,
           synchronize: false,
           logging: false,
           extra: {

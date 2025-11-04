@@ -12,8 +12,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      bodyLimit: process.env.geospatial_analyzer_payload
-        ? Number(process.env.geospatial_analyzer_payload)
+      bodyLimit: process.env.GEOSPATIAL_ANALYZER_PAYLOAD
+        ? Number(process.env.GEOSPATIAL_ANALYZER_PAYLOAD)
         : 1048576,
     }),
   );
