@@ -221,6 +221,14 @@ Note: The JavaScript that is actually run is in the `dist` folder, but thanks to
 
 Also you can call the rest API in your preferred way as long as you are connected to Node.js-dev tools.
 
+## Generate an SBOM for node modules with pnpm
+
+You can generate a Software Bill of Materials (SBOM) for the Node.js modules used in this project using the `pnpm` package manager. Follow these steps:
+
+```bash
+pnpm dlx @cyclonedx/cdxgen -o bom.json -t node . -p
+```
+
 # Contribution
 
 ## What you need to consider for co-development
