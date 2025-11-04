@@ -30,7 +30,7 @@ RUN pnpm install --frozen-lockfile
 # Copy configuration files
 COPY topic.json \
      swagger-description*.md \
-     .env* \
+     .env \
      ./
 
 COPY src ./src

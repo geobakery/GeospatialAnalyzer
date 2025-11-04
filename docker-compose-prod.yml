@@ -15,7 +15,10 @@ services:
       - POSTGRES_PASSWORD=geobakery
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    
+
+    ports:
+    - "5432:5432"
+
     logging:
       driver: "json-file"
       options:
@@ -46,7 +49,18 @@ services:
         APP_UID: 1001
         APP_GID: 1001
     container_name: geospatialanalyzer-app-prod
-    
+    environment:
+      - GEOSPATIAL_ANALYZER_DB_TYPE=postgres
+      - GEOSPATIAL_ANALYZER_DB_HOST=db
+      - GEOSPATIAL_ANALYZER_DB_PORT=5432
+      - GEOSPATIAL_ANALYZER_DB_USERNAME=postgres
+      - GEOSPATIAL_ANALYZER_DB_PASSWORD=geobakery
+      - GEOSPATIAL_ANALYZER_DB_DATABASE=postgres
+      - GEOSPATIAL_ANALYZER_DB_SYNCHRONIZE=false
+      - GEOSPATIAL_ANALYZER_DB_LOGGING=true
+      - NODE_ENV=production
+      - PORT=3000
+
     logging:
       driver: "json-file"
       options:
@@ -59,10 +73,6 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
     
     ports:
       - '127.0.0.1:${APP_PORT:-3000}:${APP_PORT:-3000}'
