@@ -5,9 +5,7 @@ While e2e testing focuses on the given input and the expected result of the comp
 
 ## Prerequisite
 
-You need a personal environment file `.env.test` on the top level of your project. It can be a copy of your `.env` or
-`.env.dev` file, but it can also lead to a test database or contain test configurations. The path to the test file is set in 
-`test/dotenv-config.ts`.
+You need an environment file `.env.test` on the top level of your project. You can use the default, if there is no need to change any parameter. The path to the test file is set in `test/dotenv-config.ts`.
 
 ## Installation
 

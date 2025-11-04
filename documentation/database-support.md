@@ -47,7 +47,7 @@ function getDbAdapter(): DbAdapterService {
     if (this.adapter) {
         return this.adapter;
     }
-    const dbtype = process.env.geospatial_analyzer_db_type;
+    const dbtype = process.env.GEOSPATIAL_ANALYZER_DB_TYPE;
     if (dbtype) {
         switch (dbtype) {
             case supportedDatabase.postgres: {
@@ -63,5 +63,5 @@ function getDbAdapter(): DbAdapterService {
 4. Edit your `.env` file with the new database name:
 
 ``` shell
-geospatial_analyzer_db_type: new_database
+GEOSPATIAL_ANALYZER_DB_TYPE: new_database
 ```
