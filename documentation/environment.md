@@ -5,9 +5,9 @@ In this document we will describe important and good-to-know facts about the bas
 The application uses different `.env` files depending which environment you want to use:
 * `.env`: Base `.env` settings, used for production images. DB Connection properties are set either in a local `env.dev` file or in the `docker-compose-(prod).yml` file.
 * `.env.dev.sample`: Template file which can be used for creating you own `env.dev` file. This resulting `env.dev` file is than used for the local running node application. Please note: The `.env.dev` file will be ignored for git.
-* `.env.test`: File for integrated unit and end-to-end tests.
+* `.env.test`: File for integrated unit and end-to-end tests. The defined settings are the default values and are loaded via the `test-configuration.helper.ts`. If you want to use another database, you can change the values here.
 
-Creating your own `env.dev` file should include at least the following properties. All other properties are automatically applied from the `.env`. If you would like to change thos setting, overwrite them in your `env.dev`.
+Creating your own `env.dev` file should include at least the following properties. All other properties are automatically applied from the `.env`. If you would like to change those settings, overwrite them in your `env.dev`.
 
 ```text
 #Database connection
