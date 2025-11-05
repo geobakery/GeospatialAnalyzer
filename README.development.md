@@ -14,8 +14,8 @@ If you want to use docker to run this project, you need an installed and _runnin
 
 The project uses the `.env` or the `.env.dev` file for configuring your instance. For local development, use the `.env.dev` (added to `.gitignore` by default), which overwrites the default configuration parameters. As a starting point, you can use the `env.dev.sample` file.
 
-Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
-The `topic.json` is added to the `.gitignore` to save your personal credentials.
+Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` to create your own config, resp. use the `topic-example-geosn.json` for a ready-to-use setup, if you're running the provided docker based database.
+
 
 Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
