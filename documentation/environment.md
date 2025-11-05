@@ -3,16 +3,17 @@ In this document we will describe important and good-to-know facts about the bas
 
 ## Env files
 The application uses different `.env` files depending which environment you want to use:
-* `.env`: "Production-ready" file. Connection properties are outsourced to the `docker-compose-(prod).yml` file
+* `.env`: Base `.env` settings, used for production images. DB Connection properties are set either in a local `env.dev` file or in the `docker-compose-(prod).yml` file.
 * `.env.dev.sample`: Template file which can be used for creating you own `env.dev` file. This resulting `env.dev` file is than used for the local running node application. Please note: The `.env.dev` file will be ignored for git.
 * `.env.test`: File for integrated unit and end-to-end tests.
 
 Creating your own `env.dev` file should include at least the following properties. All other properties are automatically applied from the `.env`. If you would like to change thos setting, overwrite them in your `env.dev`.
 
 ```text
-#database connection
+#Database connection
 GEOSPATIAL_ANALYZER_DB_TYPE: postgres
-GEOSPATIAL_ANALYZER_DB_HOST: db
+#If docker-compose setup is used, the service name "db" needs to be set
+GEOSPATIAL_ANALYZER_DB_HOST: localhost
 GEOSPATIAL_ANALYZER_DB_PORT: 5432
 GEOSPATIAL_ANALYZER_DB_USERNAME: postgres
 GEOSPATIAL_ANALYZER_DB_PASSWORD: geobakery
