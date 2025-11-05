@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransformModule } from '../transform/transform.module';
 import { WithinController } from './within.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { WithinService } from './within.service';
 import { GeneralModule } from '../general/general.module';
-import { ConfigModule } from '@nestjs/config';
-import configuration from '../config/configuration';
+
+
+import { createUnitTestModules } from '../../test/helpers/database.helper';
 
 describe('WithinController', () => {
   let controller: WithinController;
@@ -15,22 +15,7 @@ describe('WithinController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WithinController],
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env.dev', '.env'],
-          load: [configuration],
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-          type: process.env.GEOSPATIAL_ANALYZER_DB_TYPE,
-          host: 'localhost',
-          port: process.env.GEOSPATIAL_ANALYZER_DB_PORT,
-          username: process.env.GEOSPATIAL_ANALYZER_DB_USERNAME,
-          password: process.env.GEOSPATIAL_ANALYZER_DB_PASSWORD,
-          database: process.env.GEOSPATIAL_ANALYZER_DB_DATABASE,
-          connectTimeoutMS: 10000,
-          synchronize: false,
-          logging: false,
-        } as TypeOrmModule),
+        ...createUnitTestModules(),
         GeneralModule,
         TransformModule,
       ],
@@ -50,3 +35,4 @@ describe('WithinController', () => {
     expect(controller).toBeDefined();
   });
 });
+

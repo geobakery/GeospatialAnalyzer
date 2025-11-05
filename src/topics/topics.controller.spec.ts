@@ -2,9 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TopicsController } from './topics.controller';
 import { TopicsService } from './topics.service';
 import { GeneralModule } from '../general/general.module';
-import { ConfigModule } from '@nestjs/config';
-import configuration from '../config/configuration';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { createUnitTestModules } from '../../test/helpers/database.helper';
 
 describe('TopicsController', () => {
   let controller: TopicsController;
@@ -15,22 +13,7 @@ describe('TopicsController', () => {
       controllers: [TopicsController],
       providers: [TopicsService],
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env.dev', '.env'],
-          load: [configuration],
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-          type: process.env.GEOSPATIAL_ANALYZER_DB_TYPE,
-          host: 'localhost',
-          port: process.env.GEOSPATIAL_ANALYZER_DB_PORT,
-          username: process.env.GEOSPATIAL_ANALYZER_DB_USERNAME,
-          password: process.env.GEOSPATIAL_ANALYZER_DB_PASSWORD,
-          database: process.env.GEOSPATIAL_ANALYZER_DB_DATABASE,
-          connectTimeoutMS: 10000,
-          synchronize: false,
-          logging: false,
-        } as TypeOrmModule),
+        ...createUnitTestModules(),
         GeneralModule,
       ],
     }).compile();
