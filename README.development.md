@@ -108,7 +108,7 @@ GeospatialAnalyzer/
 ### Docker Prerequisite
 
 You need an installed and _running_ docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
-Per default the database connection is set in the `docker-compose-prod.yml` environment properties.
+Per default the database connection is set in the `docker-compose-(prod).yml` environment properties.
 The docker-compose approach uses a specific docker network for encapsuling the services; the services are integrated with each other via the service names. In addition ports are exposed for accessing the application from outside.
 Ensure that you have created a `topic.json` file. Have a look at [Configuration](#configuration) for details.
 
