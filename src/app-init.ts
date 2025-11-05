@@ -104,11 +104,11 @@ export async function setUpOpenAPIAndValidation(
 ): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle(
-      process.env.geospatial_analyzer_swagger_document_title ||
+      process.env.GEOSPATIAL_ANALYZER_SWAGGER_DOCUMENT_TITLE ||
         'GeospatialAnalyzer',
     )
     .setDescription((await readDescription()) || 'API description')
-    .setVersion(process.env.geospatial_analyzer_swagger_version || '1.0')
+    .setVersion(process.env.GEOSPATIAL_ANALYZER_SWAGGER_VERSION || '1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 

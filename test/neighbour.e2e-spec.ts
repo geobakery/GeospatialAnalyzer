@@ -4,9 +4,9 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { setUpOpenAPIAndValidation } from '../src/app-init';
-import configuration from '../src/config/configuration';
+import { createE2eTestModules } from './helpers/database.helper';
 import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
 import { NearestNeighbourParameterDto } from '../src/general/dto/parameter.dto';
 import { DB_DIST_NAME } from '../src/general/general.constants';
@@ -44,21 +44,7 @@ describe('NearestNeighbourController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [NearestNeighbourController],
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env.test'],
-          load: [configuration],
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-          type: process.env.geospatial_analyzer_db_type,
-          host: 'localhost',
-          port: process.env.geospatial_analyzer_db_port,
-          username: process.env.geospatial_analyzer_db_username,
-          password: process.env.geospatial_analyzer_db_password,
-          database: process.env.geospatial_analyzer_db_database,
-          synchronize: false,
-          logging: false,
-        } as TypeOrmModule),
+        ...createE2eTestModules(),
         GeneralModule,
         TransformModule,
       ],

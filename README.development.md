@@ -12,10 +12,10 @@ If you want to use docker to run this project, you need an installed and _runnin
 
 ## Configuration
 
-The project uses the `.env` or the `.env.dev` file for configuring your instance. For local development, use the `.env.dev` (added to `.gitignore` by default), which overwrites the default configuration parameters.
+The project uses the `.env` or the `.env.dev` file for configuring your instance. For local development, use the `.env.dev` (added to `.gitignore` by default), which overwrites the default configuration parameters. As a starting point, you can use the `env.dev.sample` file.
 
-Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` for an example.
-The topic.json is added to the `.gitignore` to save your personal credentials.
+Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` to create your own config, resp. use the `topic-example-geosn.json` for a ready-to-use setup, if you're running the provided docker based database.
+
 
 Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
@@ -108,16 +108,8 @@ GeospatialAnalyzer/
 ### Docker Prerequisite
 
 You need an installed and _running_ docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
-
-You need to update the following lines in your `.env` or `.env.dev` file:
-
-```bash
-db_postgres_host: db
-db_postgres_password: geobakery
-```
-
-This will ensure that the database is accessed from the docker network and not from your local storage. By default, the name of the service becomes the hostname/address of the container within the Docker network.
-
+Per default the database connection is set in the `docker-compose-(prod).yml` environment properties.
+The docker-compose approach uses a specific docker network for encapsuling the services; the services are integrated with each other via the service names. In addition ports are exposed for accessing the application from outside.
 Ensure that you have created a `topic.json` file. Have a look at [Configuration](#configuration) for details.
 
 ### Run
@@ -128,7 +120,7 @@ Run:
 docker compose up
 ```
 
-Three containers (NestJS, PostgreSQL, PgAdmin4) will be created.
+Three containers (geospatialanalyzer-postgres-dev|prod, geospatialanalyzer-app-dev|prod, geospatialanalyzer-pgadmin-dev) will be created.
 
 Changes inside the `src/` directory will be directly synced with the docker volume. So the backend-API always has the most current state.
 

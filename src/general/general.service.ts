@@ -131,7 +131,7 @@ export class GeneralService {
     if (this.adapter) {
       return this.adapter;
     }
-    const dbtype = process.env.geospatial_analyzer_db_type;
+    const dbtype = process.env.GEOSPATIAL_ANALYZER_DB_TYPE;
     if (dbtype) {
       switch (dbtype) {
         case supportedDatabase.postgres: {
@@ -394,7 +394,11 @@ export class GeneralService {
         throw e;
       }
 
-      if (e instanceof QueryFailedError && e.message === 'Query read timeout') {
+      if (e instanceof QueryFailedError && (
+        e.message === 'Query read timeout' || 
+        e.message.includes('canceling statement due to statement timeout') ||
+        e.message.includes('timeout')
+      )) {
         throw new HttpException(
           'The request cannot be processed in a timely manner',
           HTTP_STATUS_SQL_TIMEOUT,

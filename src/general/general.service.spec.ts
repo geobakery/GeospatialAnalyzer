@@ -1,8 +1,6 @@
-import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import configuration from '../config/configuration';
 import { TransformModule } from '../transform/transform.module';
+import { createUnitTestModules } from '../../test/helpers/database.helper';
 import { GeneralService } from './general.service';
 
 describe('GeneralService', () => {
@@ -13,22 +11,7 @@ describe('GeneralService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [GeneralService],
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env.dev', '.env'],
-          load: [configuration],
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-          type: process.env.geospatial_analyzer_db_type,
-          host: 'localhost',
-          port: process.env.geospatial_analyzer_db_port,
-          username: process.env.geospatial_analyzer_db_username,
-          password: process.env.geospatial_analyzer_db_password,
-          database: process.env.geospatial_analyzer_db_database,
-          connectTimeoutMS: 10000,
-          synchronize: false,
-          logging: false,
-        } as TypeOrmModule),
+        ...createUnitTestModules(),
         TransformModule,
       ],
     }).compile();

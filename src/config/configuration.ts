@@ -21,21 +21,43 @@ async function checkTopic(): Promise<void> {
       );
       await copyTopic(__dirname);
     }
-  } catch (e) {
-    //
+  } catch (error) {
+    console.error('Error during topic.json validation:', error);
+    console.error('Failed to check or create topic.json file. This may cause configuration issues.');
+    // Don't re-throw to maintain compatibility with original behavior
   }
   return;
 }
 
 async function copyTopic(dirPath: string): Promise<void> {
-  fs.copyFile(
-    join(dirPath, './../../topic-example-geosn.json'),
-    join(dirPath, './../../topic.json'),
-    (err) => {
+  const sourceFile = join(dirPath, './../../topic-example-geosn.json');
+  const targetFile = join(dirPath, './../../topic.json');
+  
+  try {
+    // Check if source file exists before attempting copy
+    if (!fs.existsSync(sourceFile)) {
+      console.error(`Source file not found: ${sourceFile}`);
+      console.error('Cannot create topic.json from example. Please ensure topic-example-geosn.json exists.');
+      process.exit(1);
+    }
+    
+    // Use callback-based copy for async operation
+    fs.copyFile(sourceFile, targetFile, (err) => {
       if (err) {
-        console.log('Error Found:', err);
+        console.error('Error copying topic configuration file:');
+        console.error(`  Source: ${sourceFile}`);
+        console.error(`  Target: ${targetFile}`);
+        console.error(`  Error: ${err instanceof Error ? err.message : String(err)}`);
         process.exit(1);
+      } else {
+        console.log(`Successfully created topic.json from ${sourceFile}`);
       }
-    },
-  );
+    });
+  } catch (err) {
+    console.error('Error copying topic configuration file:');
+    console.error(`  Source: ${sourceFile}`);
+    console.error(`  Target: ${targetFile}`);
+    console.error(`  Error: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
 }

@@ -4,8 +4,8 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import configuration from '../src/config/configuration';
+
+import { createE2eTestModules } from './helpers/database.helper';
 import { GeneralModule } from '../src/general/general.module';
 import { IntersectController } from '../src/intersect/intersect.controller';
 import { IntersectService } from '../src/intersect/intersect.service';
@@ -25,25 +25,7 @@ describe('EdgeCases (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env.test'],
-          load: [configuration],
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-          type: process.env.geospatial_analyzer_db_type,
-          host: 'localhost',
-          port: process.env.geospatial_analyzer_db_port,
-          username: process.env.geospatial_analyzer_db_username,
-          password: process.env.geospatial_analyzer_db_password,
-          database: process.env.geospatial_analyzer_db_database,
-          synchronize: false,
-          logging: false,
-          extra: {
-            statement_timeout: 3, // number of milliseconds before a statement in query will time out, default is no timeout
-            query_timeout: 3, // number of milliseconds before a query call will timeout, default is no timeout
-          },
-        } as TypeOrmModule),
+        ...createE2eTestModules(),
         GeneralModule,
         TransformModule,
       ],
@@ -89,7 +71,13 @@ describe('EdgeCases (e2e)', () => {
       payload: input,
       headers: HEADERS_JSON,
     });
-    expect(result.statusCode).toEqual(422);
-    expect(result.statusMessage).toBe('Unprocessable Entity');
+    
+    // Coordinates [0, 1] are outside German administrative boundaries
+    // The API should return 200 with "No result" rather than an error
+    expect(result.statusCode).toEqual(200);
+    const responseBody = JSON.parse(result.body);
+    expect(responseBody).toHaveLength(1);
+    expect(responseBody[0].properties.NO_RESULT).toBe('No result to request');
+    expect(responseBody[0].properties.__topic).toBe('kreis');
   });
 });

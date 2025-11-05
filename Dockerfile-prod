@@ -40,9 +40,11 @@ COPY --chown=node:node src ./src
 
 # Install dependencies and build application
 # Use frozen lockfile for reproducible builds
-# Install all dependencies (including dev) for build process
-RUN pnpm install --frozen-lockfile --prod && \
+# Install ALL dependencies (including dev) for build process
+RUN pnpm install --frozen-lockfile && \
     pnpm build && \
+    # Remove dev dependencies more efficiently
+    pnpm prune --prod && \
     # Remove unnecessary files to reduce image size
     rm -rf src tsconfig*.json nest-cli.json
 
@@ -67,11 +69,9 @@ RUN groupadd --gid ${APP_GID} ${APP_GROUP} && \
 WORKDIR /app
 RUN chown ${APP_USER}:${APP_GROUP} /app
 
-# Copy directories and main files
-COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
-  /app/node_modules \
-  /app/dist \
-  ./
+# Copy built application and dependencies (preserve directory structure)
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/node_modules ./node_modules
+COPY --from=builder --chown=${APP_USER}:${APP_GROUP} /app/dist ./dist
 
 # Copy individual files
 COPY --from=builder --chown=${APP_USER}:${APP_GROUP} \
