@@ -69,7 +69,7 @@ function extractQueryType(sql: string): string {
   if (!sql) return 'OTHER';
 
   const normalizedQuery = sql.trim().toUpperCase();
-  //actually we only care about SELECT, but we keep this here for rereference
+  //actually we only care about SELECT, but we keep this here for reference
   if (normalizedQuery.startsWith('SELECT')) return 'SELECT';
   if (normalizedQuery.startsWith('INSERT')) return 'INSERT';
   if (normalizedQuery.startsWith('UPDATE')) return 'UPDATE';
