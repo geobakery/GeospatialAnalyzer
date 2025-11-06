@@ -12,6 +12,27 @@ The GeospatialAnalyzer provides Prometheus-compatible metrics for monitoring app
 
 **Description:** Returns application metrics in Prometheus text format
 
+## Metrics Summary
+
+The following metrics are available:
+
+**HTTP Metrics:**
+- `http_requests_total` - Total number of HTTP requests (labeled by method, endpoint, status_code, topic)
+- `http_request_duration_seconds` - HTTP request duration histogram
+- `http_request_size_bytes` - HTTP request size histogram
+- `http_response_size_bytes` - HTTP response size histogram
+- `http_active_connections` - Current number of active HTTP connections
+
+**Database Metrics:**
+- `db_query_duration_seconds` - Database query duration histogram (labeled by query_type, endpoint)
+- `db_queries_total` - Total number of database queries (labeled by query_type, status, endpoint)
+
+**Application Metrics:**
+- `query_results_returned` - Number of results returned per query (labeled by endpoint, topic)
+
+**System Metrics:**
+- `geospatialanalyzer_nodejs_*` - Standard Node.js runtime metrics (heap, CPU, event loop, etc.)
+
 ## Available Metrics
 
 ### HTTP Request Metrics
