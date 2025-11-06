@@ -33,6 +33,7 @@ For more information have a look in the documentation.
 - Fundamental support for several databases
 - Built-in Docker deployment capability
 - Integrated Swagger UI documentation
+- Prometheus metrics for monitoring and observability
 - Focus on performance
 - Simple and customizable datasource configuration
 
@@ -45,6 +46,7 @@ For more information have a look in the documentation.
 - [transform](documentation/transform.md)
 - [health](documentation/health.md)
 - [topics](documentation/topics.md)
+- [metrics](documentation/metrics.md)
 
 # Prerequisites
 [![Node.js](https://img.shields.io/badge/nodejs-_version%20%3E=%2024-green)](https://nodejs.org/en/download)
