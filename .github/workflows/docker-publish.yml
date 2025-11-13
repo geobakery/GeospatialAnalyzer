@@ -36,8 +36,8 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}
           tags: |
-            type=sha
-            type=ref,event=tag
+            type=sha,enable={{is_default_branch}}
+            type=ref,event=pr,suffix={{sha}}
             type=semver,pattern={{version}}
 
       - name: Build and push image
