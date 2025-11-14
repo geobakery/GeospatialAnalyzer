@@ -16,7 +16,6 @@ The project uses the `.env` or the `.env.dev` file for configuring your instance
 
 Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` to create your own config, resp. use the `topic-example-geosn.json` for a ready-to-use setup, if you're running the provided docker based database.
 
-
 Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
 ## Database
@@ -93,7 +92,17 @@ $ pnpm run test:cov
 
 ## Docker
 
-It is possible to run and develop this project with Docker. The ``docker-compose.yml`` development file will create an instance of the analysis-interface, a PostgreSQL database with PostGIS and some example data will be available. To comfortably check the database state, pgAdmin4 is included. 
+It is possible to run and develop this project with Docker or Podman. The `docker-compose.yml` development file will create an instance of the analysis-interface, a PostgreSQL database with PostGIS and some example data will be available. The data is imported from the dump in `sql/data` and the bounding box in decimal degrees (WGS84) is:
+
+```
+[50.952162, 13.666581],
+[50.952162, 13.946723],
+[51.066846, 13.946723],
+[51.066846, 13.666581]
+```
+
+To comfortably check the database state, pgAdmin4 is included.
+
 Two Dockerfiles are used to build images for dev or production environments. The compose files run containers based on these Dockerfiles.
 The file structure is based on the following:
 
@@ -246,9 +255,8 @@ Thank you for considering contributing to our project! We appreciate your help i
 
 (5) Submit a pull request to the main branch with a clear description of your changes.
 
-
 Please note the retention of the license for further development.
 
 ## License
 
-[GPL v3](./LICENSE)
+This project is licensed under the [GNU General Public License 3 (GPLv3)](./LICENSE).
