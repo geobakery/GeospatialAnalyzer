@@ -22,7 +22,7 @@ export const DB_FEATURE_ID_NAME = 'id';
 
 export const DB_GEOMETRY_NAME = 'geom';
 
-export const DB_HEIGHT_NAME = '__height';
+export const DB_HEIGHT_NAME = 'height';
 export const DB_JSON_STRUCTURE_NAME = 'response';
 
 export const DB_NAME_NAME = '__name';
