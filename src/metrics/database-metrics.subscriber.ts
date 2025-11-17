@@ -6,15 +6,15 @@ import { MetricsService } from './metrics.service';
  * Tracks database query execution for metrics by intercepting QueryBuilder methods
  */
 @Injectable()
-export class DatabaseMetricsTracker {
-  private readonly logger = new Logger(DatabaseMetricsTracker.name);
+export class DatabaseMetricsSubscriber {
+  private readonly logger = new Logger(DatabaseMetricsSubscriber.name);
 
   constructor(private readonly metricsService: MetricsService) {
     this.setupQueryTracking();
   }
 
   private setupQueryTracking() {
-    this.logger.log('🚀 Setting up database query interception...');
+    this.logger.log('Setting up database query interception...');
 
     this.interceptQueryBuilderMethod('execute');
     this.interceptQueryBuilderMethod('getRawMany');

@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { DatabaseMetricsTracker } from './database-metrics.subscriber';
+import { DatabaseMetricsSubscriber } from './database-metrics.subscriber';
 import { MetricsController } from './metrics.controller';
 import { MetricsInterceptor } from './metrics.interceptor';
 import { MetricsService } from './metrics.service';
@@ -22,7 +22,7 @@ export class MetricsModule {
       controllers: [MetricsController],
       providers: [
         MetricsService,
-        DatabaseMetricsTracker,
+        DatabaseMetricsSubscriber,
         {
           provide: APP_INTERCEPTOR,
           useClass: MetricsInterceptor,
