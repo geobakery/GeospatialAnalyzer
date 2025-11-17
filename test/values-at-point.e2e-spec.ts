@@ -35,11 +35,7 @@ describe('ValuesAtPointController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [ValuesAtPointController],
-      imports: [
-        ...createE2eTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createE2eTestModules(), GeneralModule, TransformModule],
       providers: [ValuesAtPointService],
     }).compile();
 
@@ -89,7 +85,7 @@ describe('ValuesAtPointController (e2e)', () => {
   });
   it('/POST within custom without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['hoehe'],
+      topics: ['hoehe_r'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -118,7 +114,7 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const props = heightsGeoJSON.properties;
     expect(props['__name']).toBe('hoehe_gelaende_dgm2');
-    expect(props['__topic']).toBe('hoehe');
+    expect(props['__topic']).toBe('hoehe_r');
     expect(props['__height']).toBe(24886);
 
     const geoProps = props['__geoProperties'];
@@ -135,8 +131,8 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(domGeoJSON.type).toBe('Feature');
 
     const propsLand = domGeoJSON.properties;
-    expect(propsLand['__name']).toBe('hoehe_oberflaeche_dom2');
-    expect(propsLand['__topic']).toBe('hoehe');
+    expect(propsLand['__name']).toBe('oberflaechenhoehe_dom2');
+    expect(propsLand['__topic']).toBe('hoehe_r');
     expect(propsLand['__height']).toBe(24886);
 
     const geoPropsLand = propsLand['__geoProperties'];
@@ -155,7 +151,7 @@ describe('ValuesAtPointController (e2e)', () => {
       outputFormat: 'geojson',
       outSRS: 12345,
       returnGeometry: false,
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     };
 
     const result = await app.inject({
