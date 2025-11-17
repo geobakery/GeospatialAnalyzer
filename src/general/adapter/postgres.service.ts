@@ -38,7 +38,13 @@ export class PostgresService extends DbAdapterService {
     return returnGeometry
       ? `json_build_object(
       'type', 'FeatureCollection',
-      'features', jsonb_agg(ST_AsGeoJSON(${this.getJsonRecordAlias()}.*)::jsonb))
+      'features', jsonb_agg(
+        jsonb_set(
+          ST_AsGeoJSON(${this.getJsonRecordAlias()}.*)::jsonb,
+          '{geometry}',
+          ST_AsGeoJSON(ST_Transform(${this.getJsonRecordAlias()}.${DB_GEOMETRY_NAME}, 4326))::jsonb
+        )
+      ))
      `
       : `json_build_object(
       'type', 'FeatureCollection',
