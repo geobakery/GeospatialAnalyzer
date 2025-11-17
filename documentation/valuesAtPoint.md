@@ -83,7 +83,7 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
       }
     }
   ],
-  "topics": ["hoehe"],
+  "topics": ["hoehe_r"],
   "returnGeometry": false,
   "outputFormat": "geojson",
   "outSRS": 4326
