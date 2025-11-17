@@ -109,7 +109,7 @@ The following metrics are available:
 - **Type:** Histogram
 - **Description:** Duration of database queries in seconds
 - **Labels:**
-  - `query_type`: Type of SQL query (SELECT, INSERT, UPDATE, DELETE, etc.)
+  - `query_type`: Type of SQL query (SELECT - the API is read-only)
   - `endpoint`: The API endpoint that initiated the query (e.g., `/intersect`, `/within`, `/nearestNeighbour`, `/valuesAtPoint`)
   - `app`: Application name
 - **Buckets:** 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10 seconds
@@ -118,7 +118,7 @@ The following metrics are available:
 - **Type:** Counter
 - **Description:** Total number of database queries executed
 - **Labels:**
-  - `query_type`: Type of SQL query
+  - `query_type`: Type of SQL query (SELECT - the API is read-only)
   - `status`: Query execution status (success or error)
   - `endpoint`: The API endpoint that initiated the query
   - `app`: Application name
@@ -394,6 +394,25 @@ The metrics implementation uses:
 - **TypeORM QueryBuilder Interception**: For database query tracking
 - **AsyncLocalStorage**: For tracking request context across async operations
 - **Global Registry**: Centralized metrics storage and exposition
+- **Zero Initialization**: All metrics are initialized with zero values at startup
+
+### Metric Initialization
+
+To prevent "no data" errors in Prometheus queries, dashboards, and alerts, all metrics are automatically initialized with zero values when the application starts. This ensures that:
+
+- Time series exist immediately, even before any requests are processed
+- PromQL queries don't fail due to missing metrics
+- Grafana dashboards display properly from the start
+- Alert rules can be evaluated without errors
+
+The following label combinations are pre-initialized:
+- **HTTP endpoints**: `/within`, `/intersect`, `/nearestNeighbour`, `/valuesAtPoint`, `/transform`, `/health`, `/topics`
+- **HTTP methods**: `GET`, `POST`
+- **Status codes**: `200`, `400`, `404`, `500`
+- **Database query types**: `SELECT` (the API is read-only and only performs SELECT queries)
+- **Query status**: `success`, `error`
+
+This follows the [prom-client best practice](https://github.com/siimon/prom-client/tree/master?tab=readme-ov-file#zeroing-metrics-with-labels) for metrics with labels.
 
 ### Request Context Tracking
 

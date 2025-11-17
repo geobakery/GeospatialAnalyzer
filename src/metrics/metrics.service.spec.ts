@@ -10,6 +10,9 @@ describe('MetricsService', () => {
     }).compile();
 
     service = module.get<MetricsService>(MetricsService);
+    
+    // Manually trigger onModuleInit to initialize metrics
+    await service.onModuleInit();
   });
 
   it('should be defined', () => {
@@ -135,6 +138,33 @@ describe('MetricsService', () => {
     it('should return the registry instance', () => {
       const registry = service.getRegistry();
       expect(registry).toBeDefined();
+    });
+  });
+
+  describe('Metric Initialization', () => {
+    it('should initialize metrics with zero values on startup', async () => {
+      const metrics = await service.getMetrics();
+
+      // Verify HTTP metrics are initialized for common endpoints
+      expect(metrics).toContain('endpoint="/within"');
+      expect(metrics).toContain('endpoint="/intersect"');
+      expect(metrics).toContain('endpoint="/nearestNeighbour"');
+
+      // Verify database metrics are initialized
+      expect(metrics).toContain('query_type="SELECT"');
+      expect(metrics).toContain('status="success"');
+      expect(metrics).toContain('status="error"');
+
+      // Verify active connections is initialized to 0
+      expect(metrics).toContain('geospatialanalyzer_http_active_connections');
+    });
+
+    it('should have metrics available before any requests are made', async () => {
+      const metrics = await service.getMetrics();
+
+      // These metrics should exist even without any actual requests
+      expect(metrics).toContain('geospatialanalyzer_http_requests_total');
+      expect(metrics).toContain('geospatialanalyzer_db_queries_total');
     });
   });
 });

@@ -106,6 +106,68 @@ export class MetricsService implements OnModuleInit {
       register: this.registry,
       prefix: 'geospatialanalyzer_',
     });
+
+    // Initialize metrics with zero values to ensure time series exist
+    this.initializeMetrics();
+  }
+
+  /**
+   * Initialize all metrics with zero values for common label combinations
+   * This ensures that metrics are available in Prometheus even before any requests are made
+   * and prevents "no data" errors in dashboards and alerts
+   */
+  private initializeMetrics(): void {
+    const endpoints = [
+      '/within',
+      '/intersect',
+      '/nearestNeighbour',
+      '/valuesAtPoint',
+      '/transform',
+      '/health',
+      '/topics',
+    ];
+    const methods = ['GET', 'POST'];
+    const statusCodes = ['200', '400', '404', '500'];
+    const statuses: ('success' | 'error')[] = ['success', 'error'];
+
+    // Initialize HTTP request counters with zero
+    // Counters need to be incremented (by 0) to appear in metrics output
+    endpoints.forEach((endpoint) => {
+      methods.forEach((method) => {
+        statusCodes.forEach((statusCode) => {
+          // Initialize with 'none' topic for endpoints that may not have topics
+          this.httpRequestsTotal.inc(
+            { method, endpoint, status_code: statusCode, topic: 'none' },
+            0,
+          );
+        });
+
+        // Initialize histograms by observing zero
+        // This creates the time series but doesn't affect statistics
+        this.httpRequestDuration.observe({ method, endpoint }, 0);
+        this.httpRequestSizeBytes.observe({ method, endpoint }, 0);
+        this.httpResponseSizeBytes.observe({ method, endpoint }, 0);
+      });
+    });
+
+    // Initialize database query metrics
+    // Only SELECT queries are used in this read-only API
+    endpoints.forEach((endpoint) => {
+      this.dbQueryDuration.observe({ query_type: 'SELECT', endpoint }, 0);
+
+      statuses.forEach((status) => {
+        this.dbQueriesTotal.inc(
+          { query_type: 'SELECT', status, endpoint },
+          0,
+        );
+      });
+    });
+
+    // Initialize active connections gauge with zero
+    this.activeConnections.set(0);
+
+    // Note: resultsReturned metrics are topic-specific and will be initialized
+    // on first use since topics are dynamic and loaded from configuration
   }
 
   /**

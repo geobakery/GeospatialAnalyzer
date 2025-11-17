@@ -109,5 +109,24 @@ describe('Metrics (e2e)', () => {
       // Should not have combined topics
       expect(response.body).not.toContain('topic="kreis,land"');
     });
+
+    it('should have zero-initialized metrics at startup', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/metrics',
+      });
+
+      // Verify common endpoints are initialized even before any real requests
+      expect(response.body).toContain('endpoint="/within"');
+      expect(response.body).toContain('endpoint="/intersect"');
+      expect(response.body).toContain('endpoint="/nearestNeighbour"');
+
+      // Verify database metrics are initialized
+      expect(response.body).toContain('query_type="SELECT"');
+      expect(response.body).toContain('status="success"');
+
+      // Verify active connections is initialized
+      expect(response.body).toContain('geospatialanalyzer_http_active_connections');
+    });
   });
 });
