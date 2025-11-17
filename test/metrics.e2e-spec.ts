@@ -12,7 +12,7 @@ describe('Metrics (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MetricsModule],
+      imports: [MetricsModule.forRoot()],
     }).compile();
 
     app = moduleFixture.createNestApplication<NestFastifyApplication>(

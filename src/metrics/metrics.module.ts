@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { DatabaseMetricsTracker } from './database-metrics.subscriber';
 import { MetricsController } from './metrics.controller';
@@ -8,17 +8,27 @@ import { MetricsService } from './metrics.service';
 /**
  * Module for Prometheus metrics collection and exposure
  * Provides automatic metrics collection for HTTP requests and database queries
+ * Can be conditionally enabled/disabled via configuration
  */
-@Module({
-  controllers: [MetricsController],
-  providers: [
-    MetricsService,
-    DatabaseMetricsTracker,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: MetricsInterceptor,
-    },
-  ],
-  exports: [MetricsService],
-})
-export class MetricsModule {}
+@Module({})
+export class MetricsModule {
+  /**
+   * Register the metrics module with all providers and interceptors
+   * Use this when metrics collection is enabled
+   */
+  static forRoot(): DynamicModule {
+    return {
+      module: MetricsModule,
+      controllers: [MetricsController],
+      providers: [
+        MetricsService,
+        DatabaseMetricsTracker,
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: MetricsInterceptor,
+        },
+      ],
+      exports: [MetricsService],
+    };
+  }
+}

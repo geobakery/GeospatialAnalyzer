@@ -62,7 +62,10 @@ import { TopicsModule } from './topics/topics.module';
     HealthModule,
     NearestNeighbourModule,
     TopicsModule,
-    MetricsModule,
+    // Conditionally load MetricsModule based on configuration
+    ...(process.env.GEOSPATIAL_ANALYZER_METRICS_ENABLED !== 'false'
+      ? [MetricsModule.forRoot()]
+      : []),
   ],
 })
 export class AppModule {}

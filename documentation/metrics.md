@@ -4,6 +4,28 @@
 
 The GeospatialAnalyzer provides Prometheus-compatible metrics for monitoring application performance and health. The metrics are exposed at the `/metrics` endpoint and can be scraped by Prometheus for visualization in Grafana.
 
+## Configuration
+
+Metrics collection can be enabled or disabled via environment variable:
+
+```bash
+# Enable metrics (default)
+GEOSPATIAL_ANALYZER_METRICS_ENABLED=true
+
+# Disable metrics
+GEOSPATIAL_ANALYZER_METRICS_ENABLED=false
+```
+
+**Default:** Metrics are **enabled** by default for backward compatibility.
+
+When disabled:
+- The `/metrics` endpoint will not be registered
+- No HTTP request interception occurs
+- No database query tracking is performed
+- No performance overhead from metrics collection
+
+Add this configuration to your `.env`, `.env.dev`, or `.env.test` files as needed.
+
 ## Endpoint
 
 **URL:** `GET /metrics`
