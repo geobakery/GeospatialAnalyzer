@@ -39,18 +39,18 @@ Add this configuration to your `.env`, `.env.dev`, or `.env.test` files as neede
 The following metrics are available:
 
 **HTTP Metrics:**
-- `http_requests_total` - Total number of HTTP requests (labeled by method, endpoint, status_code, topic)
-- `http_request_duration_seconds` - HTTP request duration histogram
-- `http_request_size_bytes` - HTTP request size histogram
-- `http_response_size_bytes` - HTTP response size histogram
-- `http_active_connections` - Current number of active HTTP connections
+- `geospatialanalyzer_http_requests_total` - Total number of HTTP requests (labeled by method, endpoint, status_code, topic)
+- `geospatialanalyzer_http_request_duration_seconds` - HTTP request duration histogram
+- `geospatialanalyzer_http_request_size_bytes` - HTTP request size histogram
+- `geospatialanalyzer_http_response_size_bytes` - HTTP response size histogram
+- `geospatialanalyzer_http_active_connections` - Current number of active HTTP connections
 
 **Database Metrics:**
-- `db_query_duration_seconds` - Database query duration histogram (labeled by query_type, endpoint)
-- `db_queries_total` - Total number of database queries (labeled by query_type, status, endpoint)
+- `geospatialanalyzer_db_query_duration_seconds` - Database query duration histogram (labeled by query_type, endpoint)
+- `geospatialanalyzer_db_queries_total` - Total number of database queries (labeled by query_type, status, endpoint)
 
 **Application Metrics:**
-- `query_results_returned` - Number of results returned per query (labeled by endpoint, topic)
+- `geospatialanalyzer_query_results_returned` - Number of results returned per query (labeled by endpoint, topic)
 
 **System Metrics:**
 - `geospatialanalyzer_nodejs_*` - Standard Node.js runtime metrics (heap, CPU, event loop, etc.)
@@ -59,7 +59,7 @@ The following metrics are available:
 
 ### HTTP Request Metrics
 
-#### `http_requests_total`
+#### `geospatialanalyzer_http_requests_total`
 - **Type:** Counter
 - **Description:** Total number of HTTP requests
 - **Labels:**
@@ -70,7 +70,7 @@ The following metrics are available:
   - `app`: Application name (always "geospatialanalyzer")
 - **Note:** For requests with multiple topics, each topic generates a separate counter increment. For example, a request with `topics: ["kreis", "land"]` will increment both `topic="kreis"` and `topic="land"` counters.
 
-#### `http_request_duration_seconds`
+#### `geospatialanalyzer_http_request_duration_seconds`
 - **Type:** Histogram
 - **Description:** Duration of HTTP requests in seconds
 - **Labels:**
@@ -79,7 +79,7 @@ The following metrics are available:
   - `app`: Application name
 - **Buckets:** 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10, 30 seconds
 
-#### `http_request_size_bytes`
+#### `geospatialanalyzer_http_request_size_bytes`
 - **Type:** Histogram
 - **Description:** Size of HTTP request payloads in bytes
 - **Labels:**
@@ -88,7 +88,7 @@ The following metrics are available:
   - `app`: Application name
 - **Buckets:** 100, 1000, 10000, 100000, 1000000, 10000000 bytes
 
-#### `http_response_size_bytes`
+#### `geospatialanalyzer_http_response_size_bytes`
 - **Type:** Histogram
 - **Description:** Size of HTTP response payloads in bytes
 - **Labels:**
@@ -97,7 +97,7 @@ The following metrics are available:
   - `app`: Application name
 - **Buckets:** 100, 1000, 10000, 100000, 1000000, 10000000 bytes
 
-#### `http_active_connections`
+#### `geospatialanalyzer_http_active_connections`
 - **Type:** Gauge
 - **Description:** Current number of active HTTP connections
 - **Labels:**
@@ -105,7 +105,7 @@ The following metrics are available:
 
 ### Database Metrics
 
-#### `db_query_duration_seconds`
+#### `geospatialanalyzer_db_query_duration_seconds`
 - **Type:** Histogram
 - **Description:** Duration of database queries in seconds
 - **Labels:**
@@ -114,7 +114,7 @@ The following metrics are available:
   - `app`: Application name
 - **Buckets:** 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10 seconds
 
-#### `db_queries_total`
+#### `geospatialanalyzer_db_queries_total`
 - **Type:** Counter
 - **Description:** Total number of database queries executed
 - **Labels:**
@@ -125,7 +125,7 @@ The following metrics are available:
 
 ### Application Metrics
 
-#### `query_results_returned`
+#### `geospatialanalyzer_query_results_returned`
 - **Type:** Histogram
 - **Description:** Number of results returned per query
 - **Labels:**
@@ -145,40 +145,41 @@ The application also exposes standard Node.js metrics with the `geospatialanalyz
 - `geospatialanalyzer_process_cpu_user_seconds_total`: CPU user time
 - `geospatialanalyzer_process_cpu_system_seconds_total`: CPU system time
 - And more...
+Those default metrics are implemented using the [prom-client core metric](https://github.com/siimon/prom-client/tree/master/lib/metrics).
 
 ## Example Output
 
 ```
-# HELP http_requests_total Total number of HTTP requests
-# TYPE http_requests_total counter
-http_requests_total{method="POST",endpoint="/within",status_code="200",topic="parcels",app="geospatialanalyzer"} 42
-http_requests_total{method="POST",endpoint="/intersect",status_code="200",topic="kreis",app="geospatialanalyzer"} 15
-http_requests_total{method="POST",endpoint="/intersect",status_code="200",topic="land",app="geospatialanalyzer"} 15
+# HELP geospatialanalyzer_http_requests_total Total number of HTTP requests
+# TYPE geospatialanalyzer_http_requests_total counter
+geospatialanalyzer_http_requests_total{method="POST",endpoint="/within",status_code="200",topic="parcels",app="geospatialanalyzer"} 42
+geospatialanalyzer_http_requests_total{method="POST",endpoint="/intersect",status_code="200",topic="kreis",app="geospatialanalyzer"} 15
+geospatialanalyzer_http_requests_total{method="POST",endpoint="/intersect",status_code="200",topic="land",app="geospatialanalyzer"} 15
 
-# HELP http_request_duration_seconds Duration of HTTP requests in seconds
-# TYPE http_request_duration_seconds histogram
-http_request_duration_seconds_bucket{le="0.01",method="POST",endpoint="/within",app="geospatialanalyzer"} 15
-http_request_duration_seconds_bucket{le="0.05",method="POST",endpoint="/within",app="geospatialanalyzer"} 38
-http_request_duration_seconds_sum{method="POST",endpoint="/within",app="geospatialanalyzer"} 12.34
-http_request_duration_seconds_count{method="POST",endpoint="/within",app="geospatialanalyzer"} 42
+# HELP geospatialanalyzer_http_request_duration_seconds Duration of HTTP requests in seconds
+# TYPE geospatialanalyzer_http_request_duration_seconds histogram
+geospatialanalyzer_http_request_duration_seconds_bucket{le="0.01",method="POST",endpoint="/within",app="geospatialanalyzer"} 15
+geospatialanalyzer_http_request_duration_seconds_bucket{le="0.05",method="POST",endpoint="/within",app="geospatialanalyzer"} 38
+geospatialanalyzer_http_request_duration_seconds_sum{method="POST",endpoint="/within",app="geospatialanalyzer"} 12.34
+geospatialanalyzer_http_request_duration_seconds_count{method="POST",endpoint="/within",app="geospatialanalyzer"} 42
 
-# HELP db_query_duration_seconds Duration of database queries in seconds
-# TYPE db_query_duration_seconds histogram
-db_query_duration_seconds_bucket{le="0.01",query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 120
-db_query_duration_seconds_sum{query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 5.67
-db_query_duration_seconds_count{query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 150
+# HELP geospatialanalyzer_db_query_duration_seconds Duration of database queries in seconds
+# TYPE geospatialanalyzer_db_query_duration_seconds histogram
+geospatialanalyzer_db_query_duration_seconds_bucket{le="0.01",query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 120
+geospatialanalyzer_db_query_duration_seconds_sum{query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 5.67
+geospatialanalyzer_db_query_duration_seconds_count{query_type="SELECT",endpoint="/intersect",app="geospatialanalyzer"} 150
 
-# HELP db_queries_total Total number of database queries executed
-# TYPE db_queries_total counter
-db_queries_total{query_type="SELECT",status="success",endpoint="/within",app="geospatialanalyzer"} 200
-db_queries_total{query_type="SELECT",status="success",endpoint="/intersect",app="geospatialanalyzer"} 150
+# HELP geospatialanalyzer_db_queries_total Total number of database queries executed
+# TYPE geospatialanalyzer_db_queries_total counter
+geospatialanalyzer_db_queries_total{query_type="SELECT",status="success",endpoint="/within",app="geospatialanalyzer"} 200
+geospatialanalyzer_db_queries_total{query_type="SELECT",status="success",endpoint="/intersect",app="geospatialanalyzer"} 150
 
-# HELP query_results_returned Number of results returned per query
-# TYPE query_results_returned histogram
-query_results_returned_bucket{le="1",endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 10
-query_results_returned_bucket{le="5",endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 25
-query_results_returned_sum{endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 48
-query_results_returned_count{endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 30
+# HELP geospatialanalyzer_query_results_returned Number of results returned per query
+# TYPE geospatialanalyzer_query_results_returned histogram
+geospatialanalyzer_query_results_returned_bucket{le="1",endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 10
+geospatialanalyzer_query_results_returned_bucket{le="5",endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 25
+geospatialanalyzer_query_results_returned_sum{endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 48
+geospatialanalyzer_query_results_returned_count{endpoint="/intersect",topic="kreis",app="geospatialanalyzer"} 30
 ```
 
 ## Prometheus Configuration
@@ -221,38 +222,38 @@ spec:
 
 #### Request Rate
 ```promql
-rate(http_requests_total{app="geospatialanalyzer"}[5m])
+rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer"}[5m])
 ```
 
 #### Average Response Time
 ```promql
-rate(http_request_duration_seconds_sum{app="geospatialanalyzer"}[5m]) / 
-rate(http_request_duration_seconds_count{app="geospatialanalyzer"}[5m])
+rate(geospatialanalyzer_http_request_duration_seconds_sum{app="geospatialanalyzer"}[5m]) / 
+rate(geospatialanalyzer_http_request_duration_seconds_count{app="geospatialanalyzer"}[5m])
 ```
 
 #### 95th Percentile Response Time
 ```promql
 histogram_quantile(0.95, 
-  rate(http_request_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+  rate(geospatialanalyzer_http_request_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Error Rate
 ```promql
-rate(http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m])
+rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m])
 ```
 
 #### Request Count by Topic
 ```promql
 sum by (topic) (
-  rate(http_requests_total{app="geospatialanalyzer"}[5m])
+  rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Database Query Performance
 ```promql
 histogram_quantile(0.95, 
-  rate(db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+  rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
 )
 ```
 
@@ -260,7 +261,7 @@ histogram_quantile(0.95,
 ```promql
 histogram_quantile(0.95, 
   sum by (endpoint, le) (
-    rate(db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+    rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
   )
 )
 ```
@@ -268,28 +269,28 @@ histogram_quantile(0.95,
 #### Database Query Rate by Type
 ```promql
 sum by (query_type) (
-  rate(db_queries_total{app="geospatialanalyzer"}[5m])
+  rate(geospatialanalyzer_db_queries_total{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Database Query Rate by Endpoint
 ```promql
 sum by (endpoint) (
-  rate(db_queries_total{app="geospatialanalyzer"}[5m])
+  rate(geospatialanalyzer_db_queries_total{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Average Results Returned
 ```promql
-rate(query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
-rate(query_results_returned_count{app="geospatialanalyzer"}[5m])
+rate(geospatialanalyzer_query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
+rate(geospatialanalyzer_query_results_returned_count{app="geospatialanalyzer"}[5m])
 ```
 
 #### Results Distribution by Topic
 ```promql
 histogram_quantile(0.95,
   sum by (topic, le) (
-    rate(query_results_returned_bucket{app="geospatialanalyzer"}[5m])
+    rate(geospatialanalyzer_query_results_returned_bucket{app="geospatialanalyzer"}[5m])
   )
 )
 ```
@@ -306,7 +307,7 @@ groups:
     rules:
       - alert: HighErrorRate
         expr: |
-          rate(http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m]) > 0.05
+          rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m]) > 0.05
         for: 5m
         annotations:
           summary: "High error rate detected"
@@ -314,7 +315,7 @@ groups:
       - alert: SlowResponseTime
         expr: |
           histogram_quantile(0.95, 
-            rate(http_request_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+            rate(geospatialanalyzer_http_request_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
           ) > 5
         for: 5m
         annotations:
@@ -323,7 +324,7 @@ groups:
       - alert: SlowDatabaseQueries
         expr: |
           histogram_quantile(0.95, 
-            rate(db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+            rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
           ) > 2
         for: 5m
         annotations:
@@ -333,7 +334,7 @@ groups:
         expr: |
           histogram_quantile(0.95, 
             sum by (endpoint, le) (
-              rate(db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
+              rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
             )
           ) > 5
         for: 5m
@@ -342,8 +343,8 @@ groups:
           
       - alert: LowResultCounts
         expr: |
-          rate(query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
-          rate(query_results_returned_count{app="geospatialanalyzer"}[5m]) < 1
+          rate(geospatialanalyzer_query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
+          rate(geospatialanalyzer_query_results_returned_count{app="geospatialanalyzer"}[5m]) < 1
         for: 10m
         annotations:
           summary: "Queries are returning very few results"
@@ -388,7 +389,7 @@ The metrics endpoint is also documented in the Swagger UI:
 The metrics implementation uses:
 
 - **In-app approach**: Metrics are collected directly within the application (not sidecar)
-- **prom-client**: Official Prometheus client library for Node.js
+- **prom-client**: Prometheus client library for Node.js
 - **NestJS Interceptor**: For automatic HTTP request tracking
 - **TypeORM QueryBuilder Interception**: For database query tracking
 - **AsyncLocalStorage**: For tracking request context across async operations
