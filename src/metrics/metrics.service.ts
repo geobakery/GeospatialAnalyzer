@@ -41,14 +41,14 @@ export class MetricsService implements OnModuleInit {
     });
 
     this.httpRequestsTotal = new client.Counter({
-      name: 'http_requests_total',
+      name: 'geospatialanalyzer_http_requests_total',
       help: 'Total number of HTTP requests',
       labelNames: ['method', 'endpoint', 'status_code', 'topic'],
       registers: [this.registry],
     });
 
     this.httpRequestDuration = new client.Histogram({
-      name: 'http_request_duration_seconds',
+      name: 'geospatialanalyzer_http_request_duration_seconds',
       help: 'Duration of HTTP requests in seconds',
       labelNames: ['method', 'endpoint'],
       buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10, 30],
@@ -56,7 +56,7 @@ export class MetricsService implements OnModuleInit {
     });
 
     this.httpRequestSizeBytes = new client.Histogram({
-      name: 'http_request_size_bytes',
+      name: 'geospatialanalyzer_http_request_size_bytes',
       help: 'Size of HTTP requests in bytes',
       labelNames: ['method', 'endpoint'],
       buckets: [100, 1000, 10000, 100000, 1000000, 10000000],
@@ -64,7 +64,7 @@ export class MetricsService implements OnModuleInit {
     });
 
     this.httpResponseSizeBytes = new client.Histogram({
-      name: 'http_response_size_bytes',
+      name: 'geospatialanalyzer_http_response_size_bytes',
       help: 'Size of HTTP responses in bytes',
       labelNames: ['method', 'endpoint'],
       buckets: [100, 1000, 10000, 100000, 1000000, 10000000],
@@ -72,7 +72,7 @@ export class MetricsService implements OnModuleInit {
     });
 
     this.dbQueryDuration = new client.Histogram({
-      name: 'db_query_duration_seconds',
+      name: 'geospatialanalyzer_db_query_duration_seconds',
       help: 'Duration of database queries in seconds',
       labelNames: ['query_type', 'endpoint'],
       buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10],
@@ -80,20 +80,20 @@ export class MetricsService implements OnModuleInit {
     });
 
     this.dbQueriesTotal = new client.Counter({
-      name: 'db_queries_total',
+      name: 'geospatialanalyzer_db_queries_total',
       help: 'Total number of database queries',
       labelNames: ['query_type', 'status', 'endpoint'],
       registers: [this.registry],
     });
 
     this.activeConnections = new client.Gauge({
-      name: 'http_active_connections',
+      name: 'geospatialanalyzer_http_active_connections',
       help: 'Number of active HTTP connections',
       registers: [this.registry],
     });
 
     this.resultsReturned = new client.Histogram({
-      name: 'query_results_returned',
+      name: 'geospatialanalyzer_query_results_returned',
       help: 'Number of results returned per query',
       labelNames: ['endpoint', 'topic'],
       buckets: [0, 1, 5, 10, 25, 50, 100, 250, 500, 1000, 5000],

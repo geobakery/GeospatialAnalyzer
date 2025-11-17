@@ -45,9 +45,9 @@ describe('Metrics (e2e)', () => {
         url: '/metrics',
       });
 
-      expect(response.body).toContain('http_requests_total');
-      expect(response.body).toContain('http_request_duration_seconds');
-      expect(response.body).toContain('db_query_duration_seconds');
+      expect(response.body).toContain('geospatialanalyzer_http_requests_total');
+      expect(response.body).toContain('geospatialanalyzer_http_request_duration_seconds');
+      expect(response.body).toContain('geospatialanalyzer_db_query_duration_seconds');
       expect(response.body).toContain('app="geospatialanalyzer"');
     });
 

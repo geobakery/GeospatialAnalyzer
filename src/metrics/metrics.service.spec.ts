@@ -67,8 +67,8 @@ describe('MetricsService', () => {
       ]);
 
       const metrics = await service.getMetrics();
-      expect(metrics).toContain('http_requests_total');
-      expect(metrics).toContain('http_request_duration_seconds');
+      expect(metrics).toContain('geospatialanalyzer_http_requests_total');
+      expect(metrics).toContain('geospatialanalyzer_http_request_duration_seconds');
       expect(metrics).toContain('topic="test"');
     });
 
@@ -103,8 +103,8 @@ describe('MetricsService', () => {
       service.recordDatabaseQuery('SELECT', 0.01, 'success');
 
       const metrics = await service.getMetrics();
-      expect(metrics).toContain('db_query_duration_seconds');
-      expect(metrics).toContain('db_queries_total');
+      expect(metrics).toContain('geospatialanalyzer_db_query_duration_seconds');
+      expect(metrics).toContain('geospatialanalyzer_db_queries_total');
     });
 
     it('should record failed database query', async () => {
@@ -119,7 +119,7 @@ describe('MetricsService', () => {
     it('should increment active connections', async () => {
       service.incrementActiveConnections();
       const metrics = await service.getMetrics();
-      expect(metrics).toContain('http_active_connections');
+      expect(metrics).toContain('geospatialanalyzer_http_active_connections');
     });
 
     it('should decrement active connections', async () => {
@@ -127,7 +127,7 @@ describe('MetricsService', () => {
       service.incrementActiveConnections();
       service.decrementActiveConnections();
       const metrics = await service.getMetrics();
-      expect(metrics).toContain('http_active_connections');
+      expect(metrics).toContain('geospatialanalyzer_http_active_connections');
     });
   });
 
