@@ -48,7 +48,7 @@ export const SCHEMA_VALID_OUT_SRS: Readonly<SchemaObject> = {
 export class ParameterDto implements GeospatialRequest {
   @ApiProperty({
     description: 'the topic name to check for',
-    example: ['kreis'],
+    example: ['kreis_f'],
     minItems: 1,
     uniqueItems: true,
   })
@@ -135,7 +135,7 @@ export class NearestNeighbourParameterDto extends ParameterDto {
 }
 export class ValuesAtPointParameterDto extends ParameterDto {
   @ApiProperty({
-    example: ['hoehe'],
+    example: ['hoehe_r'],
     description: 'the topic name to check for',
   })
   topics: string[];

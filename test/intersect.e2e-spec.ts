@@ -41,11 +41,7 @@ describe('IntersectController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
-      imports: [
-        ...createE2eTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createE2eTestModules(), GeneralModule, TransformModule],
       providers: [IntersectService],
     }).compile();
 
@@ -71,7 +67,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect with geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis'],
+      topics: ['kreis_f'],
       returnGeometry: true,
     });
     const result = await app.inject({
@@ -85,7 +81,7 @@ describe('IntersectController (e2e)', () => {
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(1);
-    await topicTest(INTERSECT, geoJSON[0], 'kreis');
+    await topicTest(INTERSECT, geoJSON[0], 'kreis_f');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
@@ -103,7 +99,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect with duplicate topics', async () => {
     const input = getGeoJSONFeature({
-      topics: ['kreis', 'kreis'],
+      topics: ['kreis_f', 'kreis_f'],
     });
 
     const result = await app.inject({
@@ -118,7 +114,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect with aliased topic', async () => {
     const input = getGeoJSONFeature({
-      topics: ['sn_kreis', 'kreis'],
+      topics: ['sn_kreis_f', 'kreis_f'],
     });
 
     const result = await app.inject({
@@ -136,12 +132,12 @@ describe('IntersectController (e2e)', () => {
       expect.arrayContaining([
         expect.objectContaining({
           properties: expect.objectContaining({
-            __topic: 'sn_kreis',
+            __topic: 'sn_kreis_f',
           }),
         }),
         expect.objectContaining({
           properties: expect.objectContaining({
-            __topic: 'kreis',
+            __topic: 'kreis_f',
           }),
         }),
       ]),
@@ -150,7 +146,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect custom without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis', 'land'],
+      topics: ['kreis_f', 'land_f'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -178,7 +174,7 @@ describe('IntersectController (e2e)', () => {
 
     const props = verwKreisGeoJSON.properties;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -195,7 +191,7 @@ describe('IntersectController (e2e)', () => {
 
     const propsLand = verwLandGeoJSON.properties;
     expect(propsLand['name']).toBe('Sachsen');
-    expect(propsLand['__topic']).toBe('land');
+    expect(propsLand['__topic']).toBe('land_f');
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
@@ -209,7 +205,7 @@ describe('IntersectController (e2e)', () => {
 
   it('/POST Intersect custom with geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['gemeinde'],
+      topics: ['gemeinde_f'],
       returnGeometry: true,
       fixGeometry: {
         type: 'Point',
@@ -235,7 +231,7 @@ describe('IntersectController (e2e)', () => {
 
     const props = verwGemGeoJSON.properties;
     expect(props['name']).toBe('Stadt Dresden');
-    expect(props['__topic']).toBe('gemeinde');
+    expect(props['__topic']).toBe('gemeinde_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -270,7 +266,7 @@ describe('IntersectController (e2e)', () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
       outputFormat: 'esrijson',
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     });
     const result = await app.inject({
       method: POST,
@@ -292,7 +288,7 @@ describe('IntersectController (e2e)', () => {
 
     const props = verwEsri.attributes;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -323,7 +319,7 @@ describe('IntersectController (e2e)', () => {
       returnGeometry: true,
       outputFormat: 'geojson',
       outSRS: 4326,
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     });
     const result = await app.inject({
       method: POST,
@@ -344,7 +340,7 @@ describe('IntersectController (e2e)', () => {
 
     const props = verwGemGeoJSON.properties;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -381,7 +377,7 @@ describe('IntersectController (e2e)', () => {
       outputFormat: 'geojson',
       outSRS: 12345,
       returnGeometry: false,
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     };
 
     const result = await app.inject({

@@ -4,6 +4,7 @@ import { arcgisToGeoJSON, geojsonToArcGIS } from '@terraformer/arcgis';
 import proj4 from 'proj4';
 import * as epsg from 'proj4-list';
 import {
+  EsriEmptyPointDto,
   EsriPointDto,
   EsriPolygonDto,
   EsriPolylineDto,
@@ -32,7 +33,8 @@ export class TransformService {
 
     for (const geoJSON of geoInput) {
       try {
-        if (geoJSON.geometry) {
+        // Skip transformation for null or empty geometries (e.g., from raster queries)
+        if (geoJSON.geometry && geoJSON.geometry.coordinates && geoJSON.geometry.coordinates.length > 0) {
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
             STANDARD_EPSG + STANDARD_CRS,
@@ -48,8 +50,19 @@ export class TransformService {
 
       try {
         const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
-        if (typeof esriJson.geometry !== 'undefined')
-          esriJson.geometry.spatialReference.wkid = args.epsg;
+        
+        // Check if geometry exists and has valid coordinates
+        if (typeof esriJson.geometry !== 'undefined') {
+          const hasValidCoordinates = this.hasValidCoordinates(esriJson.geometry);
+          
+          if (hasValidCoordinates) {
+            esriJson.geometry.spatialReference.wkid = args.epsg;
+          } else {
+            // Set geometry to null for empty geometries (e.g., from raster queries)
+            // This makes it clear no geometry is available
+            esriJson.geometry = null as any;
+          }
+        }
 
         esriJsonArray.push(esriJson);
       } catch (e) {
@@ -232,6 +245,43 @@ export class TransformService {
     this.registerCRS(fromEpsgString);
     this.registerCRS(toEpsgString);
     return proj4(fromEpsgString, toEpsgString, coordinates);
+  }
+
+  /**
+   * Checks if an EsriJSON geometry has valid coordinates.
+   * Returns false for empty geometries (e.g., POINT EMPTY from raster queries).
+   */
+  private hasValidCoordinates(
+    geometry:
+      | EsriEmptyPointDto
+      | EsriPointDto
+      | EsriPolylineDto
+      | EsriPolygonDto,
+  ): boolean {
+    // Check for empty point (x is null or NaN)
+    if ('x' in geometry) {
+      return (
+        geometry.x !== null &&
+        geometry.x !== 'NaN' &&
+        typeof geometry.x === 'number' &&
+        !isNaN(geometry.x) &&
+        'y' in geometry &&
+        typeof geometry.y === 'number' &&
+        !isNaN(geometry.y)
+      );
+    }
+
+    // Check for polyline
+    if ('paths' in geometry) {
+      return Array.isArray(geometry.paths) && geometry.paths.length > 0;
+    }
+
+    // Check for polygon
+    if ('rings' in geometry) {
+      return Array.isArray(geometry.rings) && geometry.rings.length > 0;
+    }
+
+    return false;
   }
 
   isGeoJSONFeatureCollectionArray(
