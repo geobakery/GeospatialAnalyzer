@@ -6,7 +6,7 @@
       "description": "An Sachsen grenzende Bundesländer und Länder.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.verw_land_f",
+        "source": "ga.verw_land_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -27,7 +27,7 @@
       "description": "Landkreise und kreisfreie Städte in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.verw_kreis_f",
+        "source": "ga.verw_kreis_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -53,12 +53,12 @@
       "__multipleSources__": [
         {
           "name": "gelaendehoehe_dgm2",
-          "source": "spatialyzer_demo.hoehe2m_r",
+          "source": "ga.hoehe2m_r",
           "srid": 25833
         },
         {
           "name": "oberflaechenhoehe_dom2",
-          "source": "spatialyzer_demo.hoehe2m_dom_r",
+          "source": "ga.hoehe2m_dom_r",
           "srid": 25833
         }
       ],
@@ -71,7 +71,7 @@
       "description": "Gemeinden in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.verw_gem_f",
+        "source": "ga.verw_gem_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -96,7 +96,7 @@
       "description": "Wasserschutzgebiete in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.umw_wassersch_f",
+        "source": "ga.umw_wassersch_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -123,7 +123,7 @@
       "description": "Europäische Vogelschutzgebiete und Fauna-Flora-Habitat-Gebiete (FFH-Gebiete) in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.umw_nat2000_f",
+        "source": "ga.umw_nat2000_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -149,7 +149,7 @@
       "description": "Fledermausquartiere in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.umw_nat2000_p",
+        "source": "ga.umw_nat2000_p",
         "srid": 25833
       },
       "__attributes__": [
@@ -172,7 +172,7 @@
       "description": "Naturschutzgebiete, Naturparks, Nationalparks, Landschaftsschutzgebiete, Flächennaturdenkmäler und Biosphärenreservate in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.umw_schutzgeb_f",
+        "source": "ga.umw_schutzgeb_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -199,7 +199,7 @@
       "description": "Nachrichtliche Information über unterirdische Hohlräume in Sachsen, die dem Geltungsbereich des Bundesberggesetzes unterliegen (Gebiete mit Grubenbauen unter Bergaufsicht).",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.geol_hohlraumbas_f",
+        "source": "ga.geol_hohlraumbas_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -216,7 +216,7 @@
       "description": "Unterirdische Hohlräume (Hohlraumgebiete) in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.geol_hohlraumuih_f",
+        "source": "ga.geol_hohlraumuih_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -234,7 +234,7 @@
       "description": "Adressen in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.adressen_p",
+        "source": "ga.adressen_p",
         "srid": 25833
       },
       "__attributes__": ["strasse", "str_nummer", "plz", "ort"],
@@ -246,7 +246,7 @@
       "description": "Afrikanische Schweinepest (ASP) -Sperrzonen in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.gesu_aspsz_f",
+        "source": "ga.gesu_aspsz_f",
         "srid": 25833
       },
       "__attributes__": ["name"],
@@ -258,7 +258,7 @@
       "description": "Gemarkungen in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.kat_gemark_f",
+        "source": "ga.kat_gemark_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -281,7 +281,7 @@
       "description": "Flurstücke in Sachsen.",
       "__source__": {
         "name": "unused",
-        "source": "spatialyzer_demo.kat_flurst_f",
+        "source": "ga.kat_flurst_f",
         "srid": 25833
       },
       "__attributes__": [
@@ -306,7 +306,7 @@
       "description": "Thüringer Verwaltungseinheiten aus dem ATKIS Basis-DLM. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Thüringen.",
       "__source__": {
         "name": "unused",
-        "source": "efa.thueringen",
+        "source": "ga_efa.thueringen",
         "srid": 25832
       },
       "__attributes__": [
