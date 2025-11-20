@@ -5,6 +5,7 @@ import configuration from './config/configuration';
 import { GeneralModule } from './general/general.module';
 import { HealthModule } from './health/health.module';
 import { IntersectModule } from './intersect/intersect.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.module';
 import { TransformModule } from './transform/transform.module';
 import { ValuesAtPointModule } from './values-at-point/values-at-point.module';
@@ -61,6 +62,10 @@ import { TopicsModule } from './topics/topics.module';
     HealthModule,
     NearestNeighbourModule,
     TopicsModule,
+    // Conditionally load MetricsModule based on configuration
+    ...(process.env.GEOSPATIAL_ANALYZER_METRICS_ENABLED !== 'false'
+      ? [MetricsModule.forRoot()]
+      : []),
   ],
 })
 export class AppModule {}
