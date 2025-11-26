@@ -38,6 +38,7 @@ jobs:
           tags: |
             type=sha,enable={{is_default_branch}}
             type=ref,event=pr,suffix={{sha}}
+            type=ref,event=workflow_dispatch,suffix={{sha}}
             type=semver,pattern={{version}}
 
       - name: Build and push image
