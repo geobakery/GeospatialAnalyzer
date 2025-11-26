@@ -47,18 +47,24 @@ class InputValidationErrorHandler
 
 async function checkFile(
   fileName: string,
-  pathToExample: string,
   errorString: string,
+  defaultFileName?: string
 ): Promise<void> {
   const fileExists = async (path: string) =>
     !!(await fs.stat(path).catch(() => false));
 
   const exist = await fileExists(join(__dirname, './../' + fileName));
   if (!exist) {
-    console.warn(errorString);
-    await createDefaultFile(fileName, pathToExample);
+    if (defaultFileName) {  
+      console.warn(errorString);
+      await createFromDefaultFile(fileName, defaultFileName);
 
-    await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+      await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+    }
+    else {
+      console.error(errorString);
+      process.exit(1);
+    }
   }
   return;
 }
@@ -73,18 +79,18 @@ async function checkDescription() {
     'No swagger-description.md ist defined. Please read the README and add the specific description file. A default one will be added.';
   await checkFile(
     'swagger-description.md',
-    'swagger-description-example.md',
     warning,
+    'swagger-description-example.md',
   );
 }
 
 export async function checkTopic(): Promise<void> {
-  const warning =
-    'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file. A default one will be added.';
-  await checkFile('topic.json', 'topic-example-geosn.json', warning);
+  const error =
+    'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file.';
+  await checkFile('topic.json', error);
 }
 
-async function createDefaultFile(
+async function createFromDefaultFile(
   targetFile: string,
   exampleFile: string,
 ): Promise<void> {
