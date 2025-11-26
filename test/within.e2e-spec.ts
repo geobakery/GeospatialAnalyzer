@@ -41,11 +41,7 @@ describe('WithinController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [WithinController],
-      imports: [
-        ...createE2eTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createE2eTestModules(), GeneralModule, TransformModule],
       providers: [WithinService],
     }).compile();
 
@@ -71,7 +67,7 @@ describe('WithinController (e2e)', () => {
 
   it('/POST within with geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis'],
+      topics: ['kreis_f'],
       returnGeometry: true,
       fixGeometry: {
         type: 'Point',
@@ -89,13 +85,13 @@ describe('WithinController (e2e)', () => {
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(1);
-    await topicTest(WITHIN, geoJSON[0], 'kreis');
+    await topicTest(WITHIN, geoJSON[0], 'kreis_f');
     await resultIsGeoJSONFeatureWithGeometry(result, 'Polygon');
   });
 
   it('/POST within without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis'],
+      topics: ['kreis_f'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -115,7 +111,7 @@ describe('WithinController (e2e)', () => {
 
   it('/POST within custom without geometry', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis', 'land'],
+      topics: ['kreis_f', 'land_f'],
       returnGeometry: false,
       fixGeometry: {
         type: 'Point',
@@ -146,7 +142,7 @@ describe('WithinController (e2e)', () => {
 
     const props = verwKreisGeoJSON.properties;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -163,7 +159,7 @@ describe('WithinController (e2e)', () => {
 
     const propsLand = verwLandGeoJSON.properties;
     expect(propsLand['name']).toBe('Sachsen');
-    expect(propsLand['__topic']).toBe('land');
+    expect(propsLand['__topic']).toBe('land_f');
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
@@ -179,7 +175,7 @@ describe('WithinController (e2e)', () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
       outputFormat: 'esrijson',
-      topics: ['kreis'],
+      topics: ['kreis_f'],
       fixGeometry: [
         {
           geometry: {
@@ -218,7 +214,7 @@ describe('WithinController (e2e)', () => {
 
     const props = verwEsri.attributes;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -246,7 +242,7 @@ describe('WithinController (e2e)', () => {
     const input = getEsriJSONFeature({
       returnGeometry: true,
       outputFormat: 'esrijson',
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     });
     const result = await app.inject({
       method: POST,
@@ -267,7 +263,7 @@ describe('WithinController (e2e)', () => {
 
     const props = verwEsri.attributes;
     expect(props['name']).toBe('Kreisfreie Stadt Dresden');
-    expect(props['__topic']).toBe('kreis');
+    expect(props['__topic']).toBe('kreis_f');
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -319,7 +315,7 @@ describe('WithinController (e2e)', () => {
       outputFormat: 'geojson',
       outSRS: 12345,
       returnGeometry: false,
-      topics: ['kreis'],
+      topics: ['kreis_f'],
     };
 
     const result = await app.inject({

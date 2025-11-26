@@ -24,11 +24,7 @@ describe('EdgeCases (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
-      imports: [
-        ...createE2eTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createE2eTestModules(), GeneralModule, TransformModule],
       providers: [IntersectService],
     }).compile();
 
@@ -61,7 +57,7 @@ describe('EdgeCases (e2e)', () => {
 
   it('/POST extrem low query time', async () => {
     const input = await getGeoJSONFeature({
-      topics: ['kreis'],
+      topics: ['kreis_f'],
       returnGeometry: true,
       fixGeometry: { type: 'Point', coordinates: [0, 1] },
     });
@@ -71,13 +67,13 @@ describe('EdgeCases (e2e)', () => {
       payload: input,
       headers: HEADERS_JSON,
     });
-    
+
     // Coordinates [0, 1] are outside German administrative boundaries
     // The API should return 200 with "No result" rather than an error
     expect(result.statusCode).toEqual(200);
     const responseBody = JSON.parse(result.body);
     expect(responseBody).toHaveLength(1);
     expect(responseBody[0].properties.NO_RESULT).toBe('No result to request');
-    expect(responseBody[0].properties.__topic).toBe('kreis');
+    expect(responseBody[0].properties.__topic).toBe('kreis_f');
   });
 });

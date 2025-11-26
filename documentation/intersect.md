@@ -1,33 +1,40 @@
 # Intersect - API Call
+
 In this document we will describe important and good-to-know facts about the intersection service.
 
 ## Functionality
-Returns all features that are touched by the transferred geometries. 
+
+Returns all features that are touched by the transferred geometries.
 
 ## Examples
-Post-call http://localhost:3000/v1/intersect with JSON body: 
+
+Post-call http://localhost:3000/v1/intersect with JSON body:
 
 ### Polygon
+
 ```json
 {
-  "inputGeometries": [{
-    "type": "Feature",
-    "geometry": {
-      "type": "Polygon",
-      "coordinates": [[
-        [15.75, 51.07],
-        [15.77, 51.08],
-        [15.79, 51.07],
-        [15.80, 51.08],
-        [15.75, 51.07]
-      ]
-      ]
-    },
-    "properties": {
-      "name": "example"
+  "inputGeometries": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [15.75, 51.07],
+            [15.77, 51.08],
+            [15.79, 51.07],
+            [15.8, 51.08],
+            [15.75, 51.07]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "example"
+      }
     }
-  }],
-  "topics": ["kreis"],
+  ],
+  "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
   "outSRS": 4326
@@ -35,19 +42,22 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 ```
 
 ### Point
+
 ```json
 {
-  "inputGeometries": [{
-    "type": "Feature",
-    "geometry": {
-      "type": "Point",
-      "coordinates": [15.75, 51.07]
-    },
-    "properties": {
-      "name": "example"
+  "inputGeometries": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [15.75, 51.07]
+      },
+      "properties": {
+        "name": "example"
+      }
     }
-  }],
-  "topics": ["kreis", "land"],
+  ],
+  "topics": ["kreis_f", "land_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
   "outSRS": 4326
@@ -55,19 +65,25 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 ```
 
 ### Line
+
 ```json
 {
-  "inputGeometries": [{
-    "type": "Feature",
-    "geometry": {
-      "type": "LineString",
-      "coordinates": [ [15.75, 51.07],[15.79, 51.18]]
-    },
-    "properties": {
-      "name": "example"
+  "inputGeometries": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [15.75, 51.07],
+          [15.79, 51.18]
+        ]
+      },
+      "properties": {
+        "name": "example"
+      }
     }
-  }],
-  "topics": ["kreis"],
+  ],
+  "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
   "outSRS": 4326
@@ -75,21 +91,24 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 ```
 
 ### EsriJSON Point
+
 ```json
 {
-  "inputGeometries": [{
-    "geometry": {
-      "x": 413093.3077572279,
-      "y": 5659110.3644715585,
-      "spatialReference": {
-        "wkid": 25833
+  "inputGeometries": [
+    {
+      "geometry": {
+        "x": 413093.3077572279,
+        "y": 5659110.3644715585,
+        "spatialReference": {
+          "wkid": 25833
+        }
+      },
+      "attributes": {
+        "name": "testname"
       }
-    },
-    "attributes": {
-      "name": "testname"
     }
-  }],
-  "topics": ["kreis"],
+  ],
+  "topics": ["kreis_f"],
   "returnGeometry": true,
   "outputFormat": "esrijson",
   "outSRS": 25833
@@ -97,6 +116,7 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
 ```
 
 ## Known Limitations - Not planned to implement
+
 - Unsupported geo-types in GeoJSON
   - MultiPolygon
   - MultiLineString
