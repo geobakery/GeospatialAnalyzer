@@ -36,10 +36,10 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}
           tags: |
-            type=sha,enable={{is_default_branch}}
-            type=ref,event=pr,suffix={{sha}}
-            type=ref,event=workflow_dispatch,suffix={{sha}}
-            type=semver,pattern={{version}}
+            type=sha,enable={{is_default_branch}}             # main branch -> tag: `sha-{git-commit-hash}`
+            type=ref,event=pr,suffix={{sha}}                  # pull_requests -> tag: `pr-{git-commit-hash}`
+            type=ref,event=workflow_dispatch,suffix={{sha}}   # manual builds -> tag: `{branch}-{git-commit-hash}`
+            type=semver,pattern={{version}}                   # git tag with semver format -> docker tag: `{version}` (e.g. 1.2.3)
 
       - name: Build and push image
         id: push
