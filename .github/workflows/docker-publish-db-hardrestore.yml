@@ -1,10 +1,6 @@
 name: Build and Push Docker image for Database Hardrestore
 
 on:
-  release:
-    types: [published]
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 permissions:
