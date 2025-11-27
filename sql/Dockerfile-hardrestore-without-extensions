@@ -1,0 +1,7 @@
+FROM alpine/psql:15.5
+
+WORKDIR /db_restore/
+COPY data /db_restore/
+COPY --chmod=777 pg_hardrestore_by_connection_uri.sh /db_restore/
+
+ENTRYPOINT ["/db_restore/pg_hardrestore_by_connection_uri.sh"]

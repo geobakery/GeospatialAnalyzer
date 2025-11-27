@@ -31,7 +31,7 @@ services:
       - postgres_data:/var/lib/postgresql/data  # Persistent data
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\""]
+      test: ["CMD-SHELL", "pg_isready --user=\"$$POSTGRES_USER\" --dbname=\"$$POSTGRES_DB\""] # specifying user & db will not fail the healthcheck if they don't exist but will add a logentry
       interval: 60s
       timeout: 10s
       retries: 3
