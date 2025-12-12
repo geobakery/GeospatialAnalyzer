@@ -71,7 +71,7 @@ git clone https://github.com/geobakery/GeospatialAnalyzer.git && cd GeospatialAn
  pnpm install
 ```
 
-(3) Konfigurieren Sie die `env.dev` und `topic.json`
+(3) Konfigurieren Sie die `env.dev` (und `topic.json` falls gewünscht)
 
 (4) Stellen Sie eine Datenbankverbindung zur Verfügung und konfigurieren Sie sie wie benötigt.
 
