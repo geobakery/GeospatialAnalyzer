@@ -22,10 +22,8 @@ COPY --chown=node:node \
   ./
 
 # Copy configuration files
-COPY --chown=node:node \
-  topic.json \
-  swagger-description*.md \
-  ./
+COPY --chown=node:node swagger-description*.md ./
+COPY --chown=node:node topic-all.json ./topic.json
 
 # Copy .env file (ensure this file exists or create an empty one)
 COPY --chown=node:node .env ./
