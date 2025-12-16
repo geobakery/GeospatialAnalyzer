@@ -31,6 +31,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "country",
         "country_cl",
         "id_localid",
         "id_namespace",
@@ -74,6 +75,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "country",
         "country_cl",
         "id_localid",
         "id_namespace",
@@ -98,6 +100,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "datenstand",
         "ezg",
         "flaeche_in_ha",
         "gml_id",
@@ -175,6 +178,7 @@
       "__attributes__": [
         "erfdat",
         "gml_id",
+        "id_zo",
         "kategorie",
         "name",
         "praezi",
@@ -199,6 +203,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "objectid",
         "perimeter",
         "geometrieflaeche",
         "geometrieflaeche_eh"
@@ -257,6 +262,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "id_localid",
         "id_namespace",
         "ifcid",
         "level_",
@@ -279,6 +285,7 @@
         "srid": 25833
       },
       "__attributes__": [
+        "admunit",
         "areavalue",
         "areavalue_uom",
         "gemarkung_name",
