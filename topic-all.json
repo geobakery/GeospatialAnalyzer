@@ -172,7 +172,6 @@
         "name",
         "sg_nr",
         "status",
-        "teilarea",
         "typ",
         "geometrieflaeche",
         "geometrieflaeche_eh"
