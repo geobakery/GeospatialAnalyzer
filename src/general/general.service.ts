@@ -35,6 +35,8 @@ import {
 export class GeneralService {
   private uniqueTopicsMap: Map<string, topicDefinitionOutside> = new Map();
 
+  private topicGroupsToFilterFor?: string[];
+
   adapter: DbAdapterService = this.getDbAdapter();
   topicsArray: string[] = [];
   identifierSourceMap: Map<string, Source> = new Map<string, Source>();
@@ -62,6 +64,8 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
+    this._initializeTopicGroupFilter(this.configService.get('GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER'));
+
     const configurationFromTopicJson: unknown =
       this.configService.get('__topicsConfig__');
     const check = this.checkTopicDefinition(configurationFromTopicJson);
@@ -71,6 +75,13 @@ export class GeneralService {
       );
     }
     this._setDynamicTopicsConfigurations(configurationFromTopicJson);
+  }
+
+  private _initializeTopicGroupFilter(topicGroupFilterString: string) {
+    topicGroupFilterString = topicGroupFilterString?.trim();
+    if (!topicGroupFilterString) return;
+
+    this.topicGroupsToFilterFor = topicGroupFilterString.split(",").map((groupName) => groupName.trim());
   }
 
   private isObject(x: unknown): x is object {
@@ -178,6 +189,8 @@ export class GeneralService {
     }
 
     td.forEach((t) => {
+      if (!this._doesTopicMatchGroupFilter(t)) return;
+
       const definition = {
         identifiers: t.identifiers,
         title: t.title,
@@ -217,6 +230,15 @@ export class GeneralService {
         }
       }
     });
+  }
+
+  _doesTopicMatchGroupFilter(t: topicDefinition): boolean {
+    console.log("Topic testing:", t);
+    console.log("Topic filter defined:", this.topicGroupsToFilterFor);
+
+    if (!this.topicGroupsToFilterFor) return true;
+    if (!t.__filterGroups__) return false;
+    return t.__filterGroups__.findIndex((groupDefinedOnTopic) => this.topicGroupsToFilterFor.includes(groupDefinedOnTopic)) != -1;
   }
 
   getTopics(): string[] {
