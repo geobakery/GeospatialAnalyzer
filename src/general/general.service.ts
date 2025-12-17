@@ -233,9 +233,6 @@ export class GeneralService {
   }
 
   _doesTopicMatchGroupFilter(t: topicDefinition): boolean {
-    console.log("Topic testing:", t);
-    console.log("Topic filter defined:", this.topicGroupsToFilterFor);
-
     if (!this.topicGroupsToFilterFor) return true;
     if (!t.__filterGroups__) return false;
     return t.__filterGroups__.findIndex((groupDefinedOnTopic) => this.topicGroupsToFilterFor.includes(groupDefinedOnTopic)) != -1;
