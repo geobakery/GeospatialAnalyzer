@@ -24,6 +24,7 @@ export type topicDefinition = {
   description?: string;
   __attributes__?: string[];
   __supports__?: string[];
+  __filterGroups__?: string[];
 } & ({ __source__: Source } | { __multipleSources__: Source[] });
 
 export interface topicDefinitionOutside {

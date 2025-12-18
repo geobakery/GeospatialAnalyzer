@@ -19,7 +19,8 @@
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_kreis_f", "kreis_f"],
@@ -31,20 +32,18 @@
         "srid": 25833
       },
       "__attributes__": [
-        "country",
-        "country_cl",
-        "id_localid",
-        "id_namespace",
-        "ifcid",
+        "objid",
+        "aktualitaet",
+        "art",
         "name",
-        "nationalcode",
-        "nationallevel",
-        "nationallevel_cl",
-        "upperlevelunit",
+        "schl",
+        "uebergobjekt",
+        "uebergobjektname",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_hoehe_r", "hoehe_r"],
@@ -52,18 +51,19 @@
       "description": "Gelände- und Oberflächenhöhen Sachsens basierend auf DGM bzw. DOM.",
       "__multipleSources__": [
         {
-          "name": "gelaendehoehe_dgm2",
+          "name": "gelaendehoehe_dgm",
           "source": "ga.dgm_r",
           "srid": 25833
         },
         {
-          "name": "oberflaechenhoehe_dom2",
+          "name": "oberflaechenhoehe_dom",
           "source": "ga.dom_r",
           "srid": 25833
         }
       ],
       "__attributes__": [],
-      "__supports__": ["valuesAtPoint"]
+      "__supports__": ["valuesAtPoint"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_gemeinde_f", "gemeinde_f"],
@@ -75,20 +75,18 @@
         "srid": 25833
       },
       "__attributes__": [
-        "country",
-        "country_cl",
-        "id_localid",
-        "id_namespace",
-        "ifcid",
+        "objid",
+        "aktualitaet",
+        "art",
         "name",
-        "nationalcode",
-        "nationallevel",
-        "nationallevel_cl",
-        "upperlevelunit",
+        "schl",
+        "uebergobjekt",
+        "uebergobjektname",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_wasserschutzgebiet_f", "wasserschutzgebiet_f"],
@@ -100,9 +98,9 @@
         "srid": 25833
       },
       "__attributes__": [
-        "datenstand",
         "ezg",
         "flaeche_in_ha",
+        "flaeche_qm",
         "gml_id",
         "inkrafttreten",
         "landesdirektion",
@@ -112,10 +110,12 @@
         "teilzone",
         "typ",
         "zone",
+        "datenstand",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_natura2000_f", "natura2000_f"],
@@ -132,16 +132,13 @@
         "gebiet",
         "gml_id",
         "info",
-        "legende",
-        "meldeflaec",
-        "sn_nr",
-        "teilfl",
         "typ",
         "rechts_gl",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_natura2000_p", "natura2000_p"],
@@ -159,12 +156,13 @@
         "gml_id",
         "info",
         "legende",
-        "meldeflaec",
         "sn_nr",
-        "teilfl",
-        "typ"
+        "typ",
+        "ortsname",
+        "rechts_gl"
       ],
-      "__supports__": ["intersect", "nearestNeighbour"]
+      "__supports__": ["intersect", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_schutzgebiet_f", "schutzgebiet_f"],
@@ -176,22 +174,17 @@
         "srid": 25833
       },
       "__attributes__": [
-        "erfdat",
         "gml_id",
-        "id_zo",
         "kategorie",
         "name",
-        "praezi",
         "sg_nr",
         "status",
-        "teilarea",
         "typ",
-        "uebdat",
-        "zone",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_hohlraumbergaufsicht_f", "hohlraumbergaufsicht_f"],
@@ -203,12 +196,13 @@
         "srid": 25833
       },
       "__attributes__": [
-        "objectid",
         "perimeter",
+        "erf_dat",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_hohlraumunterirdisch_f", "hohlraumunterirdisch_f"],
@@ -223,10 +217,12 @@
         "id_geom_re",
         "bufferval",
         "idart_list",
+        "erf_dat",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_adresse_p", "adresse_p"],
@@ -238,7 +234,8 @@
         "srid": 25833
       },
       "__attributes__": ["strasse", "str_nummer", "plz", "ort"],
-      "__supports__": ["intersect", "nearestNeighbour"]
+      "__supports__": ["intersect", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_aspsperrzone_f", "aspsperrzone_f"],
@@ -250,7 +247,8 @@
         "srid": 25833
       },
       "__attributes__": ["name"],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_gemarkung_f", "gemarkung_f"],
@@ -262,18 +260,14 @@
         "srid": 25833
       },
       "__attributes__": [
-        "id_localid",
-        "id_namespace",
-        "ifcid",
-        "level_",
-        "level_cl",
-        "name",
         "schluessel",
-        "nationalcadastalzoningref",
+        "bezeichnung",
+        "objid",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_flurstueck_f", "flurstueck_f"],
@@ -285,25 +279,35 @@
         "srid": 25833
       },
       "__attributes__": [
-        "admunit",
-        "areavalue",
-        "areavalue_uom",
-        "gemarkung_name",
-        "id_localid",
-        "id_namespace",
-        "ifcid",
-        "label",
-        "nationalcadastralref",
-        "zoning",
+        "objid",
+        "gemarkung",
+        "zaehler",
+        "nenner",
+        "amtlicheflaeche",
+        "zaehlernenner",
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
+    },
+    {
+      "identifiers": ["sn_standag_f", "standag_f"],
+      "title": "StandAG",
+      "description": "Gebiet nach dem Standortauswahlverfahren (StandAG) zur Suche und Auswahl eines Standortes für ein Endlager für hochradioaktive Abfälle.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga.standag_f",
+        "srid": 25833
+      },
+      "__attributes__": ["name"],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
     },
     {
       "identifiers": ["th_verwaltungseinheit_f"],
       "title": "Verwaltungseinheiten in Thüringen",
-      "description": "Thüringer Verwaltungseinheiten aus dem ATKIS Basis-DLM. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Thüringen.",
+      "description": "Verwaltungseinheiten in Thüringen aus dem ATKIS Basis-DLM. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Thüringen.",
       "__source__": {
         "name": "unused",
         "source": "ga_efa.th_verwaltungseinheit_f",
@@ -315,7 +319,101 @@
         "geometrieflaeche",
         "geometrieflaeche_eh"
       ],
-      "__supports__": ["intersect", "within", "nearestNeighbour"]
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata", "demodata"]
+    },
+    {
+      "identifiers": ["th_flurstueck_f"],
+      "title": "Flurstücke in Thüringen",
+      "description": "Flurstücke in Thüringen. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Thüringen.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga_efa.th_flurstueck_f",
+        "srid": 25832
+      },
+      "__attributes__": [
+        "flstkennz",
+        "gemark_nam",
+        "flur",
+        "flurstueck",
+        "gemkz",
+        "gemeinde",
+        "kreis_name"
+      ],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
+    },
+    {
+      "identifiers": ["he_verwaltungseinheit_f"],
+      "title": "Verwaltungseinheiten in Hessen",
+      "description": "Verwaltungseinheiten in Hessen aus dem ALKIS. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Hessen.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga_efa.he_verwaltungseinheit_f",
+        "srid": 25832
+      },
+      "__attributes__": [
+        "name",
+        "nationalcode",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
+    },
+    {
+      "identifiers": ["mv_verwaltungseinheit_f"],
+      "title": "Verwaltungseinheiten in Mecklenburg-Vorpommern",
+      "description": "Verwaltungseinheiten in Mecklenburg-Vorpommern aus dem ALKIS. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Mecklenburg-Vorpommern.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga_efa.mv_verwaltungseinheit_f",
+        "srid": 25832
+      },
+      "__attributes__": [
+        "name",
+        "nationalcode",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
+    },
+    {
+      "identifiers": ["rp_verwaltungseinheit_f"],
+      "title": "Verwaltungseinheiten in Rheinland-Pfalz",
+      "description": "Verwaltungseinheiten in Rheinland-Pfalz aus dem ALKIS. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Rheinland-Pfalz.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga_efa.rp_verwaltungseinheit_f",
+        "srid": 25832
+      },
+      "__attributes__": [
+        "name",
+        "nationalcode",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
+    },
+    {
+      "identifiers": ["st_verwaltungseinheit_f"],
+      "title": "Verwaltungseinheiten in Sachsen-Anhalt",
+      "description": "Verwaltungseinheiten in Sachsen-Anhalt aus dem ATKIS Basis-DLM. Bereitstellung im Rahmen einer OZG-Leistung als Einer-für-Alle-Lösung (EfA) für das Bundesland Sachsen-Anhalt.",
+      "__source__": {
+        "name": "unused",
+        "source": "ga_efa.st_verwaltungseinheit_f",
+        "srid": 25832
+      },
+      "__attributes__": [
+        "name",
+        "nationalcode",
+        "geometrieflaeche",
+        "geometrieflaeche_eh"
+      ],
+      "__supports__": ["intersect", "within", "nearestNeighbour"],
+      "__filterGroups__": ["proddata"]
     }
   ]
 }
