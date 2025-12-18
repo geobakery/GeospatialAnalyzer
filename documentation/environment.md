@@ -25,6 +25,7 @@ GEOSPATIAL_ANALYZER_DB_SYNCHRONIZE: false
 GEOSPATIAL_ANALYZER_DB_LOGGING: true
 #Metrics (optional, defaults to true)
 GEOSPATIAL_ANALYZER_METRICS_ENABLED: true
+GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER: demodata
 [...]
 ```
 
@@ -39,11 +40,12 @@ The `topic.json` contains all your relevant data, that you want to display and t
   "description": "An Sachsen grenzende Bundesländer und Länder.",
   "__source__": {
     "name": "unused",
-    "source": "spatialyzer_demo.verw_land_f",
+    "source": "ga.verw_land_f",
     "srid": 25833
   },
   "__attributes__": ["bundesland", "land", "name"],
-  "__supports__": ["intersect", "within", "nearestNeighbour"]
+  "__supports__": ["intersect", "within", "nearestNeighbour"],
+  "__filterGroups__": ["sachsen", "demodata"]
 }
 ```
 

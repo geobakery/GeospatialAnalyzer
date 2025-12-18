@@ -14,7 +14,7 @@ If you want to use docker to run this project, you need an installed and _runnin
 
 The project uses the `.env` or the `.env.dev` file for configuring your instance. For local development, use the `.env.dev` (added to `.gitignore` by default), which overwrites the default configuration parameters. As a starting point, you can use the `env.dev.sample` file.
 
-Additionally you need to create a `topic.json` file to set your specific topic data. Have a look at `topic-example.json` to create your own config, resp. use the `topic-example-geosn.json` for a ready-to-use setup, if you're running the provided docker based database.
+Optionally you can change the `topic.json` file to use your specific topic data. Have a look at the default `topic.json` (which represents the default data in the docker setup) to create your own config.
 
 Optionally you can set a `swagger-descprition.md` to be shown on your Swagger OpenAPI page. If you don't want to create your own, the example swagger description markdown file will be used to generate it.
 
@@ -119,7 +119,6 @@ GeospatialAnalyzer/
 You need an installed and _running_ docker service. For example [Docker Desktop Windows](https://docs.docker.com/desktop/install/windows-install/).
 Per default the database connection is set in the `docker-compose-(prod).yml` environment properties.
 The docker-compose approach uses a specific docker network for encapsuling the services; the services are integrated with each other via the service names. In addition ports are exposed for accessing the application from outside.
-Ensure that you have created a `topic.json` file. Have a look at [Configuration](#configuration) for details.
 
 ### Run
 
@@ -176,10 +175,6 @@ Therefore, you need to restart the container with `docker compose up`.
 ## PgAdmin4
 
 Navigate to [http://localhost:5050](http://localhost:5050) to check out PgAdmin4.
-
-The credentials are:
-User=admin@admin.com
-Password=pgadmin4
 
 To add to your local docker database:
 
