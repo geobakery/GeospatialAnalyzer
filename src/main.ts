@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { checkTopic, setUpOpenAPIAndValidation } from './app-init';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   await checkTopic();
@@ -17,11 +18,16 @@ async function bootstrap() {
         : 1048576,
     }),
   );
+
+  const configService = app.get(ConfigService);
+  const urlPrefix = configService.get("GEOSPATIAL_ANALYZER_URL_PREFIX");
+  if (urlPrefix) app.setGlobalPrefix(urlPrefix);
+  
   app.enableVersioning({
     type: VersioningType.URI,
   });
 
-  await setUpOpenAPIAndValidation(app);
+  await setUpOpenAPIAndValidation(app, urlPrefix);
 
   // graceful shutdown handler
   const shutdown = async (signal: string) => {

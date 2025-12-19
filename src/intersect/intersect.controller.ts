@@ -21,8 +21,8 @@ import { IntersectService } from './intersect.service';
 @ApiTags('Intersect')
 @Controller({
   version: '1',
+  path: 'intersect',
 })
-@Controller('intersect')
 @ApiExtraModels(IntersectParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class IntersectController {
   constructor(private readonly intersectService: IntersectService) {}
@@ -34,7 +34,7 @@ export class IntersectController {
     isArray: true,
   })
   @ApiOperation({ summary: 'Output all the possible intersect topics' })
-  @Get('intersect/topics')
+  @Get('topics')
   topic(): topicDefinitionOutside[] {
     return this.intersectService.getTopics();
   }
@@ -74,7 +74,7 @@ export class IntersectController {
     summary:
       'Return all features that are intersected by the transferred geometries',
   })
-  @Post('intersect')
+  @Post('/')
   async intersect(
     @Body() args: IntersectParameterDto,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {

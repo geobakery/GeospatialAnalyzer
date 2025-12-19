@@ -10,9 +10,6 @@ import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ErrorResponse, GeneralResponse } from '../general/general.interface';
 
 @ApiTags('Health')
-@Controller({
-  version: '1',
-})
 @Controller('health')
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
@@ -27,7 +24,7 @@ export class HealthController {
   @ApiOperation({
     summary: 'Return the status of availability',
   })
-  @Get('health')
+  @Get('/')
   async getHealth(): Promise<GeneralResponse | ErrorResponse | any[]> {
     try {
       return await this.healthService.getCurrentHealth();

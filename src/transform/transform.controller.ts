@@ -17,7 +17,6 @@ import { TransformService } from './transform.service';
 @Controller({
   version: '1',
 })
-@Controller('transform')
 export class TransformController {
   constructor(private readonly transformService: TransformService) {}
 

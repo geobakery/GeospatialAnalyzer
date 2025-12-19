@@ -7,6 +7,7 @@ import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside
 @ApiTags('Topics')
 @Controller({
   version: '1',
+  path: 'topics',
 })
 @Controller('topics')
 export class TopicsController {
@@ -21,7 +22,7 @@ export class TopicsController {
   @ApiOperation({
     summary: 'Output all topics',
   })
-  @Get('topics')
+  @Get('/')
   topic(): topicDefinitionOutside[] {
     return this.topicsService.getTopics();
   }

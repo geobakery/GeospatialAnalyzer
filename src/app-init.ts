@@ -8,6 +8,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import inputValidation, {
   ErrorDetails,
   InputValidationError,
@@ -106,7 +107,7 @@ async function createFromDefaultFile(
 }
 
 export async function setUpOpenAPIAndValidation(
-  app: NestFastifyApplication,
+  app: NestFastifyApplication, urlPrefix: string = '',
 ): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle(
@@ -136,8 +137,8 @@ export async function setUpOpenAPIAndValidation(
       // allow esriJSON to have additionalProperties for user friendly usage
       schema.additionalProperties = schemaName.includes('Esri');
     });
-
-  SwaggerModule.setup('api', app, document);
+ 
+  SwaggerModule.setup(path.join(urlPrefix, 'api'), app, document);
 
   // Set beautifyErrors to false for schemaPath information
   inputValidation.init(document, {

@@ -21,8 +21,8 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
 @ApiTags('NearestNeighbour')
 @Controller({
   version: '1',
+  path: 'nearestNeighbour',
 })
-@Controller('nearestNeighbour')
 @ApiExtraModels(NearestNeighbourParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class NearestNeighbourController {
   constructor(
@@ -38,7 +38,7 @@ export class NearestNeighbourController {
   @ApiOperation({
     summary: 'Output all the possible nearestNeighbour topics',
   })
-  @Get('nearestNeighbour/topics')
+  @Get('topics')
   topic(): topicDefinitionOutside[] {
     return this.nearestNeighbourService.getTopics();
   }
@@ -78,7 +78,7 @@ export class NearestNeighbourController {
     summary:
       'Return all features that are within a certain distance of the transferred geometries (see maxDistanceToNeighbour). The number of features can be limited using the count parameter.',
   })
-  @Post('nearestNeighbour')
+  @Post('/')
   async nearestNeighbour(
     @Body() args: NearestNeighbourParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {

@@ -21,8 +21,8 @@ import { ValuesAtPointService } from './values-at-point.service';
 @ApiTags('ValuesAtPoint')
 @Controller({
   version: '1',
+  path: 'valuesAtPoint'
 })
-@Controller('valuesAtPoint')
 @ApiExtraModels(ValuesAtPointParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class ValuesAtPointController {
   constructor(private readonly valuesAtPointService: ValuesAtPointService) {}
@@ -36,7 +36,7 @@ export class ValuesAtPointController {
   @ApiOperation({
     summary: 'Output all the possible valuesAtPoint topics',
   })
-  @Get('valuesAtPoint/topics')
+  @Get('topics')
   topic(): topicDefinitionOutside[] {
     return this.valuesAtPointService.getTopics();
   }
@@ -75,7 +75,7 @@ export class ValuesAtPointController {
   @ApiOperation({
     summary: 'Return the values at the transferred point',
   })
-  @Post('valuesAtPoint')
+  @Post('/')
   async valuesAtPoint(
     @Body() args: ValuesAtPointParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {

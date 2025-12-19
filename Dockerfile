@@ -39,7 +39,7 @@ EXPOSE 3000
 
 # Create health check by checking if the application is responding on the expected port
 HEALTHCHECK --interval=60s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/v1/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
+  CMD node -e "require('http').get('http://localhost:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
 
 CMD ["pnpm", "start:dev"]
 
