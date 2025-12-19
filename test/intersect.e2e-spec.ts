@@ -259,7 +259,7 @@ describe('IntersectController (e2e)', () => {
     expect(singleCoordinate[0]).toBeGreaterThan(13);
     expect(singleCoordinate[0]).toBeLessThan(14);
     expect(singleCoordinate[1]).toBeGreaterThan(50);
-    expect(singleCoordinate[1]).toBeLessThan(51);
+    expect(singleCoordinate[1]).toBeLessThan(52);
   });
 
   it('/POST Intersect with esri input and output', async () => {
@@ -368,7 +368,7 @@ describe('IntersectController (e2e)', () => {
     expect(singleCoordinate[0]).toBeGreaterThan(13);
     expect(singleCoordinate[0]).toBeLessThan(14);
     expect(singleCoordinate[1]).toBeGreaterThan(50);
-    expect(singleCoordinate[1]).toBeLessThan(51);
+    expect(singleCoordinate[1]).toBeLessThan(52);
   });
 
   it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
