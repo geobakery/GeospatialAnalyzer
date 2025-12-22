@@ -43,7 +43,7 @@
     "@swc/core": "^1.15.2",
     "@terraformer/arcgis": "^2.1.2",
     "@terraformer/wkt": "^2.2.1",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.10.4",
     "class-transformer": "^0.5.1",
     "openapi-validator-middleware": "^3.2.6",
     "pg": "^8.16.3",
