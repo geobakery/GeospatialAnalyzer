@@ -21,8 +21,8 @@ import { WithinService } from './within.service';
 @ApiTags('Within')
 @Controller({
   version: '1',
+  path: 'within',
 })
-@Controller('within')
 @ApiExtraModels(WithinParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class WithinController {
   constructor(private readonly withinService: WithinService) {}
@@ -36,7 +36,7 @@ export class WithinController {
   @ApiOperation({
     summary: 'Output all the possible within topics',
   })
-  @Get('within/topics')
+  @Get('topics')
   topic(): topicDefinitionOutside[] {
     return this.withinService.getTopics();
   }
@@ -76,7 +76,7 @@ export class WithinController {
     summary:
       'Return all features in which the transferred geometries are completely contained',
   })
-  @Post('within')
+  @Post('/')
   async within(
     @Body() args: WithinParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
