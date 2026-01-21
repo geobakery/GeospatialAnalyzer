@@ -1,5 +1,5 @@
-#ensure that needed psql.sh script (which is used within the docker container (which is based on unix system)) is correctly set tp LF
-/sql/pg_restore.sh text eol=lf
+#ensure that *.sh scripts (which are used on docker containers (unix) or directly on unix) are correctly set to LF lineendings
+*.sh text eol=lf
 
 #ensure that data dump is not modified by git
 /sql/data binary
