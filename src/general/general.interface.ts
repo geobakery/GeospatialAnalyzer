@@ -25,6 +25,11 @@ export type topicDefinition = {
   __attributes__?: string[];
   __supports__?: string[];
   __filterGroups__?: string[];
+  /** Optional per-topic value metadata */
+  __valueMetadata__?: {
+    unit?: string;
+    verticalDatum?: string;
+  };
 } & ({ __source__: Source } | { __multipleSources__: Source[] });
 
 export interface topicDefinitionOutside {
@@ -54,6 +59,9 @@ export type SpatialMetadata = Partial<{
   __requestParams: Record<string, unknown>;
   __topic: string;
   NO_RESULT: string;
+  /** Optional value metadata exposed directly on feature properties */
+  __unit?: string;
+  __verticalDatum?: string;
 }>;
 
 export interface Source {
@@ -63,6 +71,10 @@ export interface Source {
   name: string;
   /** The spatial reference system identifier used by this source. */
   srid: number;
+  /** Optional per-source unit for value responses (e.g. "m") */
+  unit?: string;
+  /** Optional per-source vertical datum (e.g. "DHHN2016") */
+  verticalDatum?: string;
 }
 
 export interface SqlLiteral {
