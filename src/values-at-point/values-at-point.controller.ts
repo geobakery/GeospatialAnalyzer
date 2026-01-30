@@ -13,7 +13,7 @@ import {
   SCHEMA_VALID_OUT_SRS,
   ValuesAtPointParameterDto,
 } from '../general/dto/parameter.dto';
-import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { ValuesAtPointService } from './values-at-point.service';
@@ -21,7 +21,7 @@ import { ValuesAtPointService } from './values-at-point.service';
 @ApiTags('ValuesAtPoint')
 @Controller({
   version: '1',
-  path: 'valuesAtPoint'
+  path: 'valuesAtPoint',
 })
 @ApiExtraModels(ValuesAtPointParameterDto, EsriJsonDto, GeoJSONFeatureDto)
 export class ValuesAtPointController {
@@ -30,7 +30,7 @@ export class ValuesAtPointController {
   @ApiResponse({
     status: 200,
     description: 'Shows all attributes and parameters available ',
-    type: TopicDefinitonOutsideDto,
+    type: TopicDefinitionOutsideDto,
     isArray: true,
   })
   @ApiOperation({

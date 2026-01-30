@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class TopicDefinitonOutsideDto {
+export class TopicDefinitionOutsideDto {
   @ApiProperty({ example: ['verwaltung_landkreise_id'] })
   identifiers: string[];
 

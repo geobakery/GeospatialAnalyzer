@@ -115,6 +115,30 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
 }
 ```
 
+## Value metadata in responses
+
+- Each returned feature may include two optional properties with value metadata. This is particularly useful for metadata descriptions of elevation data using interface `valuesAtPoint`.
+  - `__unit`: unit of the value (e.g. "m", "cm").
+  - `__verticalDatum`: vertical datum of the value (e.g. "DHHN2016")
+
+- Metadata comes from the configuration in `topic.json` as follows:
+  - topic-level metadata:
+    ```
+    "__valueMetadata__": {
+      "unit": "m",
+      "verticalDatum": "DHHN2016"
+    }
+    ```
+  - **or** per-source properties:
+    ```
+    "unit": "m",
+    "verticalDatum": "DHHN2016"
+    ```
+
+  If a per-source property is present, it overrides the corresponding topic-level metadata.
+
+  You can also take a look at the provided `topic.json` in the topic `hoehe_r`. The properties are defined at the topic-level here.
+
 ## Known Limitations - Not planned to implement
 
 - Unsupported geo-types in GeoJSON

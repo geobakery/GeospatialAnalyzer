@@ -62,6 +62,10 @@
         }
       ],
       "__attributes__": [],
+      "__valueMetadata__": {
+        "unit": "cm",
+        "verticalDatum": "DHHN2016"
+      },
       "__supports__": ["valuesAtPoint"],
       "__filterGroups__": ["proddata", "demodata"]
     },
