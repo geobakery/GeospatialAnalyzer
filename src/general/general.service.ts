@@ -19,7 +19,7 @@ import {
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
   STANDARD_CRS,
-  DB_NAME_NAME,
+  SOURCE_NAME_PROPERTY,
   supportedDatabase,
 } from './general.constants';
 import {
@@ -385,9 +385,9 @@ export class GeneralService {
           // attach value metadata: start with topic-level fallback, then override with per-source metadata if present
           let valueMetadata = this.identifierValueMetadataMap.get(result.topic);
 
-          const sourceName = (feature.properties as any)[DB_NAME_NAME] as
-            | string
-            | undefined;
+          const sourceName = (feature.properties as any)[
+            SOURCE_NAME_PROPERTY
+          ] as string | undefined;
           if (sourceName) {
             const sources = this.getMultipleDBNamesForIdentifier(result.topic);
             if (Array.isArray(sources) && sources.length) {
