@@ -123,16 +123,42 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
 
 - Metadata comes from the configuration in `topic.json` as follows:
   - topic-level metadata:
-    ```
-    "__valueMetadata__": {
-      "unit": "m",
-      "verticalDatum": "DHHN2016"
+    ```json
+    {
+      "__topicsConfig__": [
+        ...
+        {
+          "identifiers": ["sn_hoehe_r", "hoehe_r"],
+          ...
+          "__valueMetadata__": {
+            "unit": "m",
+            "verticalDatum": "DHHN2016"
+          }
+          ...
+        }
+        ...
+      ]
     }
     ```
   - **or** per-source properties:
-    ```
-    "unit": "m",
-    "verticalDatum": "DHHN2016"
+    ```json
+    {
+      "__topicsConfig__": [
+        ...
+        {
+          "identifiers": ["sn_hoehe_r", "hoehe_r"],
+          ...
+          "__source__": {
+            "name": "gelaendehoehe_dgm",
+            ...
+            "unit": "m",
+            "verticalDatum": "DHHN2016"
+          }
+          ...
+        }
+        ...
+      ]
+    }
     ```
 
   If a per-source property is present, it overrides the corresponding topic-level metadata.
