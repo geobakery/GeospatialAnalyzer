@@ -233,14 +233,8 @@ export class GeneralService {
         }
 
         // store per-topic value metadata (fallback) if present
-        const topicValueMetadata = (t as topicDefinition).__valueMetadata__ ?? {
-          unit: (t as any).__unit,
-          verticalDatum: (t as any).__verticalDatum,
-        };
-        if (
-          topicValueMetadata &&
-          (topicValueMetadata.unit || topicValueMetadata.verticalDatum)
-        ) {
+        const topicValueMetadata = (t as topicDefinition).__valueMetadata__;
+        if (topicValueMetadata) {
           this.identifierValueMetadataMap.set(identifier, topicValueMetadata);
         }
 
@@ -344,9 +338,11 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * Adds the user input and geometry properties in the response for the user
+   * Prepares response features by adding request parameters, geometry properties,
+   * topic information, and optinal value metadata (unit and vertical datum) to each feature.
+   * Handles cases where no results are found by creating a feature with NO_RESULT metadata.
    */
-  addUserInputToResponse(
+  prepareResponseFeatures(
     tmpResult: tempResult[],
     requestParams: Pick<
       GeospatialRequest,
@@ -431,7 +427,7 @@ export class GeneralService {
     map: Map<string, Record<string, unknown>>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
     const result = this.dbToGeoJSON(query);
-    this.addUserInputToResponse(result, requestParams, map);
+    this.prepareResponseFeatures(result, requestParams, map);
 
     const features = result.flatMap((r) => r.result.features);
 

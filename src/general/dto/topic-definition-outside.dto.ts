@@ -20,26 +20,10 @@ export class TopicDefinitionOutsideDto {
   supports?: string[];
 
   @ApiPropertyOptional({
-    example: 'm',
-    required: false,
-    description:
-      'Optional unit for topic values. This takes precedence over `__valueMetadata__.unit`.',
-  })
-  unit?: string;
-
-  @ApiPropertyOptional({
-    example: 'DHHN2016',
-    required: false,
-    description:
-      'Optional vertical datum for topic values. This takes precedence over `__valueMetadata__.verticalDatum`.',
-  })
-  verticalDatum?: string;
-
-  @ApiPropertyOptional({
     example: { unit: 'm', verticalDatum: 'DHHN2016' },
     required: false,
     description:
-      'Optional, used only when top-level `unit`/`verticalDatum` are not set.',
+      'Unit and vertical datum at topic level. Used as fallback when individual sources do not provide their own metadata.',
   })
   __valueMetadata__?: { unit?: string; verticalDatum?: string };
 }
