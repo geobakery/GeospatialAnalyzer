@@ -19,6 +19,7 @@ import {
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
   STANDARD_CRS,
+  SOURCE_NAME_PROPERTY,
   supportedDatabase,
 } from './general.constants';
 import {
@@ -48,6 +49,10 @@ export class GeneralService {
     string,
     Source[]
   >();
+  identifierValueMetadataMap: Map<
+    string,
+    { unit?: string; verticalDatum?: string }
+  > = new Map();
   methodeTopicSupport: SupportedTopics = {
     intersect: [],
     within: [],
@@ -64,7 +69,9 @@ export class GeneralService {
      * in the constructor we will set all dynamic settings from the env file.
      * This will be done once at the start of the service
      */
-    this._initializeTopicGroupFilter(this.configService.get('GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER'));
+    this._initializeTopicGroupFilter(
+      this.configService.get('GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER'),
+    );
 
     const configurationFromTopicJson: unknown =
       this.configService.get('__topicsConfig__');
@@ -81,7 +88,9 @@ export class GeneralService {
     topicGroupFilterString = topicGroupFilterString?.trim();
     if (!topicGroupFilterString) return;
 
-    this.topicGroupsToFilterFor = topicGroupFilterString.split(",").map((groupName) => groupName.trim());
+    this.topicGroupsToFilterFor = topicGroupFilterString
+      .split(',')
+      .map((groupName) => groupName.trim());
   }
 
   private isObject(x: unknown): x is object {
@@ -223,6 +232,12 @@ export class GeneralService {
           );
         }
 
+        // store per-topic value metadata (fallback) if present
+        const topicValueMetadata = (t as topicDefinition).__valueMetadata__;
+        if (topicValueMetadata) {
+          this.identifierValueMetadataMap.set(identifier, topicValueMetadata);
+        }
+
         if (t.__attributes__) {
           this.identifierAllowedAttributesMap.set(identifier, t.__attributes__);
         } else {
@@ -235,7 +250,11 @@ export class GeneralService {
   _doesTopicMatchGroupFilter(t: topicDefinition): boolean {
     if (!this.topicGroupsToFilterFor) return true;
     if (!t.__filterGroups__) return false;
-    return t.__filterGroups__.findIndex((groupDefinedOnTopic) => this.topicGroupsToFilterFor.includes(groupDefinedOnTopic)) != -1;
+    return (
+      t.__filterGroups__.findIndex((groupDefinedOnTopic) =>
+        this.topicGroupsToFilterFor.includes(groupDefinedOnTopic),
+      ) != -1
+    );
   }
 
   getTopics(): string[] {
@@ -319,9 +338,11 @@ export class GeneralService {
 
   /**
    * Explanation:
-   * Adds the user input and geometry properties in the response for the user
+   * Prepares response features by adding request parameters, geometry properties,
+   * topic information, and optinal value metadata (unit and vertical datum) to each feature.
+   * Handles cases where no results are found by creating a feature with NO_RESULT metadata.
    */
-  addUserInputToResponse(
+  prepareResponseFeatures(
     tmpResult: tempResult[],
     requestParams: Pick<
       GeospatialRequest,
@@ -356,6 +377,34 @@ export class GeneralService {
           feature.properties.__requestParams = requestParams;
           feature.properties.__geoProperties = map.get(result.id);
           feature.properties.__topic = result.topic;
+
+          // attach value metadata: start with topic-level fallback, then override with per-source metadata if present
+          let valueMetadata = this.identifierValueMetadataMap.get(result.topic);
+
+          const sourceName = (feature.properties as any)[
+            SOURCE_NAME_PROPERTY
+          ] as string | undefined;
+          if (sourceName) {
+            const sources = this.getMultipleDBNamesForIdentifier(result.topic);
+            if (Array.isArray(sources) && sources.length) {
+              const source = sources.find((s) => s.name === sourceName);
+              if (source && (source.unit || source.verticalDatum)) {
+                valueMetadata = {
+                  unit: source.unit,
+                  verticalDatum: source.verticalDatum,
+                };
+              }
+            }
+          }
+
+          if (valueMetadata) {
+            if (!feature.properties) feature.properties = {} as any;
+            if (valueMetadata.unit)
+              (feature.properties as any).__unit = valueMetadata.unit;
+            if (valueMetadata.verticalDatum)
+              (feature.properties as any).__verticalDatum =
+                valueMetadata.verticalDatum;
+          }
         });
       }
     });
@@ -378,7 +427,7 @@ export class GeneralService {
     map: Map<string, Record<string, unknown>>,
   ): EsriJsonDto[] | GeoJSONFeatureDto[] {
     const result = this.dbToGeoJSON(query);
-    this.addUserInputToResponse(result, requestParams, map);
+    this.prepareResponseFeatures(result, requestParams, map);
 
     const features = result.flatMap((r) => r.result.features);
 
@@ -413,11 +462,12 @@ export class GeneralService {
         throw e;
       }
 
-      if (e instanceof QueryFailedError && (
-        e.message === 'Query read timeout' || 
-        e.message.includes('canceling statement due to statement timeout') ||
-        e.message.includes('timeout')
-      )) {
+      if (
+        e instanceof QueryFailedError &&
+        (e.message === 'Query read timeout' ||
+          e.message.includes('canceling statement due to statement timeout') ||
+          e.message.includes('timeout'))
+      ) {
         throw new HttpException(
           'The request cannot be processed in a timely manner',
           HTTP_STATUS_SQL_TIMEOUT,
