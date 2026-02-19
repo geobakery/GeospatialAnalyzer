@@ -30,7 +30,7 @@
     }
   },
   "dependencies": {
-    "@fastify/static": "^8.3.0",
+    "@fastify/static": "^9.0.0",
     "@nestjs/cli": "^11.0.16",
     "@nestjs/common": "^11.1.13",
     "@nestjs/config": "^4.0.3",
