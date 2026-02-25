@@ -21,11 +21,11 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
         "type": "Polygon",
         "coordinates": [
           [
-            [15.75, 51.07],
-            [15.77, 51.08],
-            [15.79, 51.07],
-            [15.8, 51.08],
-            [15.75, 51.07]
+            [13.7702, 51.0345],
+            [13.7702, 51.0294],
+            [13.7853, 51.0294],
+            [13.7853, 51.0345],
+            [13.7702, 51.0345]
           ]
         ]
       },
@@ -50,7 +50,7 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [15.75, 51.07]
+        "coordinates": [13.7795, 51.0303]
       },
       "properties": {
         "name": "example"
@@ -74,8 +74,8 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [15.75, 51.07],
-          [15.79, 51.18]
+          [13.7695, 51.0296],
+          [13.7842, 51.0339]
         ]
       },
       "properties": {
@@ -97,8 +97,8 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
   "inputGeometries": [
     {
       "geometry": {
-        "x": 413093.3077572279,
-        "y": 5659110.3644715585,
+        "x": 414418,
+        "y": 5653903,
         "spatialReference": {
           "wkid": 25833
         }
@@ -109,7 +109,7 @@ Post-call http://localhost:3000/v1/intersect with JSON body:
     }
   ],
   "topics": ["kreis_f"],
-  "returnGeometry": true,
+  "returnGeometry": false,
   "outputFormat": "esrijson",
   "outSRS": 25833
 }
