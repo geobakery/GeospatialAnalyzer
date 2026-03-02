@@ -76,7 +76,7 @@ export class ParameterDto implements GeospatialRequest {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [13.6645492, 51.0639403],
+          coordinates: [13.7795, 51.0303],
         },
         properties: {
           name: 'test_name',
