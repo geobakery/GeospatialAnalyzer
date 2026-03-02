@@ -63,7 +63,7 @@ jobs:
           output-file: 'sbom.cyclonedx.json'
 
       - name: Attest
-        uses: actions/attest-sbom@v3
+        uses: actions/attest-sbom@v4
         id: attest
         with:
           subject-name: ghcr.io/${{ github.repository }}/db-hardrestore
