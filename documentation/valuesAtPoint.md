@@ -21,11 +21,11 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
         "type": "Polygon",
         "coordinates": [
           [
-            [15.75, 51.07],
-            [15.77, 51.08],
-            [15.79, 51.07],
-            [15.8, 51.08],
-            [15.75, 51.07]
+            [13.7702, 51.0345],
+            [13.7702, 51.0294],
+            [13.7853, 51.0294],
+            [13.7853, 51.0345],
+            [13.7702, 51.0345]
           ]
         ]
       },
@@ -50,7 +50,7 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [15.75, 51.07]
+        "coordinates": [13.7795, 51.0303]
       },
       "properties": {
         "name": "example"
@@ -74,8 +74,8 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [15.75, 51.07],
-          [15.79, 51.18]
+          [13.7695, 51.0296],
+          [13.7842, 51.0339]
         ]
       },
       "properties": {
@@ -97,8 +97,8 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
   "inputGeometries": [
     {
       "geometry": {
-        "x": 413093.3077572279,
-        "y": 5659110.3644715585,
+        "x": 414418,
+        "y": 5653903,
         "spatialReference": {
           "wkid": 25833
         }
@@ -109,11 +109,61 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
     }
   ],
   "topics": ["hoehe_r"],
-  "returnGeometry": true,
+  "returnGeometry": false,
   "outputFormat": "esrijson",
   "outSRS": 25833
 }
 ```
+
+## Value metadata in responses
+
+- Each returned feature may include two optional properties with value metadata. This is particularly useful for metadata descriptions of elevation data using interface `valuesAtPoint`.
+  - `__unit`: unit of the value (e.g. "m", "cm").
+  - `__verticalDatum`: vertical datum of the value (e.g. "DHHN2016")
+
+- Metadata comes from the configuration in `topic.json` as follows:
+  - topic-level metadata:
+    ```json
+    {
+      "__topicsConfig__": [
+        ...
+        {
+          "identifiers": ["sn_hoehe_r", "hoehe_r"],
+          ...
+          "__valueMetadata__": {
+            "unit": "m",
+            "verticalDatum": "DHHN2016"
+          }
+          ...
+        }
+        ...
+      ]
+    }
+    ```
+  - **or** per-source properties:
+    ```json
+    {
+      "__topicsConfig__": [
+        ...
+        {
+          "identifiers": ["sn_hoehe_r", "hoehe_r"],
+          ...
+          "__source__": {
+            "name": "gelaendehoehe_dgm",
+            ...
+            "unit": "m",
+            "verticalDatum": "DHHN2016"
+          }
+          ...
+        }
+        ...
+      ]
+    }
+    ```
+
+  If a per-source property is present, it overrides the corresponding topic-level metadata.
+
+  You can also take a look at the provided `topic.json` in the topic `hoehe_r`. The properties are defined at the topic-level here.
 
 ## Known Limitations - Not planned to implement
 

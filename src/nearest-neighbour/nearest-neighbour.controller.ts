@@ -13,7 +13,7 @@ import {
   NearestNeighbourParameterDto,
   SCHEMA_VALID_OUT_SRS,
 } from '../general/dto/parameter.dto';
-import { TopicDefinitonOutsideDto } from '../general/dto/topic-definiton-outside.dto';
+import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { NearestNeighbourService } from './nearest-neighbour.service';
@@ -32,7 +32,7 @@ export class NearestNeighbourController {
   @ApiResponse({
     status: 200,
     description: 'Shows all attributes and parameters available',
-    type: TopicDefinitonOutsideDto,
+    type: TopicDefinitionOutsideDto,
     isArray: true,
   })
   @ApiOperation({

@@ -25,7 +25,7 @@ export const DB_GEOMETRY_NAME = 'geom';
 export const DB_HEIGHT_NAME = 'height';
 export const DB_JSON_STRUCTURE_NAME = 'response';
 
-export const DB_NAME_NAME = '__name';
+export const SOURCE_NAME_PROPERTY = '__name';
 
 export const DB_RASTER_DATA_NAME = 'rast';
 export const DB_TOPIC_NAME = 'topic';

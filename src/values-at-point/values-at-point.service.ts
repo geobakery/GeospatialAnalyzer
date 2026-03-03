@@ -5,7 +5,7 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_HEIGHT_NAME,
-  DB_NAME_NAME,
+  SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
   QUERY_FEATURE_INDEX,
   STANDARD_SRID,
@@ -64,7 +64,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       const heightQueryBuilder = queryBuilder
         .createQueryBuilder()
         .setParameter(topicSourceParameterName, source.name)
-        .addSelect(`:${topicSourceParameterName}`, DB_NAME_NAME)
+        .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
         .addSelect(featureValue, DB_HEIGHT_NAME)
         .from(source.source, source.name) // TypeORM demands an alias here, but we do not need any specific one.
         .andWhere(featureIntersect);
