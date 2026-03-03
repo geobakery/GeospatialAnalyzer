@@ -13,8 +13,9 @@ Um Testanfragen an die Schnittstelle zu senden, können Sie für das jeweilige M
 
 Im unteren Teil dieser Swagger-API-Beschreibung finden Sie das Datenmodell des GeospatialAnalyzers detailliert aufgelistet. Dort finden Sie die genutzten Datentypen und Beispiele zum besseren Verständnis.
 
-## API im JSON- oder YAML-Format
+## Maschinenlesbare API-Spezifikation
 
-Um die Schnittstelle im .json- oder .yaml-Format darzustellen, erweitern Sie bitte die aktuelle Adresse mit "-json" oder "-yaml".
+Die maschinenlesbare API-Spezifikation steht als `openapi.json` und `openapi.yaml` unter der API-Versionsroute bereit. Zum Beispiel:
+`https://example.com/v1/openapi.json` und `https://example.com/v1/openapi.yaml`
 
-Z. B. "https://www.***.de/geospatialanalyzer/api<b>-json</b>"
+Alternativ stehen die dynamischen Suffixe `-json` und `-yaml` zur Verfügung. Zum Beispiel: `https://example.com/api-json` und `https://example.com/api-yaml`
