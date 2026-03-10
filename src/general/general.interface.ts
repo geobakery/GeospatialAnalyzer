@@ -37,6 +37,7 @@ export interface topicDefinitionOutside {
   title: string;
   description?: string;
   supports?: string[];
+  attributes?: string[];
 }
 
 export interface SupportedTopics {

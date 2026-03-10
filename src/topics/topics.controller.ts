@@ -15,7 +15,7 @@ export class TopicsController {
 
   @ApiResponse({
     status: 200,
-    description: 'Shows all topics available',
+    description: 'Shows all topics available including their supported spatial operations and returned attributes',
     type: TopicDefinitionOutsideDto,
     isArray: true,
   })
