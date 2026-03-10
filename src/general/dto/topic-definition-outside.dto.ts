@@ -19,6 +19,12 @@ export class TopicDefinitionOutsideDto {
   })
   supports?: string[];
 
+  @ApiProperty({
+    example: ['name', 'art', 'geometrieflaeche'],
+    required: false,
+  })
+  attributes?: string[];
+
   @ApiPropertyOptional({
     example: { unit: 'm', verticalDatum: 'DHHN2016' },
     required: false,

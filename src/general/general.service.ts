@@ -205,6 +205,7 @@ export class GeneralService {
         title: t.title,
         description: t.description,
         supports: t.__supports__,
+        attributes: t.__attributes__ ?? [],
       } as topicDefinitionOutside;
 
       if (!this.uniqueTopicsMap.has(t.title)) {
