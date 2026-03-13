@@ -15,11 +15,11 @@ import inputValidation, {
 } from 'openapi-validator-middleware';
 import { join } from 'path';
 import * as process from 'process';
+import * as yaml from 'js-yaml';
+import fastifyStatic from '@fastify/static';
 
 @Catch(inputValidation.InputValidationError)
-class InputValidationErrorHandler
-  implements ExceptionFilter<inputValidation.InputValidationError>
-{
+class InputValidationErrorHandler implements ExceptionFilter<inputValidation.InputValidationError> {
   catch(exception: InputValidationError, host: ArgumentsHost): void {
     let errorOutput = exception.errors;
     // If errors are about the input geometry, add notice as first element for invalid input
@@ -49,20 +49,19 @@ class InputValidationErrorHandler
 async function checkFile(
   fileName: string,
   errorString: string,
-  defaultFileName?: string
+  defaultFileName?: string,
 ): Promise<void> {
   const fileExists = async (path: string) =>
     !!(await fs.stat(path).catch(() => false));
 
   const exist = await fileExists(join(__dirname, './../' + fileName));
   if (!exist) {
-    if (defaultFileName) {  
+    if (defaultFileName) {
       console.warn(errorString);
       await createFromDefaultFile(fileName, defaultFileName);
 
       await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
-    }
-    else {
+    } else {
       console.error(errorString);
       process.exit(1);
     }
@@ -107,7 +106,8 @@ async function createFromDefaultFile(
 }
 
 export async function setUpOpenAPIAndValidation(
-  app: NestFastifyApplication, urlPrefix: string = '',
+  app: NestFastifyApplication,
+  urlPrefix: string = '',
 ): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle(
@@ -137,7 +137,7 @@ export async function setUpOpenAPIAndValidation(
       // allow esriJSON to have additionalProperties for user friendly usage
       schema.additionalProperties = schemaName.includes('Esri');
     });
- 
+
   SwaggerModule.setup(path.join(urlPrefix, 'api'), app, document);
 
   // Set beautifyErrors to false for schemaPath information
@@ -157,4 +157,30 @@ export async function setUpOpenAPIAndValidation(
       validatorPackage: { validate: () => [] },
     }),
   );
+
+  // Write OpenAPI artifacts and serve as static files (openapi.json, openapi.yaml)
+  // Resulting URL: `/<prefix?>/v{major}/openapi.yaml`
+  try {
+    const outDir = join(process.cwd(), 'public');
+    await fs.mkdir(outDir, { recursive: true });
+    await fs.writeFile(
+      join(outDir, 'openapi.json'),
+      JSON.stringify(document, null, 2),
+      'utf8',
+    );
+    await fs.writeFile(
+      join(outDir, 'openapi.yaml'),
+      yaml.dump(document),
+      'utf8',
+    );
+
+    const prefix = urlPrefix ? `/${urlPrefix.replace(/^\/+|\/+$/g, '')}` : '';
+    const major = document.info.version.split('.')[0].replace(/\D/g, '') || '1';
+    await app.register(fastifyStatic, {
+      root: outDir,
+      prefix: `${prefix}/v${major}/`,
+    });
+  } catch (err) {
+    console.warn('Failed to write or serve OpenAPI static files:', err);
+  }
 }
