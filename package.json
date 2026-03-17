@@ -34,7 +34,7 @@
     "@nestjs/cli": "^11.0.16",
     "@nestjs/common": "^11.1.16",
     "@nestjs/config": "^4.0.3",
-    "@nestjs/core": "^11.1.16",
+    "@nestjs/core": "^11.1.17",
     "@nestjs/platform-express": "^11.1.16",
     "@nestjs/platform-fastify": "^11.1.16",
     "@nestjs/swagger": "^11.2.6",
