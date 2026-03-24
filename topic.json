@@ -17,7 +17,7 @@
         "name",
         "nuts_code",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -40,7 +40,7 @@
         "uebergobjekt",
         "uebergobjektname",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -87,7 +87,7 @@
         "uebergobjekt",
         "uebergobjektname",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -116,7 +116,7 @@
         "zone",
         "datenstand",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -139,7 +139,7 @@
         "typ",
         "rechts_gl",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -185,7 +185,7 @@
         "status",
         "typ",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -203,7 +203,7 @@
         "perimeter",
         "erf_dat",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -223,7 +223,7 @@
         "idart_list",
         "erf_dat",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -268,7 +268,7 @@
         "bezeichnung",
         "objid",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -290,7 +290,7 @@
         "amtlicheflaeche",
         "zaehlernenner",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -321,7 +321,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -360,7 +360,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -378,7 +378,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -396,7 +396,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -414,7 +414,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
