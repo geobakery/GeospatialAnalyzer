@@ -10,7 +10,7 @@ export async function createTestConfiguration() {
   await checkTopic();
   // Use require instead of dynamic import for Jest compatibility
   const topicJsonPath = path.join(process.cwd(), 'topic.json');
-  const topicConfig = require(topicJsonPath);
+  const topicConfig = await import(topicJsonPath);
   return topicConfig as Record<string, any>;
 }
 

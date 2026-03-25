@@ -45,7 +45,7 @@ export class TransformService {
             epsgString,
           );
         }
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'Coordinates are not valid',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -71,7 +71,7 @@ export class TransformService {
         }
 
         esriJsonArray.push(esriJson);
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'GeoJSON to EsriJSON conversion failed',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -134,7 +134,7 @@ export class TransformService {
             crs,
             STANDARD_CRS_STRING,
           );
-        } catch (e) {
+        } catch (_e) {
           throw new HttpException(
             'Coordinates are not valid',
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -189,7 +189,7 @@ export class TransformService {
           // The coordinates are already transformed at this point
           esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
           esriJSON.geometry.spatialReference.latestWkid = STANDARD_CRS;
-        } catch (e) {
+        } catch (_e) {
           throw new HttpException(
             'Coordinates are not valid',
             HttpStatus.BAD_REQUEST,
@@ -199,7 +199,7 @@ export class TransformService {
 
       try {
         geoJsonArray.push(arcgisToGeoJSON(esriJSON));
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'EsriJSON to GeoJSON conversion failed',
           HttpStatus.INTERNAL_SERVER_ERROR,

@@ -47,7 +47,7 @@ export class DatabaseMetricsSubscriber {
       try {
         const sql = this.getQuery();
         queryType = extractQueryType(sql);
-      } catch (e) {
+      } catch (_e) {
         queryType = 'SELECT';
       }
 

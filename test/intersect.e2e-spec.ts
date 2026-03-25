@@ -1,5 +1,4 @@
 import { HttpStatus } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,

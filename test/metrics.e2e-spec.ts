@@ -3,7 +3,6 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MetricsController } from '../src/metrics/metrics.controller';
 import { MetricsModule } from '../src/metrics/metrics.module';
 import { MetricsService } from '../src/metrics/metrics.service';
 

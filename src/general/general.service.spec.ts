@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransformModule } from '../transform/transform.module';
 import { GeneralService } from './general.service';
 import { topicDefinition } from './general.interface';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 
 const TOPIC_CONFIG_EXAMPLE: topicDefinition[] = [
   {
