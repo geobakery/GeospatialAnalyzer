@@ -11,10 +11,7 @@ describe('HealthController', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule],
       providers: [HealthService],
     }).compile();
 

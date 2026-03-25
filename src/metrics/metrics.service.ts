@@ -156,10 +156,7 @@ export class MetricsService implements OnModuleInit {
       this.dbQueryDuration.observe({ query_type: 'SELECT', endpoint }, 0);
 
       statuses.forEach((status) => {
-        this.dbQueriesTotal.inc(
-          { query_type: 'SELECT', status, endpoint },
-          0,
-        );
+        this.dbQueriesTotal.inc({ query_type: 'SELECT', status, endpoint }, 0);
       });
     });
 

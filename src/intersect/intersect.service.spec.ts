@@ -11,11 +11,7 @@ describe('IntersectService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [IntersectService],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule, TransformModule],
     }).compile();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

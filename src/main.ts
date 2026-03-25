@@ -20,9 +20,9 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
-  const urlPrefix = configService.get("GEOSPATIAL_ANALYZER_URL_PREFIX");
+  const urlPrefix = configService.get('GEOSPATIAL_ANALYZER_URL_PREFIX');
   if (urlPrefix) app.setGlobalPrefix(urlPrefix);
-  
+
   app.enableVersioning({
     type: VersioningType.URI,
   });

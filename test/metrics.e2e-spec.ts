@@ -46,8 +46,12 @@ describe('Metrics (e2e)', () => {
       });
 
       expect(response.body).toContain('geospatialanalyzer_http_requests_total');
-      expect(response.body).toContain('geospatialanalyzer_http_request_duration_seconds');
-      expect(response.body).toContain('geospatialanalyzer_db_query_duration_seconds');
+      expect(response.body).toContain(
+        'geospatialanalyzer_http_request_duration_seconds',
+      );
+      expect(response.body).toContain(
+        'geospatialanalyzer_db_query_duration_seconds',
+      );
       expect(response.body).toContain('app="geospatialanalyzer"');
     });
 
@@ -65,15 +69,9 @@ describe('Metrics (e2e)', () => {
       const metricsService = app.get(MetricsService);
 
       // Record some metrics with single topic
-      metricsService.recordHttpRequest(
-        'POST',
-        '/test',
-        200,
-        0.5,
-        1024,
-        2048,
-        ['test-topic'],
-      );
+      metricsService.recordHttpRequest('POST', '/test', 200, 0.5, 1024, 2048, [
+        'test-topic',
+      ]);
 
       const response = await app.inject({
         method: 'GET',
@@ -126,7 +124,9 @@ describe('Metrics (e2e)', () => {
       expect(response.body).toContain('status="success"');
 
       // Verify active connections is initialized
-      expect(response.body).toContain('geospatialanalyzer_http_active_connections');
+      expect(response.body).toContain(
+        'geospatialanalyzer_http_active_connections',
+      );
     });
   });
 });

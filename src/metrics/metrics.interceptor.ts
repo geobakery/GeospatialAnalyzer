@@ -172,7 +172,7 @@ export class MetricsInterceptor implements NestInterceptor {
 
     data.forEach((item: any) => {
       const itemTopic = item?.topic;
-      
+
       if (!itemTopic) {
         return;
       }

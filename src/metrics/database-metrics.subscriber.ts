@@ -84,4 +84,3 @@ function extractQueryType(sql: string): string {
 
   return 'OTHER';
 }
-

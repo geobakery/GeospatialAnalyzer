@@ -10,7 +10,7 @@ describe('MetricsService', () => {
     }).compile();
 
     service = module.get<MetricsService>(MetricsService);
-    
+
     // Manually trigger onModuleInit to initialize metrics
     await service.onModuleInit();
   });
@@ -71,7 +71,9 @@ describe('MetricsService', () => {
 
       const metrics = await service.getMetrics();
       expect(metrics).toContain('geospatialanalyzer_http_requests_total');
-      expect(metrics).toContain('geospatialanalyzer_http_request_duration_seconds');
+      expect(metrics).toContain(
+        'geospatialanalyzer_http_request_duration_seconds',
+      );
       expect(metrics).toContain('topic="test"');
     });
 
@@ -83,15 +85,10 @@ describe('MetricsService', () => {
     });
 
     it('should record separate metrics for each topic', async () => {
-      service.recordHttpRequest(
-        'POST',
-        '/intersect',
-        200,
-        0.3,
-        512,
-        1024,
-        ['kreis', 'land'],
-      );
+      service.recordHttpRequest('POST', '/intersect', 200, 0.3, 512, 1024, [
+        'kreis',
+        'land',
+      ]);
 
       const metrics = await service.getMetrics();
       expect(metrics).toContain('topic="kreis"');

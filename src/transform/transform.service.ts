@@ -34,7 +34,11 @@ export class TransformService {
     for (const geoJSON of geoInput) {
       try {
         // Skip transformation for null or empty geometries (e.g., from raster queries)
-        if (geoJSON.geometry && geoJSON.geometry.coordinates && geoJSON.geometry.coordinates.length > 0) {
+        if (
+          geoJSON.geometry &&
+          geoJSON.geometry.coordinates &&
+          geoJSON.geometry.coordinates.length > 0
+        ) {
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
             STANDARD_EPSG + STANDARD_CRS,
@@ -50,11 +54,13 @@ export class TransformService {
 
       try {
         const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
-        
+
         // Check if geometry exists and has valid coordinates
         if (typeof esriJson.geometry !== 'undefined') {
-          const hasValidCoordinates = this.hasValidCoordinates(esriJson.geometry);
-          
+          const hasValidCoordinates = this.hasValidCoordinates(
+            esriJson.geometry,
+          );
+
           if (hasValidCoordinates) {
             esriJson.geometry.spatialReference.wkid = args.epsg;
           } else {

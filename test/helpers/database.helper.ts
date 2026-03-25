@@ -32,49 +32,54 @@ const DEFAULT_TEST_DB_OPTIONS: Required<TestDbOptions> = {
 /**
  * Creates TypeORM configuration for any test environment (unit or e2e)
  * Uses the same database connection approach as the main application
- * 
+ *
  * @param entities Array of TypeORM entities to register
  * @param options Optional database configuration overrides for testing
  */
-export function createTestDbConfig(entities: any[] = [], options: TestDbOptions = {}) {
+export function createTestDbConfig(
+  entities: any[] = [],
+  options: TestDbOptions = {},
+) {
   const dbOptions = { ...DEFAULT_TEST_DB_OPTIONS, ...options };
-  
+
   return TypeOrmModule.forRootAsync({
     imports: [createTestConfigModule()],
     inject: [ConfigService],
-    useFactory: (configService: ConfigService) => ({
-      type: configService.get('GEOSPATIAL_ANALYZER_DB_TYPE'),
-      host: configService.get('GEOSPATIAL_ANALYZER_DB_HOST'),
-      port: configService.get('GEOSPATIAL_ANALYZER_DB_PORT'),
-      username: configService.get('GEOSPATIAL_ANALYZER_DB_USERNAME'),
-      password: configService.get('GEOSPATIAL_ANALYZER_DB_PASSWORD'),
-      database: configService.get('GEOSPATIAL_ANALYZER_DB_DATABASE'),
-      entities,
-      connectTimeoutMS: dbOptions.connectTimeoutMS,
-      synchronize: false,
-      logging: false,
-      extra: {
-        statement_timeout: dbOptions.statementTimeout,
-        query_timeout: dbOptions.queryTimeout,
-        connectionTimeoutMillis: dbOptions.connectionTimeoutMillis,
-        idle_in_transaction_session_timeout: dbOptions.idleInTransactionSessionTimeout,
-      },
-    } as any),
+    useFactory: (configService: ConfigService) =>
+      ({
+        type: configService.get('GEOSPATIAL_ANALYZER_DB_TYPE'),
+        host: configService.get('GEOSPATIAL_ANALYZER_DB_HOST'),
+        port: configService.get('GEOSPATIAL_ANALYZER_DB_PORT'),
+        username: configService.get('GEOSPATIAL_ANALYZER_DB_USERNAME'),
+        password: configService.get('GEOSPATIAL_ANALYZER_DB_PASSWORD'),
+        database: configService.get('GEOSPATIAL_ANALYZER_DB_DATABASE'),
+        entities,
+        connectTimeoutMS: dbOptions.connectTimeoutMS,
+        synchronize: false,
+        logging: false,
+        extra: {
+          statement_timeout: dbOptions.statementTimeout,
+          query_timeout: dbOptions.queryTimeout,
+          connectionTimeoutMillis: dbOptions.connectionTimeoutMillis,
+          idle_in_transaction_session_timeout:
+            dbOptions.idleInTransactionSessionTimeout,
+        },
+      }) as any,
   });
 }
 
 /**
  * Creates both database and config modules for test environments
  * This is the primary function to use in most test scenarios
- * 
+ *
  * @param entities Array of TypeORM entities to register
  * @param options Optional database configuration overrides for testing
  */
-export function createTestModules(entities: any[] = [], options: TestDbOptions = {}) {
-  return [
-    createTestDbConfig(entities, options),
-    createTestConfigModule(),
-  ];
+export function createTestModules(
+  entities: any[] = [],
+  options: TestDbOptions = {},
+) {
+  return [createTestDbConfig(entities, options), createTestConfigModule()];
 }
 
 /**

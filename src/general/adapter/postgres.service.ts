@@ -35,14 +35,14 @@ export class PostgresService extends DbAdapterService {
   }
 
   override getJsonStructure(returnGeometry: boolean): string {
-    const recordValue = returnGeometry 
+    const recordValue = returnGeometry
       ? `ST_AsGeoJSON(
           CASE 
             WHEN ST_IsEmpty(${this.getJsonRecordAlias()}.${DB_GEOMETRY_NAME}) 
             THEN ${this.getJsonRecordAlias()}.${DB_GEOMETRY_NAME}
             ELSE ST_Transform(${this.getJsonRecordAlias()}.${DB_GEOMETRY_NAME}, 4326)
           END
-        )::jsonb` 
+        )::jsonb`
       : "'null'";
 
     return `json_build_object(

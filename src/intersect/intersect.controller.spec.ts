@@ -12,11 +12,7 @@ describe('IntersectController', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [IntersectController],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule, TransformModule],
       providers: [IntersectService],
     }).compile();
 
