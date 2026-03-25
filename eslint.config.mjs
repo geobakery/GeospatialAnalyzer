@@ -1,6 +1,6 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
   {
@@ -8,7 +8,7 @@ export default [
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  eslintPluginPrettier,
+  eslintConfigPrettier,
   {
     languageOptions: {
       parserOptions: {
