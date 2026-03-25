@@ -3,8 +3,8 @@ name: Build and Push Docker image
 on:
   release:
     types: [published]
-  pull_request:
-    types: [opened, synchronize, reopened]
+  check_suite:
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -16,6 +16,7 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: github.event_name != 'check_suite' || github.event.check_suite.conclusion == 'success'
 
     steps:
       - name: Checkout repository
