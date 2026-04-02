@@ -44,7 +44,7 @@
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/typeorm": "^11.0.0",
     "@swc/cli": "^0.8.0",
-    "@swc/core": "^1.15.18",
+    "@swc/core": "^1.15.21",
     "@terraformer/arcgis": "^2.1.2",
     "@terraformer/wkt": "^2.2.1",
     "@types/node": "^25.5.0",
