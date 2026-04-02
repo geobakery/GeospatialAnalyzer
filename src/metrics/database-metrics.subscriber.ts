@@ -43,7 +43,7 @@ export class DatabaseMetricsSubscriber {
     ) {
       const startTime = Date.now();
 
-      let queryType = 'SELECT';
+      let queryType: string;
       try {
         const sql = this.getQuery();
         queryType = extractQueryType(sql);
