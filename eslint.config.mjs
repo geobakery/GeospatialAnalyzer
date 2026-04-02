@@ -25,6 +25,8 @@ export default [
         'error',
         { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
+      // Use require instead of dynamic import for Jest compatibility, see https://jestjs.io/docs/ecmascript-modules
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 ];
