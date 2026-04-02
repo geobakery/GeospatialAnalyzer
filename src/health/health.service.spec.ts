@@ -10,10 +10,7 @@ describe('HealthService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [HealthService],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule],
     }).compile();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

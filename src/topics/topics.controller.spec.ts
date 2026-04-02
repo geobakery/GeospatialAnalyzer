@@ -12,10 +12,7 @@ describe('TopicsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TopicsController],
       providers: [TopicsService],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule],
     }).compile();
 
     controller = module.get<TopicsController>(TopicsController);

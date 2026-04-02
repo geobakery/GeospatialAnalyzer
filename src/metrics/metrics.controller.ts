@@ -1,9 +1,18 @@
 import { Controller, Get, Header } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiExcludeController } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiExcludeController,
+} from '@nestjs/swagger';
 import { MetricsService } from './metrics.service';
 
-const GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN = process.env.GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN;
-const EXCLUDE_CONTROLLER_FROM_API_DOCS = GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN ? JSON.parse(GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN) : process.env.NODE_ENV === 'production';
+const GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN =
+  process.env.GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN;
+const EXCLUDE_CONTROLLER_FROM_API_DOCS =
+  GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN
+    ? JSON.parse(GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN)
+    : process.env.NODE_ENV === 'production';
 
 /**
  * Controller for exposing Prometheus metrics endpoint

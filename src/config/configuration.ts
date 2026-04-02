@@ -23,9 +23,10 @@ async function checkTopic(): Promise<void> {
     }
   } catch (error) {
     console.error('Error during topic.json validation:', error);
-    console.error('Failed to check or create topic.json file. This may cause configuration issues.');
+    console.error(
+      'Failed to check or create topic.json file. This may cause configuration issues.',
+    );
     // Don't re-throw to maintain compatibility with original behavior
   }
   return;
 }
-

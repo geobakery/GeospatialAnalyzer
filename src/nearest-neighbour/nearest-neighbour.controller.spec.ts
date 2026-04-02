@@ -12,11 +12,7 @@ describe('NearestNeighbourController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NearestNeighbourController],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule, TransformModule],
       providers: [NearestNeighbourService],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

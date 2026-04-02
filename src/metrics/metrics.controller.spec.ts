@@ -22,7 +22,8 @@ describe('MetricsController', () => {
 
   describe('getMetrics', () => {
     it('should return metrics from service', async () => {
-      const expectedMetrics = '# HELP test_metric Test metric\n# TYPE test_metric counter\ntest_metric 1\n';
+      const expectedMetrics =
+        '# HELP test_metric Test metric\n# TYPE test_metric counter\ntest_metric 1\n';
       jest.spyOn(service, 'getMetrics').mockResolvedValue(expectedMetrics);
 
       const result = await controller.getMetrics();

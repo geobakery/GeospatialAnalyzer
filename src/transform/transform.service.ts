@@ -34,14 +34,18 @@ export class TransformService {
     for (const geoJSON of geoInput) {
       try {
         // Skip transformation for null or empty geometries (e.g., from raster queries)
-        if (geoJSON.geometry && geoJSON.geometry.coordinates && geoJSON.geometry.coordinates.length > 0) {
+        if (
+          geoJSON.geometry &&
+          geoJSON.geometry.coordinates &&
+          geoJSON.geometry.coordinates.length > 0
+        ) {
           this.transformCoordinates(
             geoJSON.geometry.coordinates,
             STANDARD_EPSG + STANDARD_CRS,
             epsgString,
           );
         }
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'Coordinates are not valid',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -50,11 +54,13 @@ export class TransformService {
 
       try {
         const esriJson: EsriJsonDto = geojsonToArcGIS(geoJSON);
-        
+
         // Check if geometry exists and has valid coordinates
         if (typeof esriJson.geometry !== 'undefined') {
-          const hasValidCoordinates = this.hasValidCoordinates(esriJson.geometry);
-          
+          const hasValidCoordinates = this.hasValidCoordinates(
+            esriJson.geometry,
+          );
+
           if (hasValidCoordinates) {
             esriJson.geometry.spatialReference.wkid = args.epsg;
           } else {
@@ -65,7 +71,7 @@ export class TransformService {
         }
 
         esriJsonArray.push(esriJson);
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'GeoJSON to EsriJSON conversion failed',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -128,7 +134,7 @@ export class TransformService {
             crs,
             STANDARD_CRS_STRING,
           );
-        } catch (e) {
+        } catch (_e) {
           throw new HttpException(
             'Coordinates are not valid',
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -183,7 +189,7 @@ export class TransformService {
           // The coordinates are already transformed at this point
           esriJSON.geometry.spatialReference.wkid = STANDARD_CRS;
           esriJSON.geometry.spatialReference.latestWkid = STANDARD_CRS;
-        } catch (e) {
+        } catch (_e) {
           throw new HttpException(
             'Coordinates are not valid',
             HttpStatus.BAD_REQUEST,
@@ -193,7 +199,7 @@ export class TransformService {
 
       try {
         geoJsonArray.push(arcgisToGeoJSON(esriJSON));
-      } catch (e) {
+      } catch (_e) {
         throw new HttpException(
           'EsriJSON to GeoJSON conversion failed',
           HttpStatus.INTERNAL_SERVER_ERROR,

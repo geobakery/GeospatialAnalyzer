@@ -6,7 +6,9 @@ import { MetricsService } from './metrics.service';
 
 // controller requires all env vars to be loaded before code is evaluated (class decorators depend on env var)
 function importMetricsControllerAfterAppInit() {
-  return import('./metrics.controller.js').then((module) => module.MetricsController);
+  return import('./metrics.controller.js').then(
+    (module) => module.MetricsController,
+  );
 }
 
 /**

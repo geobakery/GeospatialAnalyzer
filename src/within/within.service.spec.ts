@@ -3,7 +3,6 @@ import { TransformModule } from '../transform/transform.module';
 import { WithinService } from './within.service';
 import { GeneralModule } from '../general/general.module';
 
-
 import { createUnitTestModules } from '../../test/helpers/database.helper';
 
 describe('WithinService', () => {
@@ -13,11 +12,7 @@ describe('WithinService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [WithinService],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule, TransformModule],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
@@ -33,4 +28,3 @@ describe('WithinService', () => {
     expect(service).toBeDefined();
   });
 });
-

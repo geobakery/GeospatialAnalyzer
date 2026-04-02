@@ -2,37 +2,37 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransformModule } from '../transform/transform.module';
 import { GeneralService } from './general.service';
 import { topicDefinition } from './general.interface';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 
 const TOPIC_CONFIG_EXAMPLE: topicDefinition[] = [
   {
-    "identifiers": ["topicA"],
-    "title": "First Topic",
-    "description": "Description of the first topic",
-    "__source__": { "name": "unused", "source": "schemaA.tableA", "srid": 4326 },
-    "__attributes__": ["id", "title", "geom"],
-    "__supports__": ["intersect", "within"],
-    "__filterGroups__": ["topicGroupOne","topicGroupTwo"],
+    identifiers: ['topicA'],
+    title: 'First Topic',
+    description: 'Description of the first topic',
+    __source__: { name: 'unused', source: 'schemaA.tableA', srid: 4326 },
+    __attributes__: ['id', 'title', 'geom'],
+    __supports__: ['intersect', 'within'],
+    __filterGroups__: ['topicGroupOne', 'topicGroupTwo'],
   },
   {
-    "identifiers": ["topicB"],
-    "title": "Second Topic",
-    "description": "Description of the second topic",
-    "__source__": { "name": "unused", "source": "schemaB.tableB", "srid": 4326 },
-    "__attributes__": ["id", "title", "adress", "description"],
-    "__supports__": ["nearestNeighbour", "valuesAtPoint"],
-    "__filterGroups__": ["topicGroupThree","topicGroupTwo"],
+    identifiers: ['topicB'],
+    title: 'Second Topic',
+    description: 'Description of the second topic',
+    __source__: { name: 'unused', source: 'schemaB.tableB', srid: 4326 },
+    __attributes__: ['id', 'title', 'adress', 'description'],
+    __supports__: ['nearestNeighbour', 'valuesAtPoint'],
+    __filterGroups__: ['topicGroupThree', 'topicGroupTwo'],
   },
   {
-    "identifiers": ["topicC"],
-    "title": "Third Topic",
-    "description": "Description of the third topic",
-    "__source__": { "name": "unused", "source": "schemaC.tableC", "srid": 4326 },
-    "__attributes__": ["id", "title", "adress", "description"],
-    "__supports__": ["nearestNeighbour", "intersect"],
-    "__filterGroups__": ["topicGroupTwo"],
+    identifiers: ['topicC'],
+    title: 'Third Topic',
+    description: 'Description of the third topic',
+    __source__: { name: 'unused', source: 'schemaC.tableC', srid: 4326 },
+    __attributes__: ['id', 'title', 'adress', 'description'],
+    __supports__: ['nearestNeighbour', 'intersect'],
+    __filterGroups__: ['topicGroupTwo'],
   },
-]
+];
 
 describe('GeneralService', () => {
   let service: GeneralService;
@@ -43,14 +43,15 @@ describe('GeneralService', () => {
       providers: [GeneralService],
       imports: [
         ConfigModule.forRoot({
-            envFilePath: ['.env.test', '.env'],
-            load: [() => (
-              {
-                "__topicsConfig__": TOPIC_CONFIG_EXAMPLE,
-                "GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER": topicGroupFilterString,
-               })],
-            isGlobal: true,
-          }),
+          envFilePath: ['.env.test', '.env'],
+          load: [
+            () => ({
+              __topicsConfig__: TOPIC_CONFIG_EXAMPLE,
+              GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER: topicGroupFilterString,
+            }),
+          ],
+          isGlobal: true,
+        }),
         TransformModule,
       ],
     }).compile();
@@ -58,8 +59,8 @@ describe('GeneralService', () => {
     //@ts-ignore
     service = module.get<GeneralService>(GeneralService);
     mod = module;
-  };
-  
+  }
+
   describe('with default setup', () => {
     beforeAll(async () => await setup());
     afterAll(async () => await mod.close());
@@ -96,12 +97,12 @@ describe('GeneralService', () => {
       const result = service.getTopics();
       expect(result).toEqual(['topicA', 'topicB', 'topicC']);
     });
-  })
+  });
 
   describe('with different topic group sets selected for filtering', () => {
     describe('groupOne and groupThree', () => {
       beforeAll(async () => await setup('topicGroupOne, topicGroupThree'));
-      afterAll(async () => await mod.close());   
+      afterAll(async () => await mod.close());
 
       it('should return topics A and B', () => {
         const result = service.getTopics();
@@ -117,6 +118,6 @@ describe('GeneralService', () => {
         const result = service.getTopics();
         expect(result).toEqual(['topicB']);
       });
-    })
-  })
+    });
+  });
 });

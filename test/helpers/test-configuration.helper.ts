@@ -10,7 +10,7 @@ export async function createTestConfiguration() {
   await checkTopic();
   // Use require instead of dynamic import for Jest compatibility
   const topicJsonPath = path.join(process.cwd(), 'topic.json');
-  const topicConfig = require(topicJsonPath);
+  const topicConfig = await import(topicJsonPath);
   return topicConfig as Record<string, any>;
 }
 
@@ -25,17 +25,20 @@ async function checkTopic(): Promise<void> {
     const topicJsonPath = path.join(process.cwd(), 'topic.json');
     const exist = await fileExists(topicJsonPath);
     if (!exist) {
-      console.error('No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file.');
+      console.error(
+        'No topic.json defined. Please read the README (chapter configuration) and add the specific configuration file.',
+      );
       process.exit(1);
     }
   } catch (error) {
     console.error('Error during topic.json validation:', error);
-    console.error('Failed to check or create topic.json file. This may cause configuration issues.');
+    console.error(
+      'Failed to check or create topic.json file. This may cause configuration issues.',
+    );
     // Don't re-throw to maintain compatibility with original behavior
   }
   return;
 }
-
 
 /**
  * Creates a configuration module for tests that includes topic.json validation and loading

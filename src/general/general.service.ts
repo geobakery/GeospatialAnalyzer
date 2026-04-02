@@ -96,7 +96,7 @@ export class GeneralService {
   private isObject(x: unknown): x is object {
     try {
       return '' in (x as object) || true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

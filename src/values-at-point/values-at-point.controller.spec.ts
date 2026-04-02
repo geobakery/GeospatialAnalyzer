@@ -1,4 +1,3 @@
-
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { createUnitTestModules } from '../../test/helpers/database.helper';
@@ -14,11 +13,7 @@ describe('ValuesAtPointController', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ValuesAtPointController],
-      imports: [
-        ...createUnitTestModules(),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createUnitTestModules(), GeneralModule, TransformModule],
       providers: [ValuesAtPointService],
     }).compile();
 
@@ -36,4 +31,3 @@ describe('ValuesAtPointController', () => {
     expect(controller).toBeDefined();
   });
 });
-
