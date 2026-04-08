@@ -18,14 +18,14 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: prepare docker metadata
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         id: meta
         with:
           images: |
@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and push image
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: sql/
           file: sql/Dockerfile-hardrestore-without-extensions
@@ -63,7 +63,7 @@ jobs:
           output-file: 'sbom.cyclonedx.json'
 
       - name: Attest
-        uses: actions/attest-sbom@v3
+        uses: actions/attest@v4
         id: attest
         with:
           subject-name: ghcr.io/${{ github.repository }}/db-hardrestore
