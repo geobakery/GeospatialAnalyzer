@@ -38,6 +38,15 @@ export interface topicDefinitionOutside {
   description?: string;
   supports?: string[];
   attributes?: string[];
+  valueMetadata?: {
+    unit?: string;
+    verticalDatum?: string;
+    sources?: Array<{
+      sourceName: string;
+      unit?: string;
+      verticalDatum?: string;
+    }>;
+  };
 }
 
 export interface SupportedTopics {

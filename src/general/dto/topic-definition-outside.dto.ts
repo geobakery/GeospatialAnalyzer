@@ -29,7 +29,15 @@ export class TopicDefinitionOutsideDto {
     example: { unit: 'm', verticalDatum: 'DHHN2016' },
     required: false,
     description:
-      'Unit and vertical datum at topic level. Used as fallback when individual sources do not provide their own metadata.',
+      'Unit and vertical datum for topic values. Top-level `unit` / `verticalDatum` are topic-wide defaults. For topics with multiple sources, per-source overrides appear in `sources[]` keyed by `sourceName` (matches the `__name` property in feature responses). Per-entry fields override the topic-level defaults field-by-field. All fields are independently optional.',
   })
-  __valueMetadata__?: { unit?: string; verticalDatum?: string };
+  valueMetadata?: {
+    unit?: string;
+    verticalDatum?: string;
+    sources?: Array<{
+      sourceName: string;
+      unit?: string;
+      verticalDatum?: string;
+    }>;
+  };
 }
