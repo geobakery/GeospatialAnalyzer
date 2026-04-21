@@ -10,7 +10,10 @@
       "__source__": { // database source [not published for end user]
         "name": "unused",
         "source": "schmema.table_adress",
-        "srid": 4326
+        "srid": 4326,
+        "attribution": [ // optional per-source attribution, replaces __attribution__ for this source
+          { "name": "Example Provider", "url": "https://example.org/datasets/adress" }
+        ]
       },
       "__attributes__": [ // attributes to show for the end user [not published for end user]
         "title",
@@ -22,6 +25,9 @@
         "intersect",
         "within",
         "nearestNeighbour"
+      ],
+      "__attribution__": [ // optional topic-wide attribution, list of data providers
+        { "name": "Example Provider" }
       ]
     },
   ]

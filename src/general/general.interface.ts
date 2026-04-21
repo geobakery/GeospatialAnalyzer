@@ -30,6 +30,8 @@ export type topicDefinition = {
     unit?: string;
     verticalDatum?: string;
   };
+  /** Optional per-topic attribution (list of data providers) */
+  __attribution__?: Array<{ name?: string; url?: string }>;
 } & ({ __source__: Source } | { __multipleSources__: Source[] });
 
 export interface topicDefinitionOutside {
@@ -47,6 +49,7 @@ export interface topicDefinitionOutside {
       verticalDatum?: string;
     }>;
   };
+  attribution?: Array<{ name?: string; url?: string }>;
 }
 
 export interface SupportedTopics {
@@ -72,6 +75,8 @@ export type SpatialMetadata = Partial<{
   /** Optional value metadata exposed directly on feature properties */
   __unit?: string;
   __verticalDatum?: string;
+  /** Optional attribution exposed directly on feature properties */
+  __attribution?: Array<{ name?: string; url?: string }>;
 }>;
 
 export interface Source {
@@ -85,6 +90,8 @@ export interface Source {
   unit?: string;
   /** Optional per-source vertical datum (e.g. "DHHN2016") */
   verticalDatum?: string;
+  /** Optional per-source attribution (replaces topic-level list for this source) */
+  attribution?: Array<{ name?: string; url?: string }>;
 }
 
 export interface SqlLiteral {

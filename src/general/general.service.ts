@@ -53,6 +53,10 @@ export class GeneralService {
     string,
     { unit?: string; verticalDatum?: string }
   > = new Map();
+  identifierAttributionMap: Map<
+    string,
+    Array<{ name?: string; url?: string }>
+  > = new Map();
   methodeTopicSupport: SupportedTopics = {
     intersect: [],
     within: [],
@@ -155,6 +159,37 @@ export class GeneralService {
     }
 
     return undefined;
+  }
+
+  /**
+   * Collect the attribution list for a /topics response.
+   * Produces a de-duplicated union of provider entries across all sources
+   * (falling back to the topic-level list when a source has none).
+   */
+  private _collectAttribution(
+    t: topicDefinition,
+  ): Array<{ name?: string; url?: string }> | undefined {
+    const topicLevel = t.__attribution__ ?? [];
+    const sources: Source[] =
+      '__source__' in t
+        ? [t.__source__]
+        : '__multipleSources__' in t
+          ? t.__multipleSources__
+          : [];
+
+    const result: Array<{ name?: string; url?: string }> = [];
+    const seen = new Set<string>();
+    for (const s of sources) {
+      const entries = s.attribution ?? topicLevel;
+      for (const entry of entries) {
+        const key = JSON.stringify(entry);
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push(entry);
+        }
+      }
+    }
+    return result.length ? result : undefined;
   }
 
   private isObject(x: unknown): x is object {
@@ -284,6 +319,11 @@ export class GeneralService {
         definition.valueMetadata = valueMetadata;
       }
 
+      const attribution = this._collectAttribution(t);
+      if (attribution) {
+        definition.attribution = attribution;
+      }
+
       if (!this.uniqueTopicsMap.has(t.title)) {
         this.uniqueTopicsMap.set(t.title, definition);
       }
@@ -315,6 +355,12 @@ export class GeneralService {
         );
         if (topicValueMetadata) {
           this.identifierValueMetadataMap.set(identifier, topicValueMetadata);
+        }
+
+        // store per-topic attribution list (fallback) if present
+        const topicAttribution = (t as topicDefinition).__attribution__;
+        if (topicAttribution && topicAttribution.length) {
+          this.identifierAttributionMap.set(identifier, topicAttribution);
         }
 
         if (t.__attributes__) {
@@ -471,6 +517,14 @@ export class GeneralService {
           if (unit) (feature.properties as any).__unit = unit;
           if (verticalDatum)
             (feature.properties as any).__verticalDatum = verticalDatum;
+
+          const topicAttribution = this.identifierAttributionMap.get(
+            result.topic,
+          );
+          const providers = source?.attribution ?? topicAttribution;
+          if (providers && providers.length) {
+            (feature.properties as any).__attribution = providers;
+          }
         });
       }
     });
