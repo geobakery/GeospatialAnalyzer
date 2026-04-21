@@ -40,7 +40,7 @@ describe('TopicsService', () => {
     const topics = service.getTopics();
     const heights = topics.find((t) => t.identifiers.includes('hoehe_r'));
     expect(heights?.valueMetadata).toEqual({
-      unit: 'cm',
+      unit: 'm',
       verticalDatum: 'DHHN2016',
     });
   });
