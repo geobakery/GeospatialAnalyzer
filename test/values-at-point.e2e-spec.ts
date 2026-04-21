@@ -114,8 +114,8 @@ describe('ValuesAtPointController (e2e)', () => {
     const props = heightsGeoJSON.properties;
     expect(props['__name']).toBe('gelaendehoehe_dgm');
     expect(props['__topic']).toBe('hoehe_r');
-    expect(props['height']).toBe(24886);
-    expect(props['__unit']).toBe('cm');
+    expect(props['height']).toBe(248.86);
+    expect(props['__unit']).toBe('m');
     expect(props['__verticalDatum']).toBe('DHHN2016');
     expect(props['__attribution']).toEqual([
       {
@@ -140,8 +140,8 @@ describe('ValuesAtPointController (e2e)', () => {
     const propsLand = domGeoJSON.properties;
     expect(propsLand['__name']).toBe('oberflaechenhoehe_dom');
     expect(propsLand['__topic']).toBe('hoehe_r');
-    expect(propsLand['height']).toBe(24886);
-    expect(propsLand['__unit']).toBe('cm');
+    expect(propsLand['height']).toBe(248.86);
+    expect(propsLand['__unit']).toBe('m');
     expect(propsLand['__verticalDatum']).toBe('DHHN2016');
     expect(propsLand['__attribution']).toEqual([
       {

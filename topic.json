@@ -75,7 +75,7 @@
       ],
       "__attributes__": [],
       "__valueMetadata__": {
-        "unit": "cm",
+        "unit": "m",
         "verticalDatum": "DHHN2016"
       },
       "__supports__": ["valuesAtPoint"],
