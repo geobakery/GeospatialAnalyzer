@@ -115,6 +115,14 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(props['__name']).toBe('gelaendehoehe_dgm');
     expect(props['__topic']).toBe('hoehe_r');
     expect(props['height']).toBe(24886);
+    expect(props['__unit']).toBe('cm');
+    expect(props['__verticalDatum']).toBe('DHHN2016');
+    expect(props['__attribution']).toEqual([
+      {
+        name: 'GeoSN',
+        url: 'https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/a3dba5b2-0118-4d76-ab78-ba656a1b489e',
+      },
+    ]);
 
     const geoProps = props['__geoProperties'];
     const requestProps = props['__requestParams'];
@@ -133,6 +141,14 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(propsLand['__name']).toBe('oberflaechenhoehe_dom');
     expect(propsLand['__topic']).toBe('hoehe_r');
     expect(propsLand['height']).toBe(24886);
+    expect(propsLand['__unit']).toBe('cm');
+    expect(propsLand['__verticalDatum']).toBe('DHHN2016');
+    expect(propsLand['__attribution']).toEqual([
+      {
+        name: 'GeoSN',
+        url: 'https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/587d9a32-07ed-42dd-a207-3d0dfef7917c',
+      },
+    ]);
 
     const geoPropsLand = propsLand['__geoProperties'];
     const requestPropsLand = propsLand['__requestParams'];
