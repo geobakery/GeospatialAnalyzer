@@ -53,6 +53,10 @@ export class GeneralService {
     string,
     { unit?: string; verticalDatum?: string }
   > = new Map();
+  identifierAttributionMap: Map<
+    string,
+    Array<{ name?: string; url?: string }>
+  > = new Map();
   methodeTopicSupport: SupportedTopics = {
     intersect: [],
     within: [],
@@ -91,6 +95,101 @@ export class GeneralService {
     this.topicGroupsToFilterFor = topicGroupFilterString
       .split(',')
       .map((groupName) => groupName.trim());
+  }
+
+  /**
+   * Returns a copy of the object with undefined/empty-string fields stripped,
+   * or undefined if no fields remain. Used to omit optional metadata objects
+   * entirely when none of their sub-fields are filled.
+   */
+  private _normalizeOptionalObject<T extends Record<string, unknown>>(
+    obj: T | undefined | null,
+  ): Partial<T> | undefined {
+    if (!obj) return undefined;
+    const result: Partial<T> = {};
+    let hasValue = false;
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined && value !== null && value !== '') {
+        (result as Record<string, unknown>)[key] = value;
+        hasValue = true;
+      }
+    }
+    return hasValue ? result : undefined;
+  }
+
+  /**
+   * Build a unified metadata section output for /topics responses.
+   * Single-source topics merge topic-level + source-level into a flat object
+   * (source overrides per field). Multi-source topics keep topic-level at the
+   * top and add a sources[] array with one entry per source that carries its
+   * own values.
+   */
+  private _buildOutputMetadataSection<T extends Record<string, string>>(
+    t: topicDefinition,
+    getTopicLevel: (topic: topicDefinition) => Partial<T> | undefined,
+    getSourceLevel: (source: Source) => Partial<T> | undefined,
+  ):
+    | (Partial<T> & { sources?: Array<{ sourceName: string } & Partial<T>> })
+    | undefined {
+    const topicLevel = this._normalizeOptionalObject(getTopicLevel(t)) ?? {};
+
+    if ('__source__' in t) {
+      const sourceLevel =
+        this._normalizeOptionalObject(getSourceLevel(t.__source__)) ?? {};
+      const merged = { ...topicLevel, ...sourceLevel } as Partial<T>;
+      return Object.keys(merged).length ? merged : undefined;
+    }
+
+    if ('__multipleSources__' in t) {
+      const sourceEntries = t.__multipleSources__
+        .map((s) => {
+          const own = this._normalizeOptionalObject(getSourceLevel(s));
+          if (!own) return undefined;
+          return { sourceName: s.name, ...own } as {
+            sourceName: string;
+          } & Partial<T>;
+        })
+        .filter((e): e is { sourceName: string } & Partial<T> => Boolean(e));
+
+      const out: Partial<T> & {
+        sources?: Array<{ sourceName: string } & Partial<T>>;
+      } = { ...topicLevel };
+      if (sourceEntries.length) out.sources = sourceEntries;
+      return Object.keys(out).length ? out : undefined;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Collect the attribution list for a /topics response.
+   * Produces a de-duplicated union of provider entries across all sources
+   * (falling back to the topic-level list when a source has none).
+   */
+  private _collectAttribution(
+    t: topicDefinition,
+  ): Array<{ name?: string; url?: string }> | undefined {
+    const topicLevel = t.__attribution__ ?? [];
+    const sources: Source[] =
+      '__source__' in t
+        ? [t.__source__]
+        : '__multipleSources__' in t
+          ? t.__multipleSources__
+          : [];
+
+    const result: Array<{ name?: string; url?: string }> = [];
+    const seen = new Set<string>();
+    for (const s of sources) {
+      const entries = s.attribution ?? topicLevel;
+      for (const entry of entries) {
+        const key = JSON.stringify(entry);
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push(entry);
+        }
+      }
+    }
+    return result.length ? result : undefined;
   }
 
   private isObject(x: unknown): x is object {
@@ -200,13 +299,30 @@ export class GeneralService {
     td.forEach((t) => {
       if (!this._doesTopicMatchGroupFilter(t)) return;
 
-      const definition = {
+      const definition: topicDefinitionOutside = {
         identifiers: t.identifiers,
         title: t.title,
         description: t.description,
         supports: t.__supports__,
         attributes: t.__attributes__ ?? [],
-      } as topicDefinitionOutside;
+      };
+
+      const valueMetadata = this._buildOutputMetadataSection(
+        t,
+        (topic) => topic.__valueMetadata__,
+        (source) => ({
+          unit: source.unit,
+          verticalDatum: source.verticalDatum,
+        }),
+      );
+      if (valueMetadata) {
+        definition.valueMetadata = valueMetadata;
+      }
+
+      const attribution = this._collectAttribution(t);
+      if (attribution) {
+        definition.attribution = attribution;
+      }
 
       if (!this.uniqueTopicsMap.has(t.title)) {
         this.uniqueTopicsMap.set(t.title, definition);
@@ -234,9 +350,17 @@ export class GeneralService {
         }
 
         // store per-topic value metadata (fallback) if present
-        const topicValueMetadata = (t as topicDefinition).__valueMetadata__;
+        const topicValueMetadata = this._normalizeOptionalObject(
+          (t as topicDefinition).__valueMetadata__,
+        );
         if (topicValueMetadata) {
           this.identifierValueMetadataMap.set(identifier, topicValueMetadata);
+        }
+
+        // store per-topic attribution list (fallback) if present
+        const topicAttribution = (t as topicDefinition).__attribution__;
+        if (topicAttribution && topicAttribution.length) {
+          this.identifierAttributionMap.set(identifier, topicAttribution);
         }
 
         if (t.__attributes__) {
@@ -379,32 +503,27 @@ export class GeneralService {
           feature.properties.__geoProperties = map.get(result.id);
           feature.properties.__topic = result.topic;
 
-          // attach value metadata: start with topic-level fallback, then override with per-source metadata if present
-          let valueMetadata = this.identifierValueMetadataMap.get(result.topic);
-
           const sourceName = (feature.properties as any)[
             SOURCE_NAME_PROPERTY
           ] as string | undefined;
-          if (sourceName) {
-            const sources = this.getMultipleDBNamesForIdentifier(result.topic);
-            if (Array.isArray(sources) && sources.length) {
-              const source = sources.find((s) => s.name === sourceName);
-              if (source && (source.unit || source.verticalDatum)) {
-                valueMetadata = {
-                  unit: source.unit,
-                  verticalDatum: source.verticalDatum,
-                };
-              }
-            }
-          }
+          const source = this._resolveSource(result.topic, sourceName);
 
-          if (valueMetadata) {
-            if (!feature.properties) feature.properties = {} as any;
-            if (valueMetadata.unit)
-              (feature.properties as any).__unit = valueMetadata.unit;
-            if (valueMetadata.verticalDatum)
-              (feature.properties as any).__verticalDatum =
-                valueMetadata.verticalDatum;
+          // merge per field: source override wins, topic-level is fallback
+          const topicValueMetadata =
+            this.identifierValueMetadataMap.get(result.topic) ?? {};
+          const unit = source?.unit ?? topicValueMetadata.unit;
+          const verticalDatum =
+            source?.verticalDatum ?? topicValueMetadata.verticalDatum;
+          if (unit) (feature.properties as any).__unit = unit;
+          if (verticalDatum)
+            (feature.properties as any).__verticalDatum = verticalDatum;
+
+          const topicAttribution = this.identifierAttributionMap.get(
+            result.topic,
+          );
+          const providers = source?.attribution ?? topicAttribution;
+          if (providers && providers.length) {
+            (feature.properties as any).__attribution = providers;
           }
         });
       }
@@ -417,6 +536,17 @@ export class GeneralService {
 
   getMultipleDBNamesForIdentifier(top: string): Source[] {
     return this.identifierMultipleSourcesMap.get(top) ?? [];
+  }
+
+  private _resolveSource(
+    topic: string,
+    sourceName: string | undefined,
+  ): Source | undefined {
+    const multi = this.getMultipleDBNamesForIdentifier(topic);
+    if (multi.length) {
+      return sourceName ? multi.find((s) => s.name === sourceName) : undefined;
+    }
+    return this.getSourceForIdentifier(topic);
   }
 
   prepareDBResponse(
