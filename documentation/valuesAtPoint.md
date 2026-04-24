@@ -10,37 +10,6 @@ Returns the values at the transferred point.
 
 Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
 
-### Polygon
-
-```json
-{
-  "inputGeometries": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [13.7702, 51.0345],
-            [13.7702, 51.0294],
-            [13.7853, 51.0294],
-            [13.7853, 51.0345],
-            [13.7702, 51.0345]
-          ]
-        ]
-      },
-      "properties": {
-        "name": "example"
-      }
-    }
-  ],
-  "topics": ["hoehe_r"],
-  "returnGeometry": false,
-  "outputFormat": "geojson",
-  "outSRS": 4326
-}
-```
-
 ### Point
 
 ```json
@@ -51,32 +20,6 @@ Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
       "geometry": {
         "type": "Point",
         "coordinates": [13.7795, 51.0303]
-      },
-      "properties": {
-        "name": "example"
-      }
-    }
-  ],
-  "topics": ["hoehe_r"],
-  "returnGeometry": false,
-  "outputFormat": "geojson",
-  "outSRS": 4326
-}
-```
-
-### Line
-
-```json
-{
-  "inputGeometries": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [13.7695, 51.0296],
-          [13.7842, 51.0339]
-        ]
       },
       "properties": {
         "name": "example"
