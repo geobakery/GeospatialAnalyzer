@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@fastify/static": "^9.0.0",
-    "@nestjs/cli": "^11.0.17",
+    "@nestjs/cli": "^11.0.19",
     "@nestjs/common": "^11.1.18",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.18",
