@@ -47,7 +47,7 @@ jobs:
 
       - name: Get first tag
         id: firsttag
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           ALLTAGS: ${{ steps.meta.outputs.tags }}
         with:
