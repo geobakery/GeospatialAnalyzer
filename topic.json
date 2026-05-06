@@ -3,7 +3,7 @@
     {
       "identifiers": ["sn_land_f", "land_f"],
       "title": "Bundesländer und Länder",
-      "description": "An Sachsen grenzende Bundesländer und Länder.",
+      "description": "Sachsen sowie angrenzende Bundesländer und Länder.",
       "__source__": {
         "name": "unused",
         "source": "ga.land_f",
@@ -17,7 +17,7 @@
         "name",
         "nuts_code",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -40,7 +40,7 @@
         "uebergobjekt",
         "uebergobjektname",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -99,7 +99,7 @@
         "uebergobjekt",
         "uebergobjektname",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -107,7 +107,7 @@
     {
       "identifiers": ["sn_wasserschutzgebiet_f", "wasserschutzgebiet_f"],
       "title": "Wasserschutzgebiete",
-      "description": "Wasserschutzgebiete in Sachsen.",
+      "description": "Festgesetzte Wasserschutzgebiete in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "ga.wasserschutzgebiet_f",
@@ -128,7 +128,7 @@
         "zone",
         "datenstand",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -136,7 +136,7 @@
     {
       "identifiers": ["sn_natura2000_f", "natura2000_f"],
       "title": "Natura 2000 Gebiete",
-      "description": "Europäische Vogelschutzgebiete und Fauna-Flora-Habitat-Gebiete (FFH-Gebiete) in Sachsen.",
+      "description": "Europäische Vogelschutzgebiete und Fauna-Flora-Habitat-Gebiete (FFH-Gebiete) in Sachsen. Die Gebiete sind Teil des NATURA 2000 Netzwerkes.",
       "__source__": {
         "name": "unused",
         "source": "ga.natura2000_f",
@@ -151,7 +151,7 @@
         "typ",
         "rechts_gl",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -159,7 +159,7 @@
     {
       "identifiers": ["sn_natura2000_p", "natura2000_p"],
       "title": "Natura 2000 Fledermausquartiere",
-      "description": "Fledermausquartiere in Sachsen.",
+      "description": "Fledermausquartiere in Sachsen. Punktförmig abgegrenzte Fledermausquartiere der Fauna-Flora-Habitat (FFH) -Gebiete, die Teil des NATURA 2000 Netzwerkes sind.",
       "__source__": {
         "name": "unused",
         "source": "ga.natura2000_p",
@@ -183,7 +183,7 @@
     {
       "identifiers": ["sn_schutzgebiet_f", "schutzgebiet_f"],
       "title": "Umweltschutzgebiete",
-      "description": "Naturschutzgebiete, Naturparks, Nationalparks, Landschaftsschutzgebiete, Flächennaturdenkmäler und Biosphärenreservate in Sachsen.",
+      "description": "Naturschutzgebiete, Naturparks, Nationalparks, Landschaftsschutzgebiete, Flächennaturdenkmäler und Biosphärenreservate in Sachsen. Schutzgebietskategorien nach Naturschutzgesetz.",
       "__source__": {
         "name": "unused",
         "source": "ga.schutzgebiet_f",
@@ -197,7 +197,7 @@
         "status",
         "typ",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -215,7 +215,7 @@
         "perimeter",
         "erf_dat",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -230,12 +230,10 @@
         "srid": 25833
       },
       "__attributes__": [
-        "id_geom_re",
-        "bufferval",
         "idart_list",
         "erf_dat",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -249,14 +247,21 @@
         "source": "ga.adresse_p",
         "srid": 25833
       },
-      "__attributes__": ["strasse", "str_nummer", "plz", "ort"],
+      "__attributes__": [
+        "objid",
+        "strasse",
+        "hausnummer",
+        "postleitzahl",
+        "ort",
+        "ortsteil"
+      ],
       "__supports__": ["intersect", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
     },
     {
       "identifiers": ["sn_aspsperrzone_f", "aspsperrzone_f"],
       "title": "Afrikanische Schweinepest-Sperrzonen",
-      "description": "Afrikanische Schweinepest (ASP) -Sperrzonen in Sachsen.",
+      "description": "Restriktionszonen der Afrikanischen Schweinepest in Sachsen.",
       "__source__": {
         "name": "unused",
         "source": "ga.aspsperrzone_f",
@@ -280,7 +285,7 @@
         "bezeichnung",
         "objid",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -299,10 +304,11 @@
         "gemarkung",
         "zaehler",
         "nenner",
-        "amtlicheflaeche",
         "zaehlernenner",
+        "amtlicheflaeche",
+        "amtlicheflaeche_einheit",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -310,7 +316,7 @@
     {
       "identifiers": ["sn_standag_f", "standag_f"],
       "title": "StandAG",
-      "description": "Gebiet nach dem Standortauswahlverfahren (StandAG) zur Suche und Auswahl eines Standortes für ein Endlager für hochradioaktive Abfälle.",
+      "description": "Teilgebiete nach dem Standortauswahlverfahren auf Grundlage Standortauswahlgesetz (StandAG) zur Suche und Auswahl eines Standortes für ein Endlager für hochradioaktive Abfälle.",
       "__source__": {
         "name": "unused",
         "source": "ga.standag_f",
@@ -333,7 +339,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata", "demodata"]
@@ -372,7 +378,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -390,7 +396,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -408,7 +414,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
@@ -426,7 +432,7 @@
         "name",
         "nationalcode",
         "geometrieflaeche",
-        "geometrieflaeche_eh"
+        "geometrieflaeche_einheit"
       ],
       "__supports__": ["intersect", "within", "nearestNeighbour"],
       "__filterGroups__": ["proddata"]
