@@ -253,10 +253,11 @@
         "hausnummer",
         "postleitzahl",
         "ort",
-        "ortsteil"
+        "ortsteil",
+        "ortsteilschluessel"
       ],
       "__supports__": ["intersect", "nearestNeighbour"],
-      "__filterGroups__": ["proddata", "demodata"]
+      "__filterGroups__": ["proddata"]
     },
     {
       "identifiers": ["sn_aspsperrzone_f", "aspsperrzone_f"],
