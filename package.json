@@ -25,6 +25,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "packageManager": "pnpm@11.1.2",
   "pnpm": {
     "overrides": {
       "ajv@>=7.0.0-alpha.0 <8.18.0": ">=8.18.0",

@@ -13,12 +13,13 @@ WORKDIR /app
 # This allows Docker to cache npm install if dependencies haven't changed
 COPY package.json \
      pnpm-lock.yaml \
+     pnpm-workspace.yaml \
      tsconfig.json \
      tsconfig.build.json \
      nest-cli.json \
      ./
 
-RUN npm install --global pnpm@latest && \
+RUN npm install --global pnpm@11.1.2 && \
     SHELL=bash pnpm setup && \
     source /root/.bashrc
 

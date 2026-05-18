@@ -16,6 +16,7 @@ WORKDIR /app
 COPY --chown=node:node \
   package.json \
   pnpm-lock.yaml \
+  pnpm-workspace.yaml \
   tsconfig.json \
   tsconfig.build.json \
   nest-cli.json \
@@ -30,7 +31,7 @@ COPY --chown=node:node \
 # Copy .env file (ensure this file exists or create an empty one)
 COPY --chown=node:node .env ./
 
-RUN npm install --global pnpm@latest && \
+RUN npm install --global pnpm@11.1.2 && \
     SHELL=bash pnpm setup && \
     source /root/.bashrc
 
