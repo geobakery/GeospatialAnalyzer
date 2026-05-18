@@ -1,5 +1,5 @@
 # ---------- STAGE 1: Build Environment ----------
-FROM node:24-alpine@sha256:7fddd9ddeae8196abf4a3ef2de34e11f7b1a722119f91f28ddf1e99dcafdf114 AS builder
+FROM node:26-alpine@sha256:e71ac5e964b9201072425d59d2e876359efa25dc96bb1768cb73295728d6e4ea AS builder
 
 ENV NODE_ENV=production
 
@@ -50,7 +50,7 @@ RUN pnpm install --frozen-lockfile && \
     rm -rf src tsconfig*.json nest-cli.json
 
 # ---------- STAGE 2: Production Runtime ----------
-FROM node:24-slim@sha256:e8e2e91b1378f83c5b2dd15f0247f34110e2fe895f6ca7719dbb780f929368eb AS runtime
+FROM node:26-slim@sha256:424cafd2a035ed2b2d74acc3142b68b426fb62a47742c80a75e7117db02d6b30 AS runtime
 
 ENV NODE_ENV=production
 
