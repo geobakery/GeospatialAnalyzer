@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { SchemaObject } from '../types/swagger-schema';
 import { Type } from 'class-transformer';
 import { outputFormatEnum } from '../general.constants';
 import { GeospatialRequest } from '../general.service';

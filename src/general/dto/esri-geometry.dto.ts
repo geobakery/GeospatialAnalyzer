@@ -5,7 +5,7 @@ import {
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { SpatialReferenceDto } from './spatial-reference.dto';
-import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { SchemaObject } from '../types/swagger-schema';
 
 const EsriJSONPositionSchemaObject: Omit<SchemaObject, 'required'> = {
   items: { type: 'number' },
