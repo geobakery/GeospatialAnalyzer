@@ -3,3 +3,20 @@ allowBuilds:
   '@scarf/scarf': false
   '@swc/core': false
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - file-type@21.3.1
+  - file-type@21.3.2
+  - path-to-regexp@8.4.0
+  - lodash@4.17.24
+  - '@fastify/static@9.1.1'
+  - fastify@5.8.5
+  - uuid@11.1.1
+  - fast-uri@3.1.1
+  - fast-uri@3.1.2
+overrides:
+  fastify@>=5.3.2 <=5.8.4: ^5.8.5
+  file-type@>=13.0.0 <21.3.1: ^21.3.1
+  file-type@>=20.0.0 <=21.3.1: ^21.3.2
+  lodash@<=4.17.23: ^4.17.24
+  lodash@>=4.0.0 <=4.17.23: ^4.17.24
+  path-to-regexp@>=8.0.0 <8.4.0: ^8.4.0

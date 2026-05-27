@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { SchemaObject } from './general/types/swagger-schema';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import inputValidation, {
