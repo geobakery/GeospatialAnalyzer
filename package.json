@@ -33,7 +33,7 @@
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.21",
     "@nestjs/platform-express": "^11.1.21",
-    "@nestjs/platform-fastify": "^11.1.21",
+    "@nestjs/platform-fastify": "^11.1.24",
     "@nestjs/swagger": "^11.4.3",
     "@nestjs/typeorm": "^11.0.1",
     "@swc/cli": "^0.7.10",
