@@ -20,7 +20,7 @@ import { ValuesAtPointService } from './values-at-point.service';
 
 @ApiTags('ValuesAtPoint')
 @Controller({
-  version: '1',
+  version: '2',
   path: 'valuesAtPoint',
 })
 @ApiExtraModels(ValuesAtPointParameterDto, EsriJsonDto, GeoJSONFeatureDto)

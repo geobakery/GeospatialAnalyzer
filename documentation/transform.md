@@ -7,7 +7,7 @@ Convert the geometries from GeoJSON (EPSG:4326) to EsriJSON with the provided EP
 
 ## Examples (GeoJSON to EsriJSON)
 
-Post-call http://localhost:3000/v1/transformGeoJSONToEsriJSON with JSON body:
+Post-call http://localhost:3000/v2/transformGeoJSONToEsriJSON with JSON body:
 
 ### LineString
 
@@ -93,7 +93,7 @@ Post-call http://localhost:3000/v1/transformGeoJSONToEsriJSON with JSON body:
 
 ## Examples (EsriJSON to GeoJSON)
 
-Post-call http://localhost:3000/v1/transformEsriJSONToGeoJSON with JSON body:
+Post-call http://localhost:3000/v2/transformEsriJSONToGeoJSON with JSON body:
 
 ### LineString
 

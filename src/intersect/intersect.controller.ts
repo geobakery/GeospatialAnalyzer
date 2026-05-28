@@ -20,7 +20,7 @@ import { IntersectService } from './intersect.service';
 
 @ApiTags('Intersect')
 @Controller({
-  version: '1',
+  version: '2',
   path: 'intersect',
 })
 @ApiExtraModels(IntersectParameterDto, EsriJsonDto, GeoJSONFeatureDto)

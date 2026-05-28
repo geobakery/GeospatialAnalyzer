@@ -15,7 +15,7 @@ import { TransformService } from './transform.service';
 
 @ApiTags('Transform')
 @Controller({
-  version: '1',
+  version: '2',
 })
 export class TransformController {
   constructor(private readonly transformService: TransformService) {}

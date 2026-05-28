@@ -8,7 +8,7 @@ Returns the values at the transferred point.
 
 ## Examples
 
-Post-call http://localhost:3000/v1/valuesAtPoint with JSON body:
+Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
 
 ### Point
 

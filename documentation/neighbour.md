@@ -8,7 +8,7 @@ Returns all features that are within a certain distance of the transferred geome
 
 ## Examples
 
-Post-call http://localhost:3000/v1/nearestNeighbour with JSON body:
+Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
 
 ### Polygon
 
