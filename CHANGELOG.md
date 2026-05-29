@@ -136,7 +136,7 @@ The API base path moves to `/v2/`. Height values from raster topics are now retu
 
 ## [1.0.0] - 2024-07-12
 
-Initial stable release. Compared to [1.0.0-rc1], this release adds typo fixes and documentation polish (#45).
+Initial stable release. Compared to [1.0.0-rc1], this release fixes typos and polished the documentation (#45).
 
 **Full Changelog:** https://github.com/geobakery/GeospatialAnalyzer/compare/v1.0.0-rc1...v1.0.0
 
