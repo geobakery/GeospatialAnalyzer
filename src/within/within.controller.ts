@@ -20,7 +20,7 @@ import { WithinService } from './within.service';
 
 @ApiTags('Within')
 @Controller({
-  version: '1',
+  version: '2',
   path: 'within',
 })
 @ApiExtraModels(WithinParameterDto, EsriJsonDto, GeoJSONFeatureDto)

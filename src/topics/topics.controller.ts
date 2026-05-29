@@ -6,7 +6,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 
 @ApiTags('Topics')
 @Controller({
-  version: '1',
+  version: '2',
   path: 'topics',
 })
 @Controller('topics')

@@ -8,7 +8,7 @@ Returns all features that are touched by the transferred geometries.
 
 ## Examples
 
-Post-call http://localhost:3000/v1/intersect with JSON body:
+Post-call http://localhost:3000/v2/intersect with JSON body:
 
 ### Polygon
 

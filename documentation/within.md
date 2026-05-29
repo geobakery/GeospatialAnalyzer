@@ -8,7 +8,7 @@ Returns all features, where the transferred geometries are completely contained.
 
 ## Examples
 
-Post-call http://localhost:3000/v1/within with JSON body:
+Post-call http://localhost:3000/v2/within with JSON body:
 
 ### Polygon
 

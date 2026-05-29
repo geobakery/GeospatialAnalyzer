@@ -8,7 +8,7 @@ Show all topics along with their metadata: `identifiers`, `title`, `description`
 
 ## Examples
 
-Get-call http://localhost:3000/v1/topics
+Get-call http://localhost:3000/v2/topics
 
 ## Optional topic metadata
 

@@ -20,7 +20,7 @@ import { NearestNeighbourService } from './nearest-neighbour.service';
 
 @ApiTags('NearestNeighbour')
 @Controller({
-  version: '1',
+  version: '2',
   path: 'nearestNeighbour',
 })
 @ApiExtraModels(NearestNeighbourParameterDto, EsriJsonDto, GeoJSONFeatureDto)
