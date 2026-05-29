@@ -80,7 +80,6 @@ The API base path moves to `/v2/`. Height values from raster topics are now retu
 
 ### Fixed
 
-- Test corrections.
 - Transform-service handling improvements for CRS definitions.
 
 ### Security
