@@ -32,9 +32,9 @@ The API base path moves to `/v2/`. Height values from raster topics are now retu
 ### Added
 
 - `/metrics` endpoint for Prometheus. Metrics are prefixed with `geospatialanalyzer` and initialized to zero (#75).
-- Env flag to disable the `/metrics` endpoint (#120).
+- Env flag to hide the `/metrics` endpoint in the OpenAPI document (#120). Useful for production environments where the endpoint is only available to specific services inside a privileged network.
 - `GEOSPATIAL_ANALYZER_URL_PREFIX` env variable to configure a global URL prefix (#94).
-- Topic group filter: one configuration file serves both demo and production topics.
+- Topic group filter: one configuration file serves both demo and production topics. Can be filtered by setting `GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER` e.g. to `demodata`. (#85)
 - Static OpenAPI spec files (`openapi.yaml`, `openapi.json`) served at `/v2/openapi.{yaml,json}`, regenerated on app startup (#124).
 - `__unit` and `__verticalDatum` properties on `valuesAtPoint` feature responses (#108).
 - `attributes` field on the `/topics` response (#132).
@@ -43,7 +43,6 @@ The API base path moves to `/v2/`. Height values from raster topics are now retu
 
 ### Changed
 
-- Controller path prefixes refactored to work with the global URL prefix.
 - Topic and topic-all configuration files merged into one; group filter replaces the dual-file setup.
 - Removed duplicate metadata properties from internal topic types.
 - Internal rename: `DB_NAME_NAME` → `SOURCE_NAME_PROPERTY`.
@@ -52,17 +51,17 @@ The API base path moves to `/v2/`. Height values from raster topics are now retu
 
 ### Fixed
 
-- Swagger UI uses the global URL prefix for local API doc routing (#172).
+- Swagger UI uses the global URL prefix for local API doc routing (#172). Previous solution did not work with the node dev server.
 - `esrijson` output format returns the correct geometry (#81).
 - `valuesAtPoint` with `"returnGeometry": true` no longer fails.
 - Example geometries and DTO example coordinates corrected to match the demo data (#119).
 
 ### Security
 
-- CVE fixes in `body-parser` and `validator`.
+- Updated all dependencies. Includes fixes for known CVEs.
 - Dependency settings hardened against supply-chain attacks (#150).
 - `pnpm` pinned to 11.1.2 with dependency build scripts disabled by default (#165).
-- SBOM is now attested via the generic `actions/attest` action and no longer pushed to the container registry.
+- SBOM is now attested and uploaded to the github attestation page (see https://github.com/geobakery/GeospatialAnalyzer/attestations).
 
 **Contributors:** @dschlarmann, @einspanier, @sebeweiss, @TimMoser92, @dependabot[bot]
 
