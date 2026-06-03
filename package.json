@@ -28,7 +28,6 @@
   "packageManager": "pnpm@11.1.2",
   "dependencies": {
     "@fastify/static": "^9.1.3",
-    "@nestjs/cli": "^11.0.21",
     "@nestjs/common": "^11.1.24",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.24",
@@ -54,6 +53,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@nestjs/cli": "^11.0.21",
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.24",
     "@types/express": "^5.0.6",

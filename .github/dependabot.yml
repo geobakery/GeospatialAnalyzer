@@ -1,19 +1,60 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # npm
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "01:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    # Group minor/patch updates; majors stay as individual PRs.
+    groups:
+      # NestJS platform as one PR
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Dev toolchain as one PR
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      # Remaining runtime deps as one PR
+      production-dependencies:
+        dependency-type: "production"
+        exclude-patterns:
+          - "@nestjs/*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Enable version updates for Docker
+  # Docker base image
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "01:00"
+      timezone: "Europe/Berlin"
+    groups:
+      docker:
+        patterns:
+          - "*"
 
-  # Enable version updates for GitHub Actions
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "01:00"
+      timezone: "Europe/Berlin"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
