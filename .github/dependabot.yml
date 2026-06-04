@@ -33,7 +33,7 @@ updates:
           - "minor"
           - "patch"
 
-  # Docker base image
+  # Container base images (Dockerfile)
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -41,10 +41,14 @@ updates:
       day: "monday"
       time: "01:00"
       timezone: "Europe/Berlin"
+    # Group minor/patch updates; majors stay as individual PRs.
     groups:
-      docker:
+      container-base-images:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -54,7 +58,11 @@ updates:
       day: "monday"
       time: "01:00"
       timezone: "Europe/Berlin"
+    # Group minor/patch updates; majors stay as individual PRs.
     groups:
       github-actions:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
