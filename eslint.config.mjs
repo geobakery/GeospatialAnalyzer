@@ -4,7 +4,11 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/**', 'test/common/big_geojson_coordinate.json'],
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'test/common/big_geojson_coordinate.json',
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
