@@ -17,8 +17,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test:
+  checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -61,5 +62,29 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Test
+      - name: Unit tests
         run: pnpm test
+
+      # Restore into a dedicated fresh DB via the matched pg15 client from the
+      # postgis image, NOT the image's default "postgres" DB: that one ships
+      # with postgis_topology + postgis_tiger_geocoder, whose tiger/topology
+      # schemas collide with the dump's CREATE SCHEMA statements. The e2e step
+      # targets this DB via the env override below.
+      - name: Restore test database
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD=geobakery \
+            -v "$PWD/sql/data:/tmp/data:ro" \
+            postgis/postgis:15-3.4 \
+            bash -c '
+              set -e
+              createdb -h localhost -U postgres ga
+              psql -h localhost -U postgres -d ga -v ON_ERROR_STOP=1 \
+                -c "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_raster;"
+              pg_restore -h localhost -U postgres -d ga --no-owner /tmp/data
+            '
+
+      - name: E2E tests
+        env:
+          GEOSPATIAL_ANALYZER_DB_DATABASE: ga
+        run: pnpm test:e2e
