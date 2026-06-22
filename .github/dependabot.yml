@@ -32,6 +32,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # Pin @types/node to the runtime's Node major. A major bump would ship
+      # types for APIs that don't exist at runtime. Raise it together with
+      # engines + the CI node-version.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Container base images (Dockerfile)
   - package-ecosystem: "docker"
