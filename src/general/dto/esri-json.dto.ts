@@ -44,10 +44,7 @@ export class EsriJsonDto {
     );
   })
   geometry?:
-    | EsriEmptyPointDto
-    | EsriPointDto
-    | EsriPolylineDto
-    | EsriPolygonDto;
+    EsriEmptyPointDto | EsriPointDto | EsriPolylineDto | EsriPolygonDto;
 
   @ApiPropertyOptional({
     type: 'object',

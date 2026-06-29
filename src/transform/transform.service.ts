@@ -259,10 +259,7 @@ export class TransformService {
    */
   private hasValidCoordinates(
     geometry:
-      | EsriEmptyPointDto
-      | EsriPointDto
-      | EsriPolylineDto
-      | EsriPolygonDto,
+      EsriEmptyPointDto | EsriPointDto | EsriPolylineDto | EsriPolygonDto,
   ): boolean {
     // Check for empty point (x is null or NaN)
     if ('x' in geometry) {
@@ -292,9 +289,7 @@ export class TransformService {
 
   isGeoJSONFeatureCollectionArray(
     geoArray:
-      | EsriJsonDto[]
-      | GeoJSONFeatureDto[]
-      | GeoJSONFeatureCollectionDto[],
+      EsriJsonDto[] | GeoJSONFeatureDto[] | GeoJSONFeatureCollectionDto[],
   ): geoArray is GeoJSONFeatureCollectionDto[] {
     return (
       geoArray.length === 0 ||
@@ -304,9 +299,7 @@ export class TransformService {
 
   isEsriJSONArray(
     geoArray:
-      | EsriJsonDto[]
-      | GeoJSONFeatureDto[]
-      | GeoJSONFeatureCollectionDto[],
+      EsriJsonDto[] | GeoJSONFeatureDto[] | GeoJSONFeatureCollectionDto[],
   ): geoArray is EsriJsonDto[] {
     return geoArray.length === 0 || geoArray[0] instanceof EsriJsonDto;
   }
