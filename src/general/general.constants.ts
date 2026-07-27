@@ -49,3 +49,10 @@ export const QUERY_FEATURE_INDEX = 'feature_wkt_';
  *   that the situation is temporary and somewhat easily fixable.
  */
 export const HTTP_STATUS_SQL_TIMEOUT = HttpStatus.UNPROCESSABLE_ENTITY;
+
+/**
+ * SQLSTATE `query_canceled`, reported when `statement_timeout` cancels a
+ * statement. Postgres localises error messages via `lc_messages`, so the
+ * SQLSTATE is the only server-independent way to recognise a timeout.
+ */
+export const SQLSTATE_QUERY_CANCELED = '57014';
