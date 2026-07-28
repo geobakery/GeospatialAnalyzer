@@ -51,8 +51,18 @@ export const QUERY_FEATURE_INDEX = 'feature_wkt_';
 export const HTTP_STATUS_SQL_TIMEOUT = HttpStatus.UNPROCESSABLE_ENTITY;
 
 /**
- * SQLSTATE `query_canceled`, reported when `statement_timeout` cancels a
- * statement. Postgres localises error messages via `lc_messages`, so the
- * SQLSTATE is the only server-independent way to recognise a timeout.
+ * SQLSTATE `query_canceled`. It marks a statement as cancelled but says nothing
+ * about why - the service issues no cancel requests itself, so a timeout is the
+ * likeliest cause, but an outside `pg_cancel_backend()` is indistinguishable.
+ *
+ * Postgres localises error messages via `lc_messages`, which is why the SQLSTATE
+ * and not the text is the thing to match on.
  */
 export const SQLSTATE_QUERY_CANCELED = '57014';
+
+/**
+ * Message thrown by node-postgres' own `query_timeout`. It fires client-side, so
+ * the error carries no SQLSTATE and only the text is left to match - it comes
+ * from the driver, not from Postgres, and is never localised.
+ */
+export const PG_CLIENT_READ_TIMEOUT_MESSAGE = 'Query read timeout';

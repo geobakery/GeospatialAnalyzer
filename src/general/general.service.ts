@@ -18,6 +18,7 @@ import {
   ESRIJSON_PARAMETER,
   GEOJSON_PARAMETER,
   HTTP_STATUS_SQL_TIMEOUT,
+  PG_CLIENT_READ_TIMEOUT_MESSAGE,
   STANDARD_CRS,
   SOURCE_NAME_PROPERTY,
   SQLSTATE_QUERY_CANCELED,
@@ -607,12 +608,9 @@ export class GeneralService {
   }
 
   /**
-   * Recognises a statement that was cancelled for running too long.
-   *
-   * The SQLSTATE is the reliable signal: `message` is derived from the driver
-   * error, and Postgres localises that text via `lc_messages`. The message
-   * checks remain as a fallback for client-side timeouts, which never reach the
-   * server and therefore carry no SQLSTATE.
+   * Recognises a statement that was cancelled for running too long - by the
+   * server, or by the driver's own read timeout. Both constants document why
+   * they are matched the way they are.
    */
   private isTimeoutError(e: QueryFailedError): boolean {
     const sqlState = (e.driverError as { code?: string } | undefined)?.code;
@@ -620,7 +618,7 @@ export class GeneralService {
       return true;
     }
 
-    return e.message === 'Query read timeout' || e.message.includes('timeout');
+    return e.message === PG_CLIENT_READ_TIMEOUT_MESSAGE;
   }
 
   /**

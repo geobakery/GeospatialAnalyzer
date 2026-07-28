@@ -5,15 +5,26 @@ import {
   SQLSTATE_QUERY_CANCELED,
 } from '../src/general/general.constants';
 import { GeneralModule } from '../src/general/general.module';
-import { GeneralService } from '../src/general/general.service';
+import {
+  GeneralService,
+  GeospatialResultEntity,
+} from '../src/general/general.service';
 import { TransformModule } from '../src/transform/transform.module';
+import { GEOJSON_WITHOUT_GEOMETRY_KREIS } from './common/constants';
 import { createTestModules } from './helpers/database.helper';
 
 /**
- * Covers the mapping from a cancelled statement to the dedicated timeout status
- * in GeneralService.calculateMethode. The error has to come from the driver: a
- * hand-built QueryFailedError would satisfy the service's instanceof check by
- * construction.
+ * Pins down the contract this service relies on but cannot control: that a
+ * statement cancelled by the database really does arrive as SQLSTATE 57014.
+ * Only a real driver error can show that, which is why this runs against a
+ * database instead of a hand-built QueryFailedError.
+ *
+ * The complementary half - that the mapping keys off the SQLSTATE and not off
+ * the message, whose language depends on the server's lc_messages - lives in
+ * src/general/general.service.spec.ts, where the error can be varied freely.
+ * The client-side read timeout is only covered there: pinning it against a real
+ * driver needs a second connection pool, which leaks when torn down while the
+ * abandoned statement still runs.
  */
 describe('SQL timeout handling (e2e)', () => {
   let moduleFixture: TestingModule;
@@ -42,32 +53,26 @@ describe('SQL timeout handling (e2e)', () => {
     const failingQueryBuilder = dataSource
       .createQueryBuilder()
       .select('pg_sleep(2)')
-      .from('(select 1)', 'delay') as unknown as SelectQueryBuilder<never>;
+      .from(
+        '(select 1)',
+        'delay',
+      ) as unknown as SelectQueryBuilder<GeospatialResultEntity>;
 
-    // Asserted on the SQLSTATE, not the message: Postgres localises error text.
-    await expect(failingQueryBuilder.getRawMany()).rejects.toBeInstanceOf(
-      QueryFailedError,
-    );
-    await expect(failingQueryBuilder.getRawMany()).rejects.toMatchObject({
-      driverError: { code: SQLSTATE_QUERY_CANCELED },
+    const driverFailure: unknown = await failingQueryBuilder
+      .getRawMany()
+      .catch((e: unknown) => e);
+
+    expect(driverFailure).toBeInstanceOf(QueryFailedError);
+    // Asserted on the SQLSTATE, not the message: Postgres localises the text.
+    expect((driverFailure as QueryFailedError).driverError).toMatchObject({
+      code: SQLSTATE_QUERY_CANCELED,
     });
 
-    const request = {
-      topics: ['kreis_f'],
-      inputGeometries: [
-        {
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [13.75, 51.07] },
-          properties: {},
-        },
-      ],
-      outputFormat: 'geojson',
-      outSRS: 4326,
-      returnGeometry: false,
-    };
-
     await expect(
-      generalService.calculateMethode(request as never, failingQueryBuilder),
+      generalService.calculateMethode(
+        GEOJSON_WITHOUT_GEOMETRY_KREIS(),
+        failingQueryBuilder,
+      ),
     ).rejects.toMatchObject({ status: HTTP_STATUS_SQL_TIMEOUT });
   });
 });
