@@ -1,6 +1,17 @@
+import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
 import { TransformModule } from '../transform/transform.module';
-import { GeneralService } from './general.service';
+import {
+  GeneralService,
+  GeospatialRequest,
+  GeospatialResultEntity,
+} from './general.service';
+import {
+  HTTP_STATUS_SQL_TIMEOUT,
+  PG_CLIENT_READ_TIMEOUT_MESSAGE,
+  SQLSTATE_QUERY_CANCELED,
+} from './general.constants';
 import { topicDefinition } from './general.interface';
 import { ConfigModule } from '@nestjs/config';
 
@@ -118,6 +129,79 @@ describe('GeneralService', () => {
         const result = service.getTopics();
         expect(result).toEqual(['topicB']);
       });
+    });
+  });
+
+  describe('error mapping in calculateMethode', () => {
+    beforeAll(async () => await setup());
+    afterAll(async () => await mod.close());
+
+    const REQUEST: GeospatialRequest = {
+      topics: ['topicA'],
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [13.75, 51.07] },
+          properties: {},
+        },
+      ],
+      outputFormat: 'geojson',
+      outSRS: 4326,
+      returnGeometry: false,
+    };
+
+    /**
+     * Rebuilds what TypeORM does with a failing query. Hand-built on purpose:
+     * only this way can message and SQLSTATE be varied independently, which is
+     * what the mapping must not depend on.
+     */
+    function queryBuilderRejectingWith(driverError: Error) {
+      return {
+        getRawMany: () =>
+          Promise.reject(new QueryFailedError('select 1', [], driverError)),
+      } as unknown as SelectQueryBuilder<GeospatialResultEntity>;
+    }
+
+    it('maps a cancelled statement to the timeout status whatever language the message is in', async () => {
+      // What a server with a German lc_messages reports - no "timeout" in it.
+      const driverError = Object.assign(
+        new Error('storniere Anfrage wegen Zeitüberschreitung der Anfrage'),
+        { code: SQLSTATE_QUERY_CANCELED },
+      );
+
+      await expect(
+        service.calculateMethode(
+          REQUEST,
+          queryBuilderRejectingWith(driverError),
+        ),
+      ).rejects.toMatchObject({ status: HTTP_STATUS_SQL_TIMEOUT });
+    });
+
+    it("maps the driver's client-side read timeout to the timeout status", async () => {
+      // Fires before the statement reaches the server, hence no SQLSTATE.
+      const driverError = new Error(PG_CLIENT_READ_TIMEOUT_MESSAGE);
+
+      await expect(
+        service.calculateMethode(
+          REQUEST,
+          queryBuilderRejectingWith(driverError),
+        ),
+      ).rejects.toMatchObject({ status: HTTP_STATUS_SQL_TIMEOUT });
+    });
+
+    it('maps an unrelated query failure to a server error even if its message mentions a timeout', async () => {
+      // Mentions a timeout without being one; a loose message match misreports it.
+      const driverError = Object.assign(
+        new Error('column "timeout" does not exist'),
+        { code: '42703' },
+      );
+
+      await expect(
+        service.calculateMethode(
+          REQUEST,
+          queryBuilderRejectingWith(driverError),
+        ),
+      ).rejects.toMatchObject({ status: HttpStatus.INTERNAL_SERVER_ERROR });
     });
   });
 });
