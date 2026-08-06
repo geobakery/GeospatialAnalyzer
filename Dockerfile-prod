@@ -58,6 +58,18 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Security: Remove npm, corepack and yarn from the runtime image. The app runs
+# via plain `node` and never calls them, so they only contribute vulnerable
+# code to the artifact (e.g. CVE-2026-59873 in the node-tar copy npm bundles).
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/lib/node_modules/corepack \
+           /opt/yarn* \
+           /usr/local/bin/npm \
+           /usr/local/bin/npx \
+           /usr/local/bin/corepack \
+           /usr/local/bin/yarn \
+           /usr/local/bin/yarnpkg
+
 # Security: Create non-root user and group with specific IDs
 ARG APP_UID=1001
 ARG APP_GID=1001
