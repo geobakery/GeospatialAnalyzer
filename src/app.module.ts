@@ -35,7 +35,7 @@ import { TopicsModule } from './topics/topics.module';
       subscribers: [],
       migrations: [],
       extra: {
-        statement_timeout: process.env.statement_timeout
+        statement_timeout: process.env.GEOSPATIAL_ANALYZER_STATEMENT_TIMEOUT_MS
           ? Number(process.env.GEOSPATIAL_ANALYZER_STATEMENT_TIMEOUT_MS)
           : 30000, // number of milliseconds before a statement in query will time out, default is no timeout
         query_timeout: process.env.GEOSPATIAL_ANALYZER_QUERY_TIMEOUT_MS
