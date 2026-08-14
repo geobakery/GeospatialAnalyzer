@@ -30,6 +30,20 @@ GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER: demodata
 [...]
 ```
 
+## Database timeouts
+
+The following variables control the database timeouts. They are passed to the TypeORM connection in `src/app.module.ts`. The `.env` column lists the value shipped in the base `.env`, the fallback column the value used when the variable is unset.
+
+| Variable                                                 | `.env`  | Fallback | Effect                                                                      |
+| -------------------------------------------------------- | ------- | -------- | --------------------------------------------------------------------------- |
+| `GEOSPATIAL_ANALYZER_CONNECT_TIMEOUT_MS`                 | `6000`  | `60000`  | TypeORM `connectTimeoutMS`: time to establish a connection                  |
+| `GEOSPATIAL_ANALYZER_STATEMENT_TIMEOUT_MS`               | `30000` | `30000`  | Postgres `statement_timeout`: server aborts a statement after this time     |
+| `GEOSPATIAL_ANALYZER_QUERY_TIMEOUT_MS`                   | `30000` | `30000`  | Driver `query_timeout`: client aborts a query after this time               |
+| `GEOSPATIAL_ANALYZER_CONNECTION_TIMEOUT_MS`              | `0`     | `0`      | Pool `connectionTimeoutMillis`: wait for a free pool connection (`0` = off) |
+| `GEOSPATIAL_ANALYZER_IDLE_IN_TRANSACTION_SESSION_TIMOUT` | `0`     | `0`      | Postgres `idle_in_transaction_session_timeout` (`0` = off)                  |
+
+All values are milliseconds and are parsed with `Number()`, so set integers only. Override them in `env.dev` or in the deployment environment. The base `.env` file contains the default configuration.
+
 ## Topic.json
 
 The `topic.json` contains all your relevant data, that you want to display and the connection source.
