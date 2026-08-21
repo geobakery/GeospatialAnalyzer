@@ -4,7 +4,8 @@ import { DatabaseMetricsSubscriber } from './database-metrics.subscriber';
 import { MetricsInterceptor } from './metrics.interceptor';
 import { MetricsService } from './metrics.service';
 
-// controller requires all env vars to be loaded before code is evaluated (class decorators depend on env var)
+// controller requires all env vars to be loaded before code is evaluated (class decorators depend on env var),
+// which is why app.module.ts lists ConfigModule.forRoot() before MetricsModule.forRoot()
 function importMetricsControllerAfterAppInit() {
   const module = require('./metrics.controller');
   return module.MetricsController;
@@ -21,10 +22,10 @@ export class MetricsModule {
    * Register the metrics module with all providers and interceptors
    * Use this when metrics collection is enabled
    */
-  static async forRoot(): Promise<DynamicModule> {
+  static forRoot(): DynamicModule {
     return {
       module: MetricsModule,
-      controllers: [await importMetricsControllerAfterAppInit()],
+      controllers: [importMetricsControllerAfterAppInit()],
       providers: [
         MetricsService,
         DatabaseMetricsSubscriber,

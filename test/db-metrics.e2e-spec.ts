@@ -34,7 +34,7 @@ describe('Database metrics (e2e)', () => {
         ...createE2eTestModules(),
         GeneralModule,
         TransformModule,
-        await MetricsModule.forRoot(),
+        MetricsModule.forRoot(),
       ],
       providers: [IntersectService],
     }).compile();
