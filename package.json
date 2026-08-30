@@ -55,13 +55,13 @@
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.28",
     "@swc/cli": "^0.8.1",
-    "@swc/core": "^1.15.47",
+    "@swc/core": "^1.16.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/supertest": "^7.2.1",
     "dotenv": "^17.4.2",
-    "eslint": "^10.8.0",
+    "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "jest": "^30.4.2",
     "prettier": "^3.9.6",
@@ -72,7 +72,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.68.0"
   },
   "jest": {
     "moduleFileExtensions": [
