@@ -6,6 +6,20 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Changed
+
+- The runtime image no longer includes npm, Corepack or Yarn. The app runs directly with `node dist/main.js` (#224).
+- Updated dependencies, including security patches.
+
+### Fixed
+
+- `GEOSPATIAL_ANALYZER_STATEMENT_TIMEOUT_MS` and `GEOSPATIAL_ANALYZER_QUERY_TIMEOUT_MS` are now applied. Both were ignored due to incorrect environment variable names (#228).
+- SQL query timeouts are now detected using SQLSTATE `57014` instead of database driver error messages. This prevents unrelated errors containing "timeout" from being returned as HTTP 422 instead of 500 and makes timeout detection independent of the database server locale (#220).
+
+### Security
+
+- Removed npm, Corepack and Yarn from the runtime image. The bundled package managers included `node-tar` 7.5.13, which was affected by CVE-2026-59873. The package was not reachable at runtime because the application never runs them. Removing them also removes the finding from image scans (#224).
+
 ## [2.0.0] - 2026-05-29
 
 ### Highlights
