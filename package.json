@@ -34,7 +34,7 @@
     "@nestjs/platform-express": "^11.1.28",
     "@nestjs/platform-fastify": "^11.1.28",
     "@nestjs/swagger": "^11.4.6",
-    "@nestjs/typeorm": "^11.0.3",
+    "@nestjs/typeorm": "^12.0.1",
     "@terraformer/arcgis": "^2.2.2",
     "@terraformer/wkt": "^2.2.2",
     "@types/node": "^24.13.3",
