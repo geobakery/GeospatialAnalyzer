@@ -123,6 +123,15 @@ export class ParameterDto implements GeospatialRequest {
 
   @ApiProperty({ example: 4326 })
   outSRS: number;
+
+  @ApiProperty({
+  required: false,
+  type: Number,
+  example: 100,
+  description: 'Buffer distance around each input geometry in meters',
+  minimum: 0,
+  })
+  buffer?: number;
 }
 
 export class IntersectParameterDto extends ParameterDto {}

@@ -679,6 +679,7 @@ export interface GeospatialLogicalRequest {
   fieldsToQuery: string[];
   topic: string;
   topicIndex: number;
+  buffer?: number;
 }
 
 /**
@@ -698,4 +699,10 @@ export interface GeospatialRequest {
   outSRS: number;
 
   returnGeometry: boolean;
+
+   /**
+   * Optional buffer distance around each input geometry.
+   * The unit is the unit of the topic CRS.
+   */
+  buffer?: number;
 }
