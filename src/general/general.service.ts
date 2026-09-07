@@ -700,7 +700,7 @@ export interface GeospatialRequest {
 
   returnGeometry: boolean;
 
-   /**
+  /**
    * Optional buffer distance around each input geometry.
    * The unit is the unit of the topic CRS.
    */
