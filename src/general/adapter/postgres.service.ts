@@ -34,6 +34,10 @@ export class PostgresService extends DbAdapterService {
     return `ST_TRANSFORM(${featureWkt.value}::text, ${toCrs})`;
   }
 
+  override bufferFeature(feature: SqlParameter, distance: SqlParameter): string {
+    return `ST_Buffer(${feature.value}, ${distance.value})`;
+  }
+
   override getJsonStructure(returnGeometry: boolean): string {
     const recordValue = returnGeometry
       ? `ST_AsGeoJSON(

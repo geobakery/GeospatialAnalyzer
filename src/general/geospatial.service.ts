@@ -4,10 +4,13 @@ import { TransformService } from '../transform/transform.service';
 import { DbAdapterService } from './db-adapter.service';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { GeoJSONFeatureDto } from './dto/geo-json.dto';
+import {geojsonToWKT} from '@terraformer/wkt';
 import {
   DB_FEATURE_ID_NAME,
   DB_JSON_STRUCTURE_NAME,
   DB_TOPIC_NAME,
+  QUERY_FEATURE_INDEX,
+  QUERY_BUFFER_INDEX,
 } from './general.constants';
 import { SqlLiteral } from './general.interface';
 import {
@@ -66,6 +69,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
               this.generalService.identifierAllowedAttributesMap.get(topic),
             topic,
             topicIndex,
+            buffer: request.buffer,
           },
           request,
         );
@@ -142,5 +146,54 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     );
 
     return qb;
+  }
+  protected getAnalysisGeometry(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    srid: number,
+    feature: GeoJSONFeatureDto,
+    featureIndex: number,
+    buffer?: number,
+  ): string {
+    const featureWkt =
+      feature.geometry !== null
+        ? geojsonToWKT(feature.geometry)
+        : 'POINT EMPTY';
+
+    const featureParameter = `${QUERY_FEATURE_INDEX}${featureIndex}`;
+
+    queryBuilder.setParameter(
+      featureParameter,
+      `SRID=4326;${featureWkt}`,
+    );
+
+    let queryFeature = this.adapter.transformFeature(
+      {
+        raw: true,
+        value: `:${featureParameter}`,
+      },
+      srid,
+    );
+
+    if (buffer !== undefined && buffer > 0) {
+      const bufferParameter = `${QUERY_BUFFER_INDEX}${featureIndex}`;
+
+      queryBuilder.setParameter(
+        bufferParameter,
+        buffer,
+      );
+
+      queryFeature = this.adapter.bufferFeature(
+        {
+          raw: true,
+          value: queryFeature,
+        },
+        {
+          raw: true,
+          value: `:${bufferParameter}`,
+        },
+      );
+    }
+
+    return queryFeature;
   }
 }
