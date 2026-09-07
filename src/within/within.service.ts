@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { WithinParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_GEOMETRY_NAME,
-  QUERY_FEATURE_INDEX,
-  STANDARD_SRID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
