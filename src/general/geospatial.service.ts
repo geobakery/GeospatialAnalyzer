@@ -4,7 +4,7 @@ import { TransformService } from '../transform/transform.service';
 import { DbAdapterService } from './db-adapter.service';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { GeoJSONFeatureDto } from './dto/geo-json.dto';
-import {geojsonToWKT} from '@terraformer/wkt';
+import { geojsonToWKT } from '@terraformer/wkt';
 import {
   DB_FEATURE_ID_NAME,
   DB_JSON_STRUCTURE_NAME,
@@ -161,10 +161,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
 
     const featureParameter = `${QUERY_FEATURE_INDEX}${featureIndex}`;
 
-    queryBuilder.setParameter(
-      featureParameter,
-      `SRID=4326;${featureWkt}`,
-    );
+    queryBuilder.setParameter(featureParameter, `SRID=4326;${featureWkt}`);
 
     let queryFeature = this.adapter.transformFeature(
       {
@@ -177,10 +174,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     if (buffer !== undefined && buffer > 0) {
       const bufferParameter = `${QUERY_BUFFER_INDEX}${featureIndex}`;
 
-      queryBuilder.setParameter(
-        bufferParameter,
-        buffer,
-      );
+      queryBuilder.setParameter(bufferParameter, buffer);
 
       queryFeature = this.adapter.bufferFeature(
         {

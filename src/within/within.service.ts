@@ -2,9 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { WithinParameterDto } from '../general/dto/parameter.dto';
-import {
-  DB_GEOMETRY_NAME,
-} from '../general/general.constants';
+import { DB_GEOMETRY_NAME } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
   GeneralService,
@@ -31,7 +29,8 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topic, feature, featureIndex, buffer } = logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex, buffer } =
+      logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
