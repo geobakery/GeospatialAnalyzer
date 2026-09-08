@@ -82,30 +82,36 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         request.buffer !== undefined &&
         request.buffer > 0
       ) {
-        const bufferQueryBuilder = this.dataSource.createQueryBuilder().from('(SELECT 1)', 'buffer_source');
+        const bufferQueryBuilder = this.dataSource
+          .createQueryBuilder()
+          .from('(SELECT 1)', 'buffer_source');
 
-        const bufferGeometry = this.getBufferGeometry(bufferQueryBuilder, feature, featureIndex, request.buffer,);
+        const bufferGeometry = this.getBufferGeometry(
+          bufferQueryBuilder,
+          feature,
+          featureIndex,
+          request.buffer,
+        );
 
         const bufferDistanceParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
 
         bufferQueryBuilder
-          .select(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME,)
-          .addSelect(`'__BUFFER__'`, DB_TOPIC_NAME,)
-          .addSelect(this.adapter.getBufferJsonStructure(bufferGeometry,`:${bufferDistanceParameter}`,),
+          .select(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME)
+          .addSelect(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .addSelect(
+            this.adapter.getBufferJsonStructure(
+              bufferGeometry,
+              `:${bufferDistanceParameter}`,
+            ),
             DB_JSON_STRUCTURE_NAME,
           );
 
-        bufferQueries.push(bufferQueryBuilder.getQuery(),);
-        Object.assign(params, bufferQueryBuilder.getParameters(),
-        );
+        bufferQueries.push(bufferQueryBuilder.getQuery());
+        Object.assign(params, bufferQueryBuilder.getParameters());
       }
-
     }
 
-    const allQueries = [
-      ...queries,
-      ...bufferQueries,
-    ];
+    const allQueries = [...queries, ...bufferQueries];
 
     const qb = this.dataSource
       .createQueryBuilder()
@@ -213,10 +219,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     if (buffer !== undefined && buffer > 0) {
       const bufferParameter = `${QUERY_BUFFER_INDEX}${featureIndex}`;
 
-      queryBuilder.setParameter(
-        bufferParameter,
-        buffer,
-      );
+      queryBuilder.setParameter(bufferParameter, buffer);
 
       queryFeature = this.adapter.bufferFeature(
         {
@@ -227,7 +230,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
           raw: true,
           value: `:${bufferParameter}`,
         },
-        srid
+        srid,
       );
     }
 
@@ -244,12 +247,10 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     }
 
     const quadSegs = Math.ceil(
-      Math.PI /
-        (4 * Math.acos(1 - maxError / bufferDistance)),
+      Math.PI / (4 * Math.acos(1 - maxError / bufferDistance)),
     );
 
-    return Math.min(maxQuadSegs,Math.max(minQuadSegs, quadSegs),
-    );
+    return Math.min(maxQuadSegs, Math.max(minQuadSegs, quadSegs));
   }
 
   protected getBufferGeometry(
@@ -262,9 +263,14 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
       return undefined;
     }
 
-    const inputGeometry = this.getInputGeometry(queryBuilder,4326,feature,featureIndex);
+    const inputGeometry = this.getInputGeometry(
+      queryBuilder,
+      4326,
+      feature,
+      featureIndex,
+    );
 
-    const bufferParameter =`${QUERY_BUFFER_INDEX}output_${featureIndex}`;
+    const bufferParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
 
     queryBuilder.setParameter(bufferParameter, buffer);
 
@@ -277,7 +283,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         raw: true,
         value: `:${bufferParameter}`,
       },
-      4326
+      4326,
     );
   }
 }
