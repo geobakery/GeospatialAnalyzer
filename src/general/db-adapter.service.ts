@@ -29,6 +29,18 @@ export abstract class DbAdapterService {
 
   abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
 
+  abstract bufferFeature(
+    feature: SqlParameter,
+    distance: SqlParameter,
+    srid: number,
+    quadSegs?: number,
+  ): string;
+
+  abstract getBufferJsonStructure(
+    bufferGeometry: string,
+    bufferDistance: string,
+  ): string;
+
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;
 
   abstract getJsonStructure(returnGeometry: boolean): string;

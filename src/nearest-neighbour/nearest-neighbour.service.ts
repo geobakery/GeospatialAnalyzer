@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, LessThanOrEqual, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { NearestNeighbourParameterDto } from '../general/dto/parameter.dto';
-import {
-  DB_DIST_NAME,
-  DB_GEOMETRY_NAME,
-  QUERY_FEATURE_INDEX,
-  STANDARD_SRID,
-} from '../general/general.constants';
+import { DB_DIST_NAME, DB_GEOMETRY_NAME } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
   GeneralService,
@@ -38,7 +32,8 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     logicalRequest: GeospatialLogicalRequest,
     request: NearestNeighbourParameterDto,
   ): void {
-    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex, buffer } =
+      logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
@@ -53,6 +48,7 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
         topicSource.srid,
         feature,
         featureIndex,
+        buffer,
       );
       subQuery
         .addSelect(featureDistanceString, DB_DIST_NAME)
@@ -75,15 +71,14 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
+    buffer?: number,
   ): string {
-    // setup for left and right side of Within
-    queryStart.setParameter(
-      `${QUERY_FEATURE_INDEX}${featureIndex}`,
-      STANDARD_SRID + geojsonToWKT(feature.geometry),
-    );
-    const queryFeature = this.adapter.transformFeature(
-      { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
+    const queryFeature = this.getAnalysisGeometry(
+      queryStart,
       srid,
+      feature,
+      featureIndex,
+      buffer,
     );
 
     // Within call
