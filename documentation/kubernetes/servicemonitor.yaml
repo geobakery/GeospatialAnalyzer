@@ -1,0 +1,62 @@
+# =============================================================================
+# Prometheus Operator scrape configuration for the GeospatialAnalyzer
+#
+# The manifests are kept here so the metric definitions and the scrape
+# configuration stay in the same place.
+#
+# Adjust before applying:
+#   - namespace (three occurrences): the namespace the GeospatialAnalyzer
+#     runs in
+#   - spec.selector: must match the labels of your Deployment pods
+#   - metadata.labels.release: must match the serviceMonitorSelector of the
+#     Prometheus instance
+#   - endpoints[].path: prepend GEOSPATIAL_ANALYZER_URL_PREFIX if it is set
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: geospatialanalyzer
+  namespace: geospatialanalyzer
+  labels:
+    app: geospatialanalyzer
+spec:
+  selector:
+    app: geospatialanalyzer
+  ports:
+    # The ServiceMonitor references this port by name.
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: geospatialanalyzer
+  namespace: geospatialanalyzer
+  labels:
+    app: geospatialanalyzer
+    # Must match the serviceMonitorSelector of the Prometheus instance.
+    # "release: <helm release name>" is the kube-prometheus-stack default.
+    release: prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - geospatialanalyzer
+  selector:
+    matchLabels:
+      app: geospatialanalyzer
+  endpoints:
+    - port: http
+      # The application serves the endpoint below the configured URL prefix.
+      # With GEOSPATIAL_ANALYZER_URL_PREFIX=/api this becomes /api/metrics.
+      path: /metrics
+      scheme: http
+      # The example queries in metrics.md use 5m rate() windows. For at least
+      # four samples per window, keep the scrape interval at or below 75s.
+      interval: 30s
+      # Must stay below the interval. 10s allows for occasional busy pods
+      # during spatial workloads.
+      scrapeTimeout: 10s

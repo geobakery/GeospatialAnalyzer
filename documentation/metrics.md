@@ -210,7 +210,7 @@ scrape_configs:
 
 ### Kubernetes Configuration
 
-For Kubernetes deployments, you can use service discovery and annotations:
+Without the Prometheus Operator, Prometheus usually discovers targets through `prometheus.io/*` annotations. If you use this setup, add the annotations to the Service:
 
 ```yaml
 apiVersion: v1
@@ -227,6 +227,34 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
+```
+
+### Prometheus Operator Configuration
+
+Clusters using the Prometheus Operator do not use these annotations. Instead, Prometheus uses a ServiceMonitor, which selects a Service and one of its ports by name, so the Service needs a named port.
+
+A ready-to-use template for the Service and ServiceMonitor is available at [`kubernetes/servicemonitor.yaml`](kubernetes/servicemonitor.yaml). Apply it in the namespace where GeospatialAnalyzer runs:
+
+```bash
+kubectl apply -f documentation/kubernetes/servicemonitor.yaml
+```
+
+You may need to adjust three things for your cluster:
+
+- **ServiceMonitor selector** (`release` in the template). It must match the Prometheus instance's `serviceMonitorSelector`. Otherwise, Prometheus ignores the ServiceMonitor.
+- **Watched namespaces.** The Prometheus instance needs permissions to access pods, services and endpoints in each monitored namespace.
+- **Scrape path.** If `GEOSPATIAL_ANALYZER_URL_PREFIX` is set, update `path` in the template to include the prefix.
+
+Check the Prometheus targets page to verify that the target was discovered. By default, the `job` label is the name of the selected Service, so `up{job="geospatialanalyzer"}` should return `1` when the target is healthy.
+
+### Securing the Endpoint
+
+The `/metrics` endpoint is not authenticated. It can expose configured topic names, request volumes and error rates.
+
+The endpoint is normally scraped through the cluster-internal Service and does not need to be exposed externally. If GeospatialAnalyzer is published through an Ingress, consider excluding `/metrics` from it unless public access to these metrics is intended. If metrics are not needed, disable the endpoint with:
+
+```bash
+GEOSPATIAL_ANALYZER_METRICS_ENABLED=false
 ```
 
 ## Grafana Dashboard
