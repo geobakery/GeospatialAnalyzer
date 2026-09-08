@@ -145,7 +145,6 @@ export class BufferParameterDto extends ParameterDto {
   returnBufferGeometry?: boolean;
 }
 
-
 export class IntersectParameterDto extends BufferParameterDto {}
 export class NearestNeighbourParameterDto extends BufferParameterDto {
   @ApiProperty({ example: 3 })
