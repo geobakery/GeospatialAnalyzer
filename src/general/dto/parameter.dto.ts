@@ -123,7 +123,9 @@ export class ParameterDto implements GeospatialRequest {
 
   @ApiProperty({ example: 4326 })
   outSRS: number;
+}
 
+export class BufferParameterDto extends ParameterDto {
   @ApiProperty({
     required: false,
     type: Number,
@@ -132,10 +134,20 @@ export class ParameterDto implements GeospatialRequest {
     minimum: 0,
   })
   buffer?: number;
+
+  @ApiProperty({
+    required: false,
+    default: false,
+    description:
+      'Return the calculated buffer geometry of the input geometry in the response',
+    example: false,
+  })
+  returnBufferGeometry?: boolean;
 }
 
-export class IntersectParameterDto extends ParameterDto {}
-export class NearestNeighbourParameterDto extends ParameterDto {
+
+export class IntersectParameterDto extends BufferParameterDto {}
+export class NearestNeighbourParameterDto extends BufferParameterDto {
   @ApiProperty({ example: 3 })
   count: number;
 
@@ -149,4 +161,4 @@ export class ValuesAtPointParameterDto extends ParameterDto {
   })
   topics: string[];
 }
-export class WithinParameterDto extends ParameterDto {}
+export class WithinParameterDto extends BufferParameterDto {}

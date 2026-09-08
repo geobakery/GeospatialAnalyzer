@@ -37,8 +37,14 @@ export class PostgresService extends DbAdapterService {
   override bufferFeature(
     feature: SqlParameter,
     distance: SqlParameter,
+    srid: number,
+    quadSegs = 32,
   ): string {
-    return `ST_Buffer(${feature.value}, ${distance.value})`;
+    return `ST_Transform(
+              ST_Buffer(
+                ST_Transform(${feature.value}, 4326)::geography,
+              ${distance.value}, 'quad_segs=${quadSegs}')::geometry,
+            ${srid})`;
   }
 
   override getJsonStructure(returnGeometry: boolean): string {
@@ -61,6 +67,29 @@ export class PostgresService extends DbAdapterService {
           ${recordValue}
         )
       ))
+    `;
+  }
+
+  override getBufferJsonStructure(
+    bufferGeometry: string,
+    bufferDistance: string,
+  ): string {
+    return `
+      json_build_object(
+        'type', 'FeatureCollection',
+        'features', json_build_array(
+          json_build_object(
+            'type', 'Feature',
+            'geometry',
+            ST_AsGeoJSON(${bufferGeometry})::json,
+            'properties',
+            json_build_object(
+              '__buffer', true,
+              '__bufferDistance', ${bufferDistance}
+            )
+          )
+        )
+      )
     `;
   }
 
