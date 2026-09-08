@@ -547,8 +547,7 @@ export class GeneralService {
           const providers = source?.attribution ?? topicAttribution;
 
           if (providers && providers.length) {
-            (feature.properties as any).__attribution =
-              providers;
+            (feature.properties as any).__attribution = providers;
           }
         });
       }

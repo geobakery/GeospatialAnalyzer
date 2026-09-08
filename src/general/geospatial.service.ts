@@ -224,10 +224,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     if (buffer !== undefined && buffer > 0) {
       const bufferParameter = `${QUERY_BUFFER_INDEX}${featureIndex}`;
 
-      queryBuilder.setParameter(
-        bufferParameter,
-        buffer,
-      );
+      queryBuilder.setParameter(bufferParameter, buffer);
 
       queryFeature = this.adapter.bufferFeature(
         {
