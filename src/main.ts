@@ -19,10 +19,6 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    origin: 'http://localhost:5173',
-  });
-
   const configService = app.get(ConfigService);
   const urlPrefix = configService.get('GEOSPATIAL_ANALYZER_URL_PREFIX');
   if (urlPrefix) app.setGlobalPrefix(urlPrefix);
