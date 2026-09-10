@@ -5,6 +5,7 @@ In this document we will describe important and good-to-know facts about the nea
 ## Functionality
 
 Returns all features that are within a certain distance of the transferred geometry. The number of features returned can be limited using the count parameter. The features are returned in ascending order of distance from the transferred geometry.
+An optional buffer around each input geometry is also supported. Using the buffer parameter, it´s distance can be entered  in meters.
 
 ## Examples
 
@@ -37,7 +38,9 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -60,7 +63,9 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f", "land_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -86,7 +91,9 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -111,14 +118,14 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
 ## Known Limitations - Work in progres
 
-- Currently, unsupported user parameter
-  - buffer
 - Complete parameter validation
 - API token authentication
 

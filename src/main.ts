@@ -19,6 +19,11 @@ async function bootstrap() {
     }),
   );
 
+  // Enable CORS for the frontend application running on localhost:5173
+  app.enableCors({
+    origin: 'http://localhost:5173',
+  });
+
   const configService = app.get(ConfigService);
   const urlPrefix = configService.get('GEOSPATIAL_ANALYZER_URL_PREFIX');
   if (urlPrefix) app.setGlobalPrefix(urlPrefix);

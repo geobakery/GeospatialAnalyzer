@@ -5,6 +5,7 @@ In this document we will describe important and good-to-know facts about the int
 ## Functionality
 
 Returns all features that are touched by the transferred geometries.
+An optional buffer around each input geometry is also supported. Using the buffer parameter, it´s distance can be entered in meters.
 
 ## Examples
 
@@ -37,7 +38,9 @@ Post-call http://localhost:3000/v2/intersect with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -60,7 +63,9 @@ Post-call http://localhost:3000/v2/intersect with JSON body:
   "topics": ["kreis_f", "land_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -86,7 +91,9 @@ Post-call http://localhost:3000/v2/intersect with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -111,7 +118,9 @@ Post-call http://localhost:3000/v2/intersect with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "esrijson",
-  "outSRS": 25833
+  "outSRS": 25833,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
