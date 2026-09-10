@@ -231,6 +231,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
           value: `:${bufferParameter}`,
         },
         srid,
+        this.getBufferQuadSegs(buffer),
       );
     }
 
@@ -284,6 +285,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         value: `:${bufferParameter}`,
       },
       4326,
+      this.getBufferQuadSegs(buffer),
     );
   }
 }
