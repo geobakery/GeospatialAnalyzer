@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
 import { DbAdapterService } from './db-adapter.service';
+import { getBufferQuadSegs } from './buffer.util';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { GeoJSONFeatureDto } from './dto/geo-json.dto';
 import {
@@ -96,8 +97,8 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         const bufferDistanceParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
 
         bufferQueryBuilder
-          .select(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME)
-          .addSelect(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .select(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .addSelect(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME)
           .addSelect(
             this.adapter.getBufferJsonStructure(
               bufferGeometry,
@@ -187,6 +188,13 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
+    if (feature.geometry === null) {
+      return this.adapter.transformFeature(
+        { raw: true, value: `ST_GeomFromText('POINT EMPTY')` },
+        srid,
+      );
+    }
+
     const featureParameter = `${QUERY_FEATURE_INDEX}${featureIndex}`;
 
     queryBuilder.setParameter(
@@ -195,10 +203,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     );
 
     return this.adapter.transformFeature(
-      {
-        raw: true,
-        value: `ST_GeomFromGeoJSON(:${featureParameter})`,
-      },
+      { raw: true, value: `ST_GeomFromGeoJSON(:${featureParameter})` },
       srid,
     );
   }
@@ -231,37 +236,23 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
           value: `:${bufferParameter}`,
         },
         srid,
-        this.getBufferQuadSegs(buffer),
+        getBufferQuadSegs(buffer),
       );
     }
 
     return queryFeature;
   }
 
-  private getBufferQuadSegs(bufferDistance: number): number {
-    const maxError = 0.1;
-    const minQuadSegs = 8;
-    const maxQuadSegs = 256;
-
-    if (bufferDistance <= 0) {
-      return minQuadSegs;
-    }
-
-    const quadSegs = Math.ceil(
-      Math.PI / (4 * Math.acos(1 - maxError / bufferDistance)),
-    );
-
-    return Math.min(maxQuadSegs, Math.max(minQuadSegs, quadSegs));
-  }
-
   protected getBufferGeometry(
     queryBuilder: SelectQueryBuilder<unknown>,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
-    buffer?: number,
+    buffer: number,
   ): string {
-    if (buffer === undefined || buffer <= 0) {
-      return undefined;
+    if (buffer <= 0) {
+      throw new InternalServerErrorException(
+        'getBufferGeometry called with a non-positive buffer distance',
+      );
     }
 
     const inputGeometry = this.getInputGeometry(
@@ -276,16 +267,10 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     queryBuilder.setParameter(bufferParameter, buffer);
 
     return this.adapter.bufferFeature(
-      {
-        raw: true,
-        value: inputGeometry,
-      },
-      {
-        raw: true,
-        value: `:${bufferParameter}`,
-      },
+      { raw: true, value: inputGeometry },
+      { raw: true, value: `:${bufferParameter}` },
       4326,
-      this.getBufferQuadSegs(buffer),
+      getBufferQuadSegs(buffer),
     );
   }
 }
