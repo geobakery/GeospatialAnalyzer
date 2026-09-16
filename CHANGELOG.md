@@ -6,6 +6,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Added
+
+- `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset.
+
 ### Changed
 
 - The runtime image no longer includes npm, Corepack or Yarn. The app runs directly with `node dist/main.js` (#224).

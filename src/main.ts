@@ -23,6 +23,15 @@ async function bootstrap() {
   const urlPrefix = configService.get('GEOSPATIAL_ANALYZER_URL_PREFIX');
   if (urlPrefix) app.setGlobalPrefix(urlPrefix);
 
+  const corsOrigins = configService
+    .get<string>('GEOSPATIAL_ANALYZER_CORS_ORIGINS')
+    ?.trim();
+  if (corsOrigins) {
+    app.enableCors({
+      origin: corsOrigins.split(',').map((origin) => origin.trim()),
+    });
+  }
+
   app.enableVersioning({
     type: VersioningType.URI,
   });
