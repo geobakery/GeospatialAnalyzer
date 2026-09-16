@@ -41,3 +41,5 @@ lerna-debug.log*
 .env.docker.dev
 .env.prod
 swagger-description.md
+bom.json
+sbom.cyclonedx.json

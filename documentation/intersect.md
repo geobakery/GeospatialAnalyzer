@@ -5,7 +5,8 @@ In this document we will describe important and good-to-know facts about the int
 ## Functionality
 
 Returns all features that are touched by the transferred geometries.
-An optional buffer around each input geometry is also supported. Using the buffer parameter, it´s distance can be entered in meters.
+An optional buffer around each input geometry is also supported. 
+Using the buffer parameter, it´s distance can be entered in meters.
 
 ## Examples
 
@@ -131,3 +132,8 @@ Post-call http://localhost:3000/v2/intersect with JSON body:
   - MultiLineString
   - MultiPoint
   - GeometryCollection
+
+- Accuracy of buffer is limited (10cm)
+  - polygonal approximation using quadSegs (count of segments per quarter circle)
+  - count depends on buffer distance (so max. error from "real" buffer is 10cm)
+  - max. 256 quadSegs (max. error of 10cm until buffer distance of 21km)

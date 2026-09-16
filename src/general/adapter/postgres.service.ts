@@ -38,7 +38,7 @@ export class PostgresService extends DbAdapterService {
     feature: SqlParameter,
     distance: SqlParameter,
     srid: number,
-    quadSegs = 32,
+    quadSegs: number,
   ): string {
     return `ST_Transform(
               ST_Buffer(
