@@ -44,6 +44,33 @@ export const SCHEMA_VALID_OUT_SRS: Readonly<SchemaObject> = {
   ],
 };
 
+export const SCHEMA_VALID_RETURN_BUFFER_GEOMETRY: Readonly<SchemaObject> = {
+  oneOf: [
+    {
+      not: {
+        anyOf: [
+          { required: ['buffer'] },
+          { required: ['returnBufferGeometry'] },
+        ],
+      },
+    },
+    {
+      required: ['buffer'],
+      properties: {
+        buffer: { enum: [0] },
+      },
+    },
+    {
+      required: ['buffer', 'returnBufferGeometry'],
+      not: {
+        properties: {
+          buffer: { enum: [0] },
+        },
+      },
+    },
+  ],
+};
+
 @ApiExtraModels(EsriJsonDto, GeoJSONFeatureDto, GeoJSONFeatureCollectionDto)
 export class ParameterDto implements GeospatialRequest {
   @ApiProperty({
