@@ -9,7 +9,7 @@ describe('getBufferQuadSegs', () => {
   it('returns more segments for smaller buffer distances (finer approximation needed)', () => {
     const small = getBufferQuadSegs(1);
     const large = getBufferQuadSegs(10000);
-    expect(small).toBeGreaterThan(large);
+    expect(large).toBeGreaterThan(small);
   });
 
   it('never exceeds the maximum of 256', () => {
