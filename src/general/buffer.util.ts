@@ -7,6 +7,10 @@ export function getBufferQuadSegs(bufferDistance: number): number {
     return minQuadSegs;
   }
 
+  if (maxError >= 2 * bufferDistance) {
+    return minQuadSegs;
+  }
+
   const quadSegs = Math.ceil(
     Math.PI / (4 * Math.acos(1 - maxError / bufferDistance)),
   );
