@@ -27,8 +27,24 @@ GEOSPATIAL_ANALYZER_DB_LOGGING: true
 GEOSPATIAL_ANALYZER_METRICS_ENABLED: true
 GEOSPATIAL_ANALYZER_METRICS_ENDPOINT_HIDDEN: false # defaults to true in production
 GEOSPATIAL_ANALYZER_TOPIC_GROUP_FILTER: demodata
+#CORS (optional, disabled when unset)
+GEOSPATIAL_ANALYZER_CORS_ORIGINS: http://localhost:5173
 [...]
 ```
+
+## CORS
+
+Cross-origin requests from browsers are disabled by default. The API only sends CORS headers when `GEOSPATIAL_ANALYZER_CORS_ORIGINS` is set.
+
+| Variable                           | Default | Description                                                                                                                                                                          |
+| ---------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GEOSPATIAL_ANALYZER_CORS_ORIGINS` | unset   | Comma-separated list of allowed origins, e.g. `https://app.example.org,http://localhost:5173`. Each origin must include the scheme and host, plus the port if it is not the default. |
+
+Origins must match the request's `Origin` header exactly. Whitespace around entries is ignored, and wildcards are not supported.
+
+Credentials such as cookies and the `Authorization` header are not enabled for cross-origin requests.
+
+Existing deployments are not affected unless `GEOSPATIAL_ANALYZER_CORS_ORIGINS` is explicitly configured.
 
 ## Database timeouts
 
