@@ -13,6 +13,10 @@ Um Testanfragen an die Schnittstelle zu senden, können Sie für das jeweilige M
 
 Im unteren Teil dieser Swagger-API-Beschreibung finden Sie das Datenmodell des GeospatialAnalyzers detailliert aufgelistet. Dort finden Sie die genutzten Datentypen und Beispiele zum besseren Verständnis.
 
+## Veraltete Attribute
+
+Beim Thema `sn_flurstueck_f`/`flurstueck_f` ist das Attribut `gemarkung` veraltet. Verwenden Sie stattdessen `gemarkungsschluessel`. Es enthält denselben Wert. `gemarkung` wird mit API-Version 3 entfernt.
+
 ## Maschinenlesbare API-Spezifikation
 
 Die maschinenlesbare API-Spezifikation steht als `openapi.json` und `openapi.yaml` unter der API-Versionsroute bereit. Zum Beispiel:
