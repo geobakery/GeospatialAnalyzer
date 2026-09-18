@@ -6,10 +6,19 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Added
+
+- `sn_flurstueck_f`/`flurstueck_f` now provide `gemarkungsschluessel` and `gemarkungsname`.
+
 ### Changed
 
 - The runtime image no longer includes npm, Corepack or Yarn. The app runs directly with `node dist/main.js` (#224).
 - Updated dependencies, including security patches.
+
+### Deprecated
+
+- `gemarkung` of `sn_flurstueck_f`/`flurstueck_f` is deprecated. Use `gemarkungsschluessel` instead. It contains the same value.
+- `gemarkung` of `sn_flurstueck_f`/`flurstueck_f` will be removed in API v3.
 
 ### Fixed
 
