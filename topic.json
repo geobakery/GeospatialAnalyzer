@@ -303,6 +303,8 @@
       "__attributes__": [
         "objid",
         "gemarkung",
+        "gemarkungsschluessel",
+        "gemarkungsname",
         "zaehler",
         "nenner",
         "zaehlernenner",
