@@ -6,7 +6,7 @@ In this document we will describe important and good-to-know facts about the int
 
 Returns all features that are touched by the transferred geometries.
 An optional buffer around each input geometry is also supported. 
-Using the buffer parameter, it´s distance can be entered in meters.
+Using the buffer parameter, its distance can be entered in meters.
 
 ## Examples
 

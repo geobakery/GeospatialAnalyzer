@@ -6,9 +6,7 @@ In this document we will describe important and good-to-know facts about the wit
 
 Returns all features, where the transferred geometries are completely contained.
 An optional buffer around each input geometry is also supported.
-Using the buffer parameter, it´s distance can be entered in meters.
-
-## (optional) Buffer
+Using the buffer parameter, its distance can be entered in meters.
 
 ## Examples
 

@@ -45,26 +45,22 @@ export const SCHEMA_VALID_OUT_SRS: Readonly<SchemaObject> = {
 };
 
 export const SCHEMA_VALID_RETURN_BUFFER_GEOMETRY: Readonly<SchemaObject> = {
-  oneOf: [
-    {
-      not: {
-        anyOf: [
-          { required: ['buffer'] },
-          { required: ['returnBufferGeometry'] },
-        ],
-      },
-    },
+  anyOf: [
     {
       required: ['buffer'],
       properties: {
-        buffer: { enum: [0] },
+        buffer: {
+          type: 'number',
+          minimum: 0,
+          exclusiveMinimum: true,
+        },
       },
     },
     {
-      required: ['buffer', 'returnBufferGeometry'],
-      not: {
-        properties: {
-          buffer: { enum: [0] },
+      required: ['returnBufferGeometry'],
+      properties: {
+        returnBufferGeometry: {
+          enum: [false],
         },
       },
     },

@@ -6,7 +6,7 @@ In this document we will describe important and good-to-know facts about the nea
 
 Returns all features that are within a certain distance of the transferred geometry. The number of features returned can be limited using the count parameter. The features are returned in ascending order of distance from the transferred geometry.
 An optional buffer around each input geometry is also supported. 
-Using the buffer parameter, it´s distance can be entered  in meters.
+Using the buffer parameter, its distance can be entered in meters.
 
 ## Examples
 

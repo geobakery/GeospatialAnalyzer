@@ -190,7 +190,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
   ): string {
     if (feature.geometry === null) {
       return this.adapter.transformFeature(
-        { raw: true, value: `ST_GeomFromText('POINT EMPTY')` },
+        { raw: true, value: `ST_GeomFromText('POINT EMPTY', 4326)` },
         srid,
       );
     }

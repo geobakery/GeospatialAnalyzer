@@ -33,7 +33,7 @@ export abstract class DbAdapterService {
     feature: SqlParameter,
     distance: SqlParameter,
     srid: number,
-    quadSegs?: number,
+    quadSegs: number,
   ): string;
 
   abstract getBufferJsonStructure(

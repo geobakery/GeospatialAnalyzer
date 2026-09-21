@@ -6,7 +6,7 @@ describe('getBufferQuadSegs', () => {
     expect(getBufferQuadSegs(-5)).toBe(8);
   });
 
-  it('returns more segments for smaller buffer distances (finer approximation needed)', () => {
+  it('returns more segments for larger buffer distances (finer approximation needed)', () => {
     const small = getBufferQuadSegs(1);
     const large = getBufferQuadSegs(10000);
     expect(large).toBeGreaterThan(small);
