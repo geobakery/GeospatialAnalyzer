@@ -159,6 +159,7 @@ export class BufferParameterDto extends ParameterDto {
     example: 100,
     description: 'Buffer distance around each input geometry in meters',
     minimum: 0,
+    maximum: 4000000,
   })
   buffer?: number;
 
