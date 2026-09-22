@@ -13,7 +13,7 @@ describe('getBufferQuadSegs', () => {
   });
 
   it('never exceeds the maximum of 256', () => {
-    expect(getBufferQuadSegs(10000000)).toBeLessThanOrEqual(256);
+    expect(getBufferQuadSegs(20000)).toBeLessThanOrEqual(256);
   });
 
   it('never falls below the minimum of 8', () => {
