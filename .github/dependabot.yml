@@ -38,6 +38,10 @@ updates:
       # engines + the CI node-version.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # Block TypeScript 7 until typescript-eslint and ts-jest support it.
+      # Otherwise Dependabot can't resolve the update and closes the PR.
+      - dependency-name: "typescript"
+        versions: [">=7"]
 
   # Container base images (Dockerfile)
   - package-ecosystem: "docker"
