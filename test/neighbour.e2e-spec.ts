@@ -319,8 +319,6 @@ describe('NearestNeighbourController (e2e)', () => {
   });
 
   it("/POST Nearest neighbour: a 100m buffer reduces the second neighbour's distance by ~100m", async () => {
-    const point = { type: 'Point' as const, coordinates: [15.746, 51.072] };
-
     const inputWithoutBuffer: NearestNeighbourParameterDto = {
       ...(await getGeoJSONFeature({
         topics: ['kreis_f'],
