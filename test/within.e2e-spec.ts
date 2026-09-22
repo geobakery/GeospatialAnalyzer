@@ -352,7 +352,7 @@ describe('WithinController (e2e)', () => {
         returnGeometry: false,
         fixGeometry: point,
       })),
-      buffer: 50_000,
+      buffer: 20000,
     };
     const resultWithBuffer = await app.inject({
       method: POST,
