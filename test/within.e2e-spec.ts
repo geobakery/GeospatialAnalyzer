@@ -326,4 +326,44 @@ describe('WithinController (e2e)', () => {
 
     expect(result.statusCode).toBe(400);
   });
+
+  it('/POST within: a buffer around a point can push it outside a small Kreis', async () => {
+    const point = { type: 'Point' as const, coordinates: [13.75, 51.072] };
+
+    const inputWithoutBuffer = await getGeoJSONFeature({
+      topics: ['kreis_f'],
+      returnGeometry: false,
+      fixGeometry: point,
+    });
+    const resultWithoutBuffer = await app.inject({
+      method: POST,
+      url: URL_START + WITHIN_URL,
+      payload: inputWithoutBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithoutBuffer.statusCode).toBe(200);
+    const withoutBuffer =
+      await getGeoJSONFeatureFromResponse(resultWithoutBuffer);
+    expect(withoutBuffer[0].properties['NO_RESULT']).toBeUndefined();
+
+    const inputWithBuffer = {
+      ...(await getGeoJSONFeature({
+        topics: ['kreis_f'],
+        returnGeometry: false,
+        fixGeometry: point,
+      })),
+      buffer: 50_000,
+    };
+    const resultWithBuffer = await app.inject({
+      method: POST,
+      url: URL_START + WITHIN_URL,
+      payload: inputWithBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithBuffer.statusCode).toBe(200);
+    const withBuffer = await getGeoJSONFeatureFromResponse(resultWithBuffer);
+
+    expect(withBuffer.length).toBe(1);
+    expect(withBuffer[0].properties['NO_RESULT']).toBe('No result to request');
+  });
 });
