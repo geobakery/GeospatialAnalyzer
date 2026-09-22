@@ -6,7 +6,7 @@ In this document we will describe important and good-to-know facts about the nea
 
 Returns all features that are within a certain distance of the transferred geometry. The number of features returned can be limited using the count parameter. The features are returned in ascending order of distance from the transferred geometry.
 An optional buffer around each input geometry is also supported. 
-Using the buffer parameter, its distance can be entered in meters.
+Using the buffer parameter, its distance can be entered in meters (between 0 and 20 000m).
 
 ## Examples
 
@@ -141,4 +141,4 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
 - Accuracy of buffer is limited (10cm)
   - polygonal approximation using quadSegs (count of segments per quarter circle)
   - count depends on buffer distance (so max. error from "real" buffer is 10cm)
-  - max. 256 quadSegs (max. error of 10cm until buffer distance of 21km)
+  - max. 256 quadSegs
