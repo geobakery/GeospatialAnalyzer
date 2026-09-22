@@ -141,7 +141,7 @@ export class ParameterDto implements GeospatialRequest {
   outSRS: number;
 }
 
-export const MAX_BUFFER_DISTANCE = 4000000;
+export const MAX_BUFFER_DISTANCE = 20000;
 
 export class BufferParameterDto extends ParameterDto {
   @ApiProperty({
