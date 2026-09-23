@@ -317,4 +317,50 @@ describe('NearestNeighbourController (e2e)', () => {
 
     expect(result.statusCode).toBe(400);
   });
+
+  it("/POST Nearest neighbour: a 100m buffer reduces the second neighbour's distance by ~100m", async () => {
+    const inputWithoutBuffer: NearestNeighbourParameterDto = {
+      ...(await getGeoJSONFeature({
+        topics: ['kreis_f'],
+        returnGeometry: false,
+      })),
+      count: 2,
+      maxDistanceToNeighbour: 0,
+    };
+    const resultWithoutBuffer = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: inputWithoutBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithoutBuffer.statusCode).toBe(200);
+    const withoutBuffer =
+      await getGeoJSONFeatureFromResponse(resultWithoutBuffer);
+    expect(withoutBuffer.length).toBe(2);
+    const distWithoutBuffer = withoutBuffer[1].properties[DB_DIST_NAME];
+
+    const inputWithBuffer: NearestNeighbourParameterDto = {
+      ...(await getGeoJSONFeature({
+        topics: ['kreis_f'],
+        returnGeometry: false,
+      })),
+      count: 2,
+      maxDistanceToNeighbour: 0,
+      buffer: 100,
+    };
+    const resultWithBuffer = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: inputWithBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithBuffer.statusCode).toBe(200);
+    const withBuffer = await getGeoJSONFeatureFromResponse(resultWithBuffer);
+    expect(withBuffer.length).toBe(2);
+    const distWithBuffer = withBuffer[1].properties[DB_DIST_NAME];
+
+    const reduction = distWithoutBuffer - distWithBuffer;
+    expect(reduction).toBeGreaterThan(99);
+    expect(reduction).toBeLessThan(101);
+  });
 });

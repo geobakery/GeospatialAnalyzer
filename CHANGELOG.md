@@ -10,6 +10,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 - `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset.
 - `sn_flurstueck_f`/`flurstueck_f` now provide `gemarkungsschluessel` and `gemarkungsname`.
+- `intersect`, `within`, and `nearestNeighbour` now provide optional `buffer` (distance in meters; value range: 0 - 20 000). Using a polygonal approximation, its accuracy is at least 10cm. The optional specification of `getBufferGeometry`(boolean) returns its coordinates.
 
 ### Changed
 

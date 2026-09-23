@@ -501,29 +501,51 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
+          feature.properties ??= {};
+
+          const isBufferFeature = feature.properties.__buffer === true;
+
           feature.properties.__requestParams = requestParams;
-          feature.properties.__geoProperties = map.get(result.id);
-          feature.properties.__topic = result.topic;
+
+          if (!isBufferFeature) {
+            feature.properties.__geoProperties = map.get(result.id);
+
+            feature.properties.__topic = result.topic;
+          }
+
+          if (isBufferFeature) {
+            return;
+          }
 
           const sourceName = (feature.properties as any)[
             SOURCE_NAME_PROPERTY
           ] as string | undefined;
+
           const source = this._resolveSource(result.topic, sourceName);
 
           // merge per field: source override wins, topic-level is fallback
           const topicValueMetadata =
             this.identifierValueMetadataMap.get(result.topic) ?? {};
+
           const unit = source?.unit ?? topicValueMetadata.unit;
+
           const verticalDatum =
             source?.verticalDatum ?? topicValueMetadata.verticalDatum;
-          if (unit) (feature.properties as any).__unit = unit;
-          if (verticalDatum)
+
+          if (unit) {
+            (feature.properties as any).__unit = unit;
+          }
+
+          if (verticalDatum) {
             (feature.properties as any).__verticalDatum = verticalDatum;
+          }
 
           const topicAttribution = this.identifierAttributionMap.get(
             result.topic,
           );
+
           const providers = source?.attribution ?? topicAttribution;
+
           if (providers && providers.length) {
             (feature.properties as any).__attribution = providers;
           }
@@ -679,6 +701,7 @@ export interface GeospatialLogicalRequest {
   fieldsToQuery: string[];
   topic: string;
   topicIndex: number;
+  buffer?: number;
 }
 
 /**
@@ -698,4 +721,10 @@ export interface GeospatialRequest {
   outSRS: number;
 
   returnGeometry: boolean;
+
+  /**
+   * Optional buffer distance and its geometry around each input geometry in meters.
+   */
+  buffer?: number;
+  returnBufferGeometry?: boolean;
 }

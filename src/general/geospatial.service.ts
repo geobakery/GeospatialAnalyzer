@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
 import { DbAdapterService } from './db-adapter.service';
+import { getBufferQuadSegs } from './buffer.util';
 import { EsriJsonDto } from './dto/esri-json.dto';
 import { GeoJSONFeatureDto } from './dto/geo-json.dto';
 import {
   DB_FEATURE_ID_NAME,
   DB_JSON_STRUCTURE_NAME,
   DB_TOPIC_NAME,
+  QUERY_FEATURE_INDEX,
+  QUERY_BUFFER_INDEX,
 } from './general.constants';
 import { SqlLiteral } from './general.interface';
 import {
@@ -45,6 +48,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     );
 
     const queries = [];
+    const bufferQueries = [];
     const params = {};
 
     for (const [featureIndex, feature] of features.entries()) {
@@ -66,6 +70,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
               this.generalService.identifierAllowedAttributesMap.get(topic),
             topic,
             topicIndex,
+            buffer: request.buffer,
           },
           request,
         );
@@ -73,13 +78,47 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         queries.push(queryBuilder.getQuery());
         Object.assign(params, queryBuilder.getParameters());
       }
+      if (
+        request.returnBufferGeometry === true &&
+        request.buffer !== undefined &&
+        request.buffer > 0
+      ) {
+        const bufferQueryBuilder = this.dataSource
+          .createQueryBuilder()
+          .from('(SELECT 1)', 'buffer_source');
+
+        const bufferGeometry = this.getBufferGeometry(
+          bufferQueryBuilder,
+          feature,
+          featureIndex,
+          request.buffer,
+        );
+
+        const bufferDistanceParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
+
+        bufferQueryBuilder
+          .select(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .addSelect(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME)
+          .addSelect(
+            this.adapter.getBufferJsonStructure(
+              bufferGeometry,
+              `:${bufferDistanceParameter}`,
+            ),
+            DB_JSON_STRUCTURE_NAME,
+          );
+
+        bufferQueries.push(bufferQueryBuilder.getQuery());
+        Object.assign(params, bufferQueryBuilder.getParameters());
+      }
     }
+
+    const allQueries = [...queries, ...bufferQueries];
 
     const qb = this.dataSource
       .createQueryBuilder()
       .select('*')
       .from<GeospatialResultEntity>(
-        this.adapter.unionAll(queries),
+        this.adapter.unionAll(allQueries),
         'union_query',
       )
       .setParameters(params);
@@ -142,5 +181,96 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     );
 
     return qb;
+  }
+  protected getInputGeometry(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    srid: number,
+    feature: GeoJSONFeatureDto,
+    featureIndex: number,
+  ): string {
+    if (feature.geometry === null) {
+      return this.adapter.transformFeature(
+        { raw: true, value: `ST_GeomFromText('POINT EMPTY', 4326)` },
+        srid,
+      );
+    }
+
+    const featureParameter = `${QUERY_FEATURE_INDEX}${featureIndex}`;
+
+    queryBuilder.setParameter(
+      featureParameter,
+      JSON.stringify(feature.geometry),
+    );
+
+    return this.adapter.transformFeature(
+      { raw: true, value: `ST_GeomFromGeoJSON(:${featureParameter})` },
+      srid,
+    );
+  }
+  protected getAnalysisGeometry(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    srid: number,
+    feature: GeoJSONFeatureDto,
+    featureIndex: number,
+    buffer?: number,
+  ): string {
+    let queryFeature = this.getInputGeometry(
+      queryBuilder,
+      srid,
+      feature,
+      featureIndex,
+    );
+
+    if (buffer !== undefined && buffer > 0) {
+      const bufferParameter = `${QUERY_BUFFER_INDEX}${featureIndex}`;
+
+      queryBuilder.setParameter(bufferParameter, buffer);
+
+      queryFeature = this.adapter.bufferFeature(
+        {
+          raw: true,
+          value: queryFeature,
+        },
+        {
+          raw: true,
+          value: `:${bufferParameter}`,
+        },
+        srid,
+        getBufferQuadSegs(buffer),
+      );
+    }
+
+    return queryFeature;
+  }
+
+  protected getBufferGeometry(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    feature: GeoJSONFeatureDto,
+    featureIndex: number,
+    buffer: number,
+  ): string {
+    if (buffer <= 0) {
+      throw new InternalServerErrorException(
+        'getBufferGeometry called with a non-positive buffer distance',
+      );
+    }
+
+    const inputGeometry = this.getInputGeometry(
+      queryBuilder,
+      4326,
+      feature,
+      featureIndex,
+    );
+
+    const bufferParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
+
+    queryBuilder.setParameter(bufferParameter, buffer);
+
+    return this.adapter.bufferFeature(
+      { raw: true, value: inputGeometry },
+      { raw: true, value: `:${bufferParameter}` },
+      4326,
+      getBufferQuadSegs(buffer),
+    );
   }
 }

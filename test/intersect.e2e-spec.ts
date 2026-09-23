@@ -388,4 +388,41 @@ describe('IntersectController (e2e)', () => {
 
     expect(result.statusCode).toBe(400);
   });
+
+  it('/POST Intersect: a 100m buffer intersects more Flurstücke than no buffer', async () => {
+    const point = { type: 'Point' as const, coordinates: [13.756, 51.029] };
+
+    const inputWithoutBuffer = await getGeoJSONFeature({
+      topics: ['flurstueck_f'],
+      returnGeometry: false,
+      fixGeometry: point, // GEÄNDERT: fehlte — ohne das griff die Default-Geometrie
+    });
+    const resultWithoutBuffer = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: inputWithoutBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithoutBuffer.statusCode).toBe(200);
+    const withoutBuffer =
+      await getGeoJSONFeatureFromResponse(resultWithoutBuffer);
+
+    const inputWithBuffer = {
+      ...(await getGeoJSONFeature({
+        topics: ['flurstueck_f'],
+        returnGeometry: false,
+        fixGeometry: point, // GEÄNDERT: dieselbe fehlende Zeile
+      })),
+      buffer: 100,
+    };
+    const resultWithBuffer = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload: inputWithBuffer,
+      headers: HEADERS_JSON,
+    });
+    expect(resultWithBuffer.statusCode).toBe(200);
+    const withBuffer = await getGeoJSONFeatureFromResponse(resultWithBuffer);
+    expect(withBuffer.length).toBeGreaterThan(withoutBuffer.length);
+  });
 });
