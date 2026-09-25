@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_HEIGHT_NAME,
+  DB_HEIGHT_PROFILE_NAME,
   SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
+  LINE_SEGMENT_LENGTH_METERS,
   QUERY_FEATURE_INDEX,
+  QUERY_SEGMENT_LENGTH_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
@@ -27,6 +30,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
   ) {
     super(dataSource, generalService, transformService);
   }
+
   getTopics(): topicDefinitionOutside[] {
     return this.generalService.getTopicsInformationForOutsideSpecific(
       'valuesAtPoint',
@@ -34,6 +38,26 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
   }
 
   protected override handleLogicalRequest(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    logicalRequest: GeospatialLogicalRequest,
+  ): void {
+    const geometryType = logicalRequest.feature.geometry?.type;
+
+    if (geometryType === 'LineString') {
+      this.handleLineStringRequest(queryBuilder, logicalRequest);
+      return;
+    }
+
+    if (geometryType !== 'Point') {
+      throw new BadRequestException(
+        `valuesAtPoint currently supports Point and LineString geometries, got "${geometryType}"`,
+      );
+    }
+
+    this.handlePointRequest(queryBuilder, logicalRequest);
+  }
+
+  private handlePointRequest(
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
@@ -82,6 +106,58 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       this.adapter.getJsonRecordAlias(),
     );
   }
+
+  private handleLineStringRequest(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    logicalRequest: GeospatialLogicalRequest,
+  ): void {
+    const { fieldsToQuery, topicIndex, feature, featureIndex } = logicalRequest;
+
+    const sources = this.generalService.getMultipleDBNamesForIdentifier(
+      logicalRequest.topic,
+    );
+
+    const params = {};
+    const profileQueries = [];
+
+    const featureParam = `${QUERY_FEATURE_INDEX}${featureIndex}`;
+    queryBuilder.setParameter(
+      featureParam,
+      STANDARD_SRID + geojsonToWKT(feature.geometry),
+    );
+    const segmentParam = `${QUERY_SEGMENT_LENGTH_INDEX}${featureIndex}`;
+    queryBuilder.setParameter(segmentParam, LINE_SEGMENT_LENGTH_METERS);
+
+    for (const [sourceIndex, source] of sources.entries()) {
+      const profileExpr = this.adapter.getLineHeightProfile(
+        { raw: true, value: `:${featureParam}` },
+        { raw: true, value: `:${segmentParam}` },
+        source.source,
+        source.name,
+        source.srid,
+      );
+
+      const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
+      const profileQueryBuilder = queryBuilder
+        .createQueryBuilder()
+        .from('(SELECT 1)', 'line_height_profile_source')
+        .setParameter(topicSourceParameterName, source.name)
+        .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
+        .addSelect(profileExpr, DB_HEIGHT_PROFILE_NAME);
+
+      this.adapter.injectGeometryField(profileQueryBuilder);
+      fieldsToQuery.forEach((field) => profileQueryBuilder.addSelect(field));
+
+      profileQueries.push(profileQueryBuilder.getQuery());
+      Object.assign(params, profileQueryBuilder.getParameters());
+    }
+    queryBuilder.setParameters(params);
+    queryBuilder.from(
+      this.adapter.unionAll(profileQueries),
+      this.adapter.getJsonRecordAlias(),
+    );
+  }
+
   private getValueArRasterString(
     queryStart: SelectQueryBuilder<unknown>,
     srid: number,

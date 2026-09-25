@@ -29,6 +29,14 @@ export abstract class DbAdapterService {
 
   abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
 
+  abstract getLineHeightProfile(
+    feature: SqlParameter,
+    segmentLength: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;
 
   abstract getJsonStructure(returnGeometry: boolean): string;

@@ -30,6 +30,62 @@ export class PostgresService extends DbAdapterService {
     return `ST_value(${raster.value}, ${point.value})`;
   }
 
+  override getLineHeightProfile(
+    feature: SqlParameter,
+    segmentLength: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string {
+    const lineInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
+
+    return `( 
+        WITH candidate_tiles AS MATERIALIZED ( 
+          SELECT rast 
+          FROM ${sourceTable} "${sourceAlias}" 
+          WHERE ST_Intersects("${sourceAlias}".rast, ${lineInRasterCrs}) 
+        ), 
+        line AS MATERIALIZED (
+          SELECT ${feature.value}::geography AS geom, ST_Length(${feature.value}::geography) AS length 
+        ), 
+        sample_points AS MATERIALIZED (
+          SELECT n AS idx, ST_Transform(
+            ST_LineInterpolatePoint(
+              ST_LineMerge(line.geom::geometry),
+                CASE
+                  WHEN n = 0 THEN 0
+                  WHEN n = point_count THEN 1
+                  ELSE (n * ${segmentLength.value}) / line.length
+                END
+              )::text, ${srid}
+            ) AS pt
+          FROM line
+          CROSS JOIN LATERAL (
+            SELECT n, CEIL(line.length / ${segmentLength.value})::int AS point_count
+            FROM generate_series(
+              0,
+              CEIL(line.length / ${segmentLength.value})::int
+            ) AS n
+          ) points
+        )
+        SELECT json_build_object(
+          'min', MIN(height),
+          'max', MAX(height),
+          'avg', AVG(height), 
+          'points', json_agg( json_build_object( 'index', idx, 'height', height ) ORDER BY idx )
+        ) 
+        FROM (
+          SELECT DISTINCT ON (sample_points.idx)
+            sample_points.idx,
+            ST_Value(candidate_tiles.rast, sample_points.pt) AS height
+          FROM sample_points
+          JOIN candidate_tiles
+            ON ST_Intersects(sample_points.pt, candidate_tiles.rast)
+          ORDER BY sample_points.idx
+        ) points
+      )`;
+  }
+
   override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
     return `ST_TRANSFORM(${featureWkt.value}::text, ${toCrs})`;
   }
