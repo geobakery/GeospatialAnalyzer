@@ -160,6 +160,152 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
   });
 
+  it('/POST valuesAtPoint with a LineString returns a height profile', async () => {
+    const payload: ValuesAtPointParameterDto = {
+      topics: ['hoehe_r'],
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [13.786, 51.062],
+              [13.788, 51.063],
+            ],
+          },
+          properties: {},
+        },
+      ],
+      outputFormat: 'geojson',
+      returnGeometry: false,
+      outSRS: 4326,
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + VALUES_AT_POINT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    await testStatus200('/POST valuesAtPoint LineString', result);
+
+    const data = JSON.parse(result.payload) as any[];
+
+    // hoehe_r has two configured sources: DGM and DOM.
+    expect(data).toHaveLength(2);
+
+    for (const feature of data) {
+      expect(feature.type).toBe('Feature');
+      expect(feature.geometry).toBeNull();
+
+      const heights = feature.properties?.heights;
+
+      expect(heights).toBeDefined();
+
+      expect(typeof heights.min).toBe('number');
+      expect(typeof heights.max).toBe('number');
+      expect(typeof heights.avg).toBe('number');
+
+      expect(heights.min).toBeLessThanOrEqual(heights.avg);
+      expect(heights.avg).toBeLessThanOrEqual(heights.max);
+
+      expect(Array.isArray(heights.points)).toBe(true);
+      expect(heights.points.length).toBeGreaterThanOrEqual(2);
+
+      const indices = heights.points.map(
+        (point: { index: number }) => point.index,
+      );
+
+      const sortedIndices = [...indices].sort((a, b) => a - b);
+
+      expect(indices).toEqual(sortedIndices);
+
+      for (const point of heights.points) {
+        expect(typeof point.index).toBe('number');
+        expect(typeof point.height).toBe('number');
+      }
+    }
+  });
+
+  it('/POST valuesAtPoint with a Polygon is rejected with 400', async () => {
+    const payload: ValuesAtPointParameterDto = {
+      topics: ['hoehe_r'],
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [13.786, 51.062],
+                [13.788, 51.062],
+                [13.788, 51.064],
+                [13.786, 51.062],
+              ],
+            ],
+          },
+          properties: {},
+        },
+      ],
+      outputFormat: 'geojson',
+      returnGeometry: false,
+      outSRS: 4326,
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + VALUES_AT_POINT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    expect(result.statusCode).toBe(400);
+  });
+
+  it('/POST valuesAtPoint with a Point keeps the existing response structure', async () => {
+    const payload: ValuesAtPointParameterDto = {
+      topics: ['hoehe_r'],
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [13.7795, 51.0303],
+          },
+          properties: {},
+        },
+      ],
+      outputFormat: 'geojson',
+      returnGeometry: false,
+      outSRS: 4326,
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + VALUES_AT_POINT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+
+    await testStatus200('/POST valuesAtPoint Point regression', result);
+
+    const data = JSON.parse(result.payload) as any[];
+
+    expect(data).toHaveLength(2);
+
+    for (const feature of data) {
+      expect(feature.type).toBe('Feature');
+      expect(feature.geometry).toBeNull();
+
+      // Point requests continue to use the existing single height value.
+      expect(feature.properties?.height).toBeDefined();
+
+      // The height profile is only expected for LineString requests.
+      expect(feature.properties?.heights).toBeUndefined();
+    }
+  });
+
   it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
     const payload: ValuesAtPointParameterDto = {
       inputGeometries: [],
