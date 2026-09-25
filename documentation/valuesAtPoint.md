@@ -4,7 +4,12 @@ In this document we will describe important and good-to-know facts about the val
 
 ## Functionality
 
-Returns the values at the transferred point.
+Returns values for the transferred geometry.
+
+For a **Point**, the service returns the value at the given location.
+
+For a **LineString**, the service samples points along the line (every 10m) and returns the value at their given location
+(ordered by their location). Also the minimum, maximum, and average value is given.
 
 ## Examples
 
@@ -30,6 +35,56 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
   "returnGeometry": false,
   "outputFormat": "geojson",
   "outSRS": 4326
+}
+```
+
+### LineString
+
+```json
+{
+  "inputGeometries": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [13.786, 51.062],
+          [13.788, 51.063]
+        ]
+      },
+      "properties": {
+        "name": "example"
+      }
+    }
+  ],
+  "topics": ["hoehe_r"],
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
+}
+```
+
+```json
+{
+  "heights": {
+    "min": 248.1,
+    "max": 249.4,
+    "avg": 248.7,
+    "points": [
+      {
+        "index": 0,
+        "height": 248.2
+      },
+      {
+        "index": 1,
+        "height": 248.7
+      },
+      {
+        "index": 2,
+        "height": 249.1
+      }
+    ]
+  }
 }
 ```
 
