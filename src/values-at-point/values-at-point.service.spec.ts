@@ -163,6 +163,18 @@ describe('ValuesAtPointService – geometry type handling', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('builds one sub-query per source (dgm + dom) for a Point request', async () => {
+    await service.handleRequest(
+      buildRequest({
+        type: 'Point',
+        coordinates: [13.78, 51.03],
+      }) as any,
+    );
+    const sql = capturedQb.getQuery();
+    expect(sql).toMatch(/gelaendehoehe_dgm/);
+    expect(sql).toMatch(/oberflaechenhoehe_dom/);
+  });
+
   it('builds one sub-query per source (dgm + dom) for a LineString request', async () => {
     await service.handleRequest(
       buildRequest({
