@@ -10,6 +10,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 - `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset.
 - `sn_flurstueck_f`/`flurstueck_f` now provide `gemarkungsschluessel` and `gemarkungsname`.
+- `valuesAtPoint` now supports the query of `LineString` and `Polygon` in addition to `Point`. In case of a `LineString` query, sample points are interpolated (every 10m) along the line. The service returns their value. In case of a `Polygon` query, summary statistics of the contained values are calculated. The service returns their count, summary, mean, minimum, maximum and standard deviation.
 
 ### Changed
 
