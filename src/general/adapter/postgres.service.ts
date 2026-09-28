@@ -93,7 +93,7 @@ export class PostgresService extends DbAdapterService {
     srid: number,
   ): string {
     const polygonInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
-    
+
     return `(
       WITH candidate_tiles AS MATERIALIZED (
         SELECT rast

@@ -122,6 +122,7 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).toMatch(/candidate_tiles/i);
     expect(sql).toMatch(/ST_Value/i);
     expect(sql).not.toMatch(/ST_SummaryStats/i);
+    expect(sql).toMatch(/ROUND\(AVG\(height\)::numeric, 2\)/i);
   });
 
   it('uses the polygon height stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
@@ -144,6 +145,7 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).toMatch(/ST_Clip/i);
     expect(sql).toMatch(/ST_SummaryStats/i);
     expect(sql).not.toMatch(/ST_LineInterpolatePoint/i);
+    expect(sql).toMatch(/ROUND\(stats\.mean::numeric, 2\)/i);
   });
 
   it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
@@ -209,4 +211,3 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).toMatch(/oberflaechenhoehe_dom/);
   });
 });
-

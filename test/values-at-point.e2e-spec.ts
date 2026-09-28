@@ -28,6 +28,9 @@ import {
 } from './common/test';
 import { getGeoJSONFeature } from './common/testDataPreparer';
 
+const hasAtMostDecimals = (value: number, decimals: number) =>
+  Number(value.toFixed(decimals)) === value;
+
 describe('ValuesAtPointController (e2e)', () => {
   let app: NestFastifyApplication;
 
@@ -205,10 +208,12 @@ describe('ValuesAtPointController (e2e)', () => {
 
       expect(typeof heights.min).toBe('number');
       expect(typeof heights.max).toBe('number');
-      expect(typeof heights.avg).toBe('number');
+      expect(typeof heights.mean).toBe('number');
 
-      expect(heights.min).toBeLessThanOrEqual(heights.avg);
-      expect(heights.avg).toBeLessThanOrEqual(heights.max);
+      expect(hasAtMostDecimals(heights.mean, 2)).toBe(true);
+
+      expect(heights.min).toBeLessThanOrEqual(heights.mean);
+      expect(heights.mean).toBeLessThanOrEqual(heights.max);
 
       expect(Array.isArray(heights.points)).toBe(true);
       expect(heights.points.length).toBeGreaterThanOrEqual(2);
@@ -301,12 +306,18 @@ describe('ValuesAtPointController (e2e)', () => {
         expect(stats.min).toBeLessThanOrEqual(stats.mean);
         expect(stats.mean).toBeLessThanOrEqual(stats.max);
         expect(stats.stddev).toBeGreaterThanOrEqual(0);
-        expect(stats.sum).toBeCloseTo(stats.mean * stats.count, 2);
+        expect(
+          Math.abs(stats.sum - stats.mean * stats.count),
+        ).toBeLessThanOrEqual(0.005 * (stats.count + 1));
 
         // The test point in the center of the polygon has an elevation of 248.86 according to the
         // existing point test and must therefore fall within the value range of the statistics.
         expect(stats.min).toBeLessThanOrEqual(248.86);
         expect(stats.max).toBeGreaterThanOrEqual(248.86);
+
+        expect(hasAtMostDecimals(stats.sum, 2)).toBe(true);
+        expect(hasAtMostDecimals(stats.mean, 2)).toBe(true);
+        expect(hasAtMostDecimals(stats.stddev, 3)).toBe(true);
       }
 
       expect(statsOf(data, 'gelaendehoehe_dgm')).toBeDefined();
