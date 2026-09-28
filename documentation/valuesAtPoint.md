@@ -4,12 +4,15 @@ In this document we will describe important and good-to-know facts about the val
 
 ## Functionality
 
-Returns values for the transferred geometry.
+Returns values of a raster that is covered by the transferred geometry.
 
 For a **Point**, the service returns the value at the given location.
 
 For a **LineString**, the service samples points along the line (every 10m) and returns the value at their given location
 (ordered by their location). Also the minimum, maximum, and average value is given.
+
+For a **Polygon**, the service calculates statistics of the cells, that are covered by the polygon.
+It returns the count, summary, mean, minimum, maximum and standard deviation of the values.
 
 ## Examples
 
@@ -64,27 +67,34 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
 }
 ```
 
+### Polygon
+
 ```json
 {
-  "heights": {
-    "min": 248.1,
-    "max": 249.4,
-    "avg": 248.7,
-    "points": [
-      {
-        "index": 0,
-        "height": 248.2
+  "inputGeometries": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [13.786, 51.062],
+            [13.788, 51.062],
+            [13.788, 51.063],
+            [13.786, 51.063],
+            [13.786, 51.062]
+          ]
+        ]
       },
-      {
-        "index": 1,
-        "height": 248.7
-      },
-      {
-        "index": 2,
-        "height": 249.1
+      "properties": {
+        "name": "example"
       }
-    ]
-  }
+    }
+  ],
+  "topics": ["hoehe_r"],
+  "returnGeometry": false,
+  "outputFormat": "geojson",
+  "outSRS": 4326
 }
 ```
 
@@ -97,6 +107,68 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
       "geometry": {
         "x": 414418,
         "y": 5653903,
+        "spatialReference": {
+          "wkid": 25833
+        }
+      },
+      "attributes": {
+        "name": "testname"
+      }
+    }
+  ],
+  "topics": ["hoehe_r"],
+  "returnGeometry": false,
+  "outputFormat": "esrijson",
+  "outSRS": 25833
+}
+```
+
+### EsriJSON LineString
+
+```json
+{
+  "inputGeometries": [
+    {
+      "geometry": {
+        "paths": [
+          [
+            [414418, 5653903],
+            [414560, 5654015],
+            [414700, 5654100]
+          ]
+        ],
+        "spatialReference": {
+          "wkid": 25833
+        }
+      },
+      "attributes": {
+        "name": "testname"
+      }
+    }
+  ],
+  "topics": ["hoehe_r"],
+  "returnGeometry": false,
+  "outputFormat": "esrijson",
+  "outSRS": 25833
+}
+```
+
+### EsriJSON Polygon
+
+```json
+{
+  "inputGeometries": [
+    {
+      "geometry": {
+        "rings": [
+          [
+            [414418, 5653903],
+            [414560, 5653903],
+            [414560, 5654100],
+            [414418, 5654100],
+            [414418, 5653903]
+          ]
+        ],
         "spatialReference": {
           "wkid": 25833
         }
