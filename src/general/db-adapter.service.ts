@@ -37,6 +37,13 @@ export abstract class DbAdapterService {
     srid: number,
   ): string;
 
+  abstract getPolygonHeightStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;
 
   abstract getJsonStructure(returnGeometry: boolean): string;

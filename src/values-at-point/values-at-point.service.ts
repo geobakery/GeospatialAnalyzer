@@ -6,6 +6,7 @@ import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_HEIGHT_NAME,
   DB_HEIGHT_PROFILE_NAME,
+  DB_HEIGHT_STATS_NAME,
   SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
   LINE_SEGMENT_LENGTH_METERS,
@@ -48,9 +49,14 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       return;
     }
 
+    if (geometryType === 'Polygon') {
+      this.handlePolygonRequest(queryBuilder, logicalRequest);
+      return;
+    }
+
     if (geometryType !== 'Point') {
       throw new BadRequestException(
-        `valuesAtPoint currently supports Point and LineString geometries, got "${geometryType}"`,
+        `valuesAtPoint currently supports Point, LineString and Polygon geometries, got "${geometryType}"`,
       );
     }
 
@@ -154,6 +160,54 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     queryBuilder.setParameters(params);
     queryBuilder.from(
       this.adapter.unionAll(profileQueries),
+      this.adapter.getJsonRecordAlias(),
+    );
+  }
+
+  private handlePolygonRequest(
+    queryBuilder: SelectQueryBuilder<unknown>,
+    logicalRequest: GeospatialLogicalRequest,
+  ): void {
+    const { fieldsToQuery, topicIndex, feature, featureIndex } = logicalRequest;
+
+    const sources = this.generalService.getMultipleDBNamesForIdentifier(
+      logicalRequest.topic,
+    );
+
+    const params = {};
+    const statsQueries = [];
+
+    const featureParam = `${QUERY_FEATURE_INDEX}${featureIndex}`;
+    queryBuilder.setParameter(
+      featureParam,
+      STANDARD_SRID + geojsonToWKT(feature.geometry),
+    );
+
+    for (const [sourceIndex, source] of sources.entries()) {
+      const statsExpr = this.adapter.getPolygonHeightStats(
+        { raw: true, value: `:${featureParam}` },
+        source.source,
+        source.name,
+        source.srid,
+      );
+
+      const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
+      const statsQueryBuilder = queryBuilder
+        .createQueryBuilder()
+        .from('(SELECT 1)', 'polygon_height_stats_source')
+        .setParameter(topicSourceParameterName, source.name)
+        .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
+        .addSelect(statsExpr, DB_HEIGHT_STATS_NAME);
+
+      this.adapter.injectGeometryField(statsQueryBuilder);
+      fieldsToQuery.forEach((field) => statsQueryBuilder.addSelect(field));
+
+      statsQueries.push(statsQueryBuilder.getQuery());
+      Object.assign(params, statsQueryBuilder.getParameters());
+    }
+    queryBuilder.setParameters(params);
+    queryBuilder.from(
+      this.adapter.unionAll(statsQueries),
       this.adapter.getJsonRecordAlias(),
     );
   }

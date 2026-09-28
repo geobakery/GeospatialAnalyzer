@@ -36,6 +36,8 @@ export const LINE_SEGMENT_LENGTH_METERS = 10;
 export const QUERY_SEGMENT_LENGTH_INDEX = 'segment_length_';
 export const DB_HEIGHT_PROFILE_NAME = 'heights';
 
+export const DB_HEIGHT_STATS_NAME = 'heightStats';
+
 /**
  * Choosing an appropriate status code is surprisingly unclear:
  * - "408 Request Timeout" is the most prominent option, but should be

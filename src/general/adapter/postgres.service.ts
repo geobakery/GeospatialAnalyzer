@@ -86,6 +86,47 @@ export class PostgresService extends DbAdapterService {
       )`;
   }
 
+  override getPolygonHeightStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string {
+    const polygonInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
+    
+    return `(
+      WITH candidate_tiles AS MATERIALIZED (
+        SELECT rast
+        FROM ${sourceTable} "${sourceAlias}"
+        WHERE ST_Intersects("${sourceAlias}".rast, ${polygonInRasterCrs})
+      ),
+      merged AS MATERIALIZED (
+        SELECT ST_Union(rast) AS rast FROM candidate_tiles
+      ),
+      clipped AS MATERIALIZED (
+        -- crop=true: Raster wird auf die BoundingBox der Geometrie zugeschnitten.
+        -- Pixel außerhalb der Geometrie selbst werden automatisch NODATA (keine
+        -- Verfälschung vorhandener Werte, sie fließen schlicht nicht in die
+        -- Statistik ein).
+        SELECT ST_Clip(merged.rast, ${polygonInRasterCrs}, true) AS rast
+        FROM merged
+      ),
+      stats AS (
+        SELECT (ST_SummaryStats(clipped.rast)).*
+        FROM clipped
+      )
+      SELECT json_build_object(
+        'count', stats.count,
+        'min', stats.min,
+        'max', stats.max,
+        'sum', stats.sum,
+        'mean', stats.mean,
+        'stddev', stats.stddev
+      )
+      FROM stats
+    )`;
+  }
+
   override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
     return `ST_TRANSFORM(${featureWkt.value}::text, ${toCrs})`;
   }
