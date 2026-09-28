@@ -228,39 +228,147 @@ describe('ValuesAtPointController (e2e)', () => {
     }
   });
 
-  it('/POST valuesAtPoint with a Polygon is rejected with 400', async () => {
-    const payload: ValuesAtPointParameterDto = {
-      topics: ['hoehe_r'],
-      inputGeometries: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Polygon',
-            coordinates: [
-              [
-                [13.786, 51.062],
-                [13.788, 51.062],
-                [13.788, 51.064],
-                [13.786, 51.062],
-              ],
-            ],
+  describe('Polygon input', () => {
+    const RECTANGLE_RING = [
+      [13.8649, 51.0641],
+      [13.8651, 51.0641],
+      [13.8651, 51.0643],
+      [13.8649, 51.0643],
+      [13.8649, 51.0641],
+    ];
+
+    const TRIANGLE_RING = [
+      [13.8649, 51.0641],
+      [13.8651, 51.0641],
+      [13.8649, 51.0643],
+      [13.8649, 51.0641],
+    ];
+
+    const OUTSIDE_COVERAGE_RING = [
+      [13.4, 52.52],
+      [13.4002, 52.52],
+      [13.4002, 52.5202],
+      [13.4, 52.5202],
+      [13.4, 52.52],
+    ];
+
+    const postPolygon = (ring: number[][]) => {
+      const payload: ValuesAtPointParameterDto = {
+        topics: ['hoehe_r'],
+        inputGeometries: [
+          {
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [ring] },
+            properties: {},
           },
-          properties: {},
-        },
-      ],
-      outputFormat: 'geojson',
-      returnGeometry: false,
-      outSRS: 4326,
+        ],
+        outputFormat: 'geojson',
+        returnGeometry: false,
+        outSRS: 4326,
+      };
+      return app.inject({
+        method: POST,
+        url: URL_START + VALUES_AT_POINT_URL,
+        payload,
+        headers: HEADERS_JSON,
+      });
     };
 
-    const result = await app.inject({
-      method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
-      payload,
-      headers: HEADERS_JSON,
+    const statsOf = (data: any[], sourceName: string) =>
+      data.find((f) => f.properties?.__name === sourceName)?.properties
+        ?.heightStats;
+
+    it('/POST valuesAtPoint with a Polygon returns plausible height statistics for both sources', async () => {
+      const result = await postPolygon(RECTANGLE_RING);
+      await testStatus200('/POST valuesAtPoint Polygon', result);
+
+      const data = JSON.parse(result.payload) as any[];
+      expect(data).toHaveLength(2);
+
+      for (const feature of data) {
+        expect(feature.type).toBe('Feature');
+        expect(feature.geometry).toBeNull();
+
+        expect(feature.properties?.height).toBeUndefined();
+        expect(feature.properties?.heights).toBeUndefined();
+
+        const stats = feature.properties?.heightStats;
+        expect(stats).toBeDefined();
+
+        expect(Number.isInteger(stats.count)).toBe(true);
+        expect(stats.count).toBeGreaterThan(0);
+
+        expect(stats.min).toBeLessThanOrEqual(stats.mean);
+        expect(stats.mean).toBeLessThanOrEqual(stats.max);
+        expect(stats.stddev).toBeGreaterThanOrEqual(0);
+        expect(stats.sum).toBeCloseTo(stats.mean * stats.count, 2);
+
+        // The test point in the center of the polygon has an elevation of 248.86 according to the
+        // existing point test and must therefore fall within the value range of the statistics.
+        expect(stats.min).toBeLessThanOrEqual(248.86);
+        expect(stats.max).toBeGreaterThanOrEqual(248.86);
+      }
+
+      expect(statsOf(data, 'gelaendehoehe_dgm')).toBeDefined();
+      expect(statsOf(data, 'oberflaechenhoehe_dom')).toBeDefined();
     });
 
-    expect(result.statusCode).toBe(400);
+    it('/POST valuesAtPoint with a Polygon only counts pixels inside the polygon (triangle ≈ half of its bounding rectangle)', async () => {
+      const rectangleResult = await postPolygon(RECTANGLE_RING);
+      const triangleResult = await postPolygon(TRIANGLE_RING);
+      await testStatus200('/POST valuesAtPoint Rectangle', rectangleResult);
+      await testStatus200('/POST valuesAtPoint Triangle', triangleResult);
+
+      const rectangleCount = statsOf(
+        JSON.parse(rectangleResult.payload),
+        'gelaendehoehe_dgm',
+      ).count;
+      const triangleCount = statsOf(
+        JSON.parse(triangleResult.payload),
+        'gelaendehoehe_dgm',
+      ).count;
+
+      const ratio = triangleCount / rectangleCount;
+      expect(ratio).toBeGreaterThan(0.4);
+      expect(ratio).toBeLessThan(0.6);
+    });
+
+    it('/POST valuesAtPoint with a Polygon outside the raster coverage returns empty statistics instead of failing', async () => {
+      const result = await postPolygon(OUTSIDE_COVERAGE_RING);
+      await testStatus200('/POST valuesAtPoint Polygon outside', result);
+
+      const data = JSON.parse(result.payload) as any[];
+      for (const feature of data) {
+        const stats = feature.properties?.heightStats;
+        expect(stats).toBeDefined();
+        expect([null, 0]).toContain(stats.count);
+        expect(stats.min).toBeNull();
+        expect(stats.max).toBeNull();
+      }
+    });
+
+    it('/POST valuesAtPoint with an unsupported geometry type is rejected with 400', async () => {
+      const payload = {
+        topics: ['hoehe_r'],
+        inputGeometries: [
+          {
+            type: 'Feature',
+            geometry: { type: 'MultiPolygon', coordinates: [] },
+            properties: {},
+          },
+        ],
+        outputFormat: 'geojson',
+        returnGeometry: false,
+        outSRS: 4326,
+      };
+      const result = await app.inject({
+        method: POST,
+        url: URL_START + VALUES_AT_POINT_URL,
+        payload,
+        headers: HEADERS_JSON,
+      });
+      expect(result.statusCode).toBe(400);
+    });
   });
 
   it('/POST valuesAtPoint with a Point keeps the existing response structure', async () => {

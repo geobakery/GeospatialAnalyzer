@@ -104,6 +104,7 @@ describe('ValuesAtPointService – geometry type handling', () => {
     const sql = capturedQb.getQuery();
     expect(sql).toMatch(/ST_Value/i);
     expect(sql).not.toMatch(/ST_LineInterpolatePoint/i);
+    expect(sql).not.toMatch(/ST_SummaryStats/i);
   });
 
   it('uses the line height profile (ST_LineInterpolatePoint, candidate tiles) for a LineString', async () => {
@@ -120,23 +121,45 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).toMatch(/ST_LineInterpolatePoint/i);
     expect(sql).toMatch(/candidate_tiles/i);
     expect(sql).toMatch(/ST_Value/i);
+    expect(sql).not.toMatch(/ST_SummaryStats/i);
   });
 
-  it('rejects Polygon geometries with a clear 400 error, not a silent/wrong query', async () => {
+  it('uses the polygon height stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
+    await service.handleRequest(
+      buildRequest({
+        type: 'Polygon',
+        coordinates: [
+          [
+            [13.78, 51.03],
+            [13.79, 51.03],
+            [13.79, 51.04],
+            [13.78, 51.03],
+          ],
+        ],
+      }) as any,
+    );
+    const sql = capturedQb.getQuery();
+    expect(sql).toMatch(/candidate_tiles/i);
+    expect(sql).toMatch(/ST_Union/i);
+    expect(sql).toMatch(/ST_Clip/i);
+    expect(sql).toMatch(/ST_SummaryStats/i);
+    expect(sql).not.toMatch(/ST_LineInterpolatePoint/i);
+  });
+
+  it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
     await expect(
       service.handleRequest(
         buildRequest({
-          type: 'Polygon',
-          coordinates: [
-            [
-              [13.78, 51.03],
-              [13.79, 51.03],
-              [13.79, 51.04],
-              [13.78, 51.03],
-            ],
-          ],
+          type: 'MultiPolygon',
+          coordinates: [],
         }) as any,
       ),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('rejects a null geometry with a 400 error', async () => {
+    await expect(
+      service.handleRequest(buildRequest(null) as any),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -154,4 +177,24 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).toMatch(/gelaendehoehe_dgm/);
     expect(sql).toMatch(/oberflaechenhoehe_dom/);
   });
+
+  it('builds one sub-query per source (dgm + dom) for a Polygon request', async () => {
+    await service.handleRequest(
+      buildRequest({
+        type: 'Polygon',
+        coordinates: [
+          [
+            [13.78, 51.03],
+            [13.79, 51.03],
+            [13.79, 51.04],
+            [13.78, 51.03],
+          ],
+        ],
+      }) as any,
+    );
+    const sql = capturedQb.getQuery();
+    expect(sql).toMatch(/gelaendehoehe_dgm/);
+    expect(sql).toMatch(/oberflaechenhoehe_dom/);
+  });
 });
+
