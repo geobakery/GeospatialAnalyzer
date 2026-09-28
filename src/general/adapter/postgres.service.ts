@@ -71,7 +71,7 @@ export class PostgresService extends DbAdapterService {
         SELECT json_build_object(
           'min', MIN(height),
           'max', MAX(height),
-          'avg', AVG(height), 
+          'avg', ROUND(AVG(height)::numeric, 2), 
           'points', json_agg( json_build_object( 'index', idx, 'height', height ) ORDER BY idx )
         ) 
         FROM (
@@ -119,9 +119,9 @@ export class PostgresService extends DbAdapterService {
         'count', stats.count,
         'min', stats.min,
         'max', stats.max,
-        'sum', stats.sum,
-        'mean', stats.mean,
-        'stddev', stats.stddev
+        'sum', ROUND(stats.sum::numeric, 2),
+        'mean', ROUND(stats.mean::numeric, 2),
+        'stddev', ROUND(stats.stddev::numeric, 3)
       )
       FROM stats
     )`;
