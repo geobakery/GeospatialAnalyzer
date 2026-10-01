@@ -9,9 +9,11 @@ import {
   DB_HEIGHT_STATS_NAME,
   SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
-  LINE_SEGMENT_LENGTH_METERS,
+  LINE_INTERPOLATION_DISTANCE_METERS,
   QUERY_FEATURE_INDEX,
-  QUERY_SEGMENT_LENGTH_INDEX,
+  QUERY_INTERPOLATION_DISTANCE_INDEX,
+  LINE_HEIGHT_PROFILE_POINTS_PER_CHUNK,
+  QUERY_POINTS_PER_CHUNK_INDEX,
   STANDARD_SRID,
 } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
@@ -131,13 +133,23 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       featureParam,
       STANDARD_SRID + geojsonToWKT(feature.geometry),
     );
-    const segmentParam = `${QUERY_SEGMENT_LENGTH_INDEX}${featureIndex}`;
-    queryBuilder.setParameter(segmentParam, LINE_SEGMENT_LENGTH_METERS);
+    const interpolationDistanceParam = `${QUERY_INTERPOLATION_DISTANCE_INDEX}${featureIndex}`;
+    queryBuilder.setParameter(
+      interpolationDistanceParam,
+      LINE_INTERPOLATION_DISTANCE_METERS,
+    );
+
+    const pointsPerChunkParam = `${QUERY_POINTS_PER_CHUNK_INDEX}${featureIndex}`;
+    queryBuilder.setParameter(
+      pointsPerChunkParam,
+      LINE_HEIGHT_PROFILE_POINTS_PER_CHUNK,
+    );
 
     for (const [sourceIndex, source] of sources.entries()) {
       const profileExpr = this.adapter.getLineHeightProfile(
         { raw: true, value: `:${featureParam}` },
-        { raw: true, value: `:${segmentParam}` },
+        { raw: true, value: `:${interpolationDistanceParam}` },
+        { raw: true, value: `:${pointsPerChunkParam}` },
         source.source,
         source.name,
         source.srid,
