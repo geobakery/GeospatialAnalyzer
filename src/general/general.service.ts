@@ -256,7 +256,12 @@ export class GeneralService {
     if (dbtype) {
       switch (dbtype) {
         case supportedDatabase.postgres: {
-          return new PostgresService();
+          const supportsClipTouched =
+            this.configService.get(
+              'GEOSPATIAL_ANALYZER_POSTGIS_SUPPORTS_CLIP_TOUCHED',
+              'true',
+            ) !== 'false';
+          return new PostgresService(supportsClipTouched);
         }
         default: {
           throw new Error(`Unsupported database type: ${dbtype}`);
