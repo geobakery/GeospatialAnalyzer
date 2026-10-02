@@ -141,12 +141,20 @@ describe('ValuesAtPointService – geometry type handling', () => {
       }) as any,
     );
     const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/candidate_tiles/i);
-    expect(sql).toMatch(/ST_Union/i);
+    expect(sql).toMatch(/ST_Transform/i);
+    expect(sql).toMatch(/ST_Intersects/i);
     expect(sql).toMatch(/ST_Clip/i);
-    expect(sql).toMatch(/ST_SummaryStats/i);
-    expect(sql).not.toMatch(/ST_LineInterpolatePoint/i);
-    expect(sql).toMatch(/ROUND\(stats\.mean::numeric, 2\)/i);
+    expect(sql).toMatch(/ST_SummaryStatsAgg/i);
+
+    expect(sql).toMatch(/gelaendehoehe_dgm/i);
+    expect(sql).toMatch(/oberflaechenhoehe_dom/i);
+
+    expect(sql).toMatch(/'count'/i);
+    expect(sql).toMatch(/'min'/i);
+    expect(sql).toMatch(/'max'/i);
+    expect(sql).toMatch(/ROUND\(\(stats\)\.sum::numeric, 2\)/i);
+    expect(sql).toMatch(/ROUND\(\(stats\)\.mean::numeric, 2\)/i);
+    expect(sql).toMatch(/ROUND\(\(stats\)\.stddev::numeric, 3\)/i);
   });
 
   it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
