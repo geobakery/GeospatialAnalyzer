@@ -5,6 +5,13 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
+  private readonly clipTouchedArg: string;
+
+  constructor(postgisSupportsClipTouched: boolean = true) {
+    super();
+    this.clipTouchedArg = postgisSupportsClipTouched ? ', true' : '';
+  }
+
   override areFeaturesIntersecting(
     feature: SqlParameter,
     other: SqlParameter,
@@ -75,8 +82,7 @@ export class PostgresService extends DbAdapterService {
           ST_Clip(
             "${sourceAlias}".rast,
             line_corridor.corridor,
-            true,
-            true
+            true${this.clipTouchedArg}
           )
         ) AS rast
       FROM line_corridor
@@ -98,7 +104,7 @@ export class PostgresService extends DbAdapterService {
               WHEN i = point_count THEN 1
               ELSE (i * ${interpolationDistance.value}) / line.length
             END
-          )::text,
+          ),
           ${srid}
         ) AS pt
       FROM line
@@ -130,8 +136,7 @@ export class PostgresService extends DbAdapterService {
         ST_Clip(
           clipped_line_raster.rast,
           group_bbox.bbox,
-          true,
-          true
+          true${this.clipTouchedArg}
         ) AS rast
       FROM group_bbox
       CROSS JOIN clipped_line_raster
@@ -175,32 +180,36 @@ export class PostgresService extends DbAdapterService {
     sourceAlias: string,
     srid: number,
   ): string {
-    const polygonInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
+    const polygon = `ST_Transform(${feature.value}::text, ${srid})`;
 
     return `(
-      WITH candidate_tiles AS MATERIALIZED (
-        SELECT rast
-        FROM ${sourceTable} "${sourceAlias}"
-        WHERE ST_Intersects("${sourceAlias}".rast, ${polygonInRasterCrs})
-      ),
-      merged AS MATERIALIZED (
-        SELECT ST_Union(rast) AS rast FROM candidate_tiles
-      ),
-      clipped AS MATERIALIZED (
-        SELECT ST_Clip(merged.rast, ${polygonInRasterCrs}, true, true) AS rast
-        FROM merged
+      WITH polygon AS (
+        SELECT ${polygon} AS geom
       ),
       stats AS (
-        SELECT (ST_SummaryStats(clipped.rast)).*
-        FROM clipped
+        SELECT ST_SummaryStatsAgg(
+          ST_Clip(
+            "${sourceAlias}".rast,
+            polygon.geom,
+            true${this.clipTouchedArg}
+          ),
+          1,
+          true
+        ) AS stats
+        FROM ${sourceTable} "${sourceAlias}"
+        CROSS JOIN polygon
+        WHERE ST_Intersects(
+          "${sourceAlias}".rast,
+          polygon.geom
+        )
       )
       SELECT json_build_object(
-        'count', stats.count,
-        'min', stats.min,
-        'max', stats.max,
-        'sum', ROUND(stats.sum::numeric, 2),
-        'mean', ROUND(stats.mean::numeric, 2),
-        'stddev', ROUND(stats.stddev::numeric, 3)
+        'count',  (stats).count,
+        'min',    (stats).min,
+        'max',    (stats).max,
+        'sum',    ROUND((stats).sum::numeric, 2),
+        'mean',   ROUND((stats).mean::numeric, 2),
+        'stddev', ROUND((stats).stddev::numeric, 3)
       )
       FROM stats
     )`;
