@@ -161,4 +161,56 @@ describe('Buffer parameter validation (e2e)', () => {
     expect(topicFeatures.length).toBe(1);
     expect(topicFeatures[0].properties['__topic']).toBe('kreis_f');
   });
+  it('/POST intersect: buffer features carry the __geoProperties of their matching input geometry', async () => {
+    const payload = {
+      topics: ['kreis_f'],
+      inputGeometries: [
+        {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [13.04, 51.19] },
+          properties: { __geometryIdentifier__: 'my-custom-id', name: 'first' },
+        },
+        {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [14.05, 51.12] },
+          properties: { name: 'second' },
+        },
+      ],
+      outputFormat: 'geojson',
+      returnGeometry: false,
+      outSRS: 4326,
+      buffer: 500,
+      returnBufferGeometry: true,
+    };
+
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + INTERSECT_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+    expect(result.statusCode).toBe(200);
+
+    const features = JSON.parse(result.payload) as any[];
+    const bufferFeatures = features.filter(
+      (f) => f.properties?.__buffer === true,
+    );
+    expect(bufferFeatures).toHaveLength(2);
+
+    const firstBuffer = bufferFeatures.find(
+      (f) =>
+        f.properties.__geoProperties?.__geometryIdentifier__ === 'my-custom-id',
+    );
+    expect(firstBuffer).toBeDefined();
+    expect(firstBuffer.properties.__geoProperties.name).toBe('first');
+    expect(firstBuffer.properties.__topic).toBeUndefined();
+
+    const secondBuffer = bufferFeatures.find(
+      (f) => f.properties.__geoProperties?.name === 'second',
+    );
+    expect(secondBuffer).toBeDefined();
+    expect(
+      secondBuffer.properties.__geoProperties.__geometryIdentifier__,
+    ).toBeDefined();
+  });
 });

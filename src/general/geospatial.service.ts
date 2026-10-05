@@ -96,13 +96,21 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
 
         const bufferDistanceParameter = `${QUERY_BUFFER_INDEX}output_${featureIndex}`;
 
+        const bufferFeatureIdParameter = `_buffer_feature_id_${featureIndex}`;
+
+        bufferQueryBuilder.setParameter(
+          bufferFeatureIdParameter,
+          this.generalService.getAndSetGeoID(feature, featureIndex),
+        );
+
         bufferQueryBuilder
-          .select(`'__BUFFER__'`, DB_TOPIC_NAME)
-          .addSelect(`'__BUFFER_${featureIndex}'`, DB_FEATURE_ID_NAME)
+          .select(`:${bufferFeatureIdParameter}::text`, DB_FEATURE_ID_NAME)
+          .addSelect(`'__BUFFER__'`, DB_TOPIC_NAME)
           .addSelect(
             this.adapter.getBufferJsonStructure(
               bufferGeometry,
               `:${bufferDistanceParameter}`,
+              `:${bufferFeatureIdParameter}::text`,
             ),
             DB_JSON_STRUCTURE_NAME,
           );

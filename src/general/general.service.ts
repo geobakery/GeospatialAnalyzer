@@ -501,21 +501,21 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
-          feature.properties ??= {};
+          feature.properties.__requestParams = requestParams;
 
           const isBufferFeature = feature.properties.__buffer === true;
 
-          feature.properties.__requestParams = requestParams;
-
-          if (!isBufferFeature) {
-            feature.properties.__geoProperties = map.get(result.id);
-
-            feature.properties.__topic = result.topic;
-          }
-
           if (isBufferFeature) {
+            const sourceId = feature.properties.__bufferSourceId as
+              string | undefined;
+
+            feature.properties.__geoProperties =
+              sourceId !== undefined ? map.get(sourceId) : undefined;
+
             return;
           }
+          feature.properties.__geoProperties = map.get(result.id);
+          feature.properties.__topic = result.topic;
 
           const sourceName = (feature.properties as any)[
             SOURCE_NAME_PROPERTY
