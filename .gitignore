@@ -43,3 +43,4 @@ lerna-debug.log*
 swagger-description.md
 bom.json
 sbom.cyclonedx.json
+tsconfig.build.tsbuildinfo
