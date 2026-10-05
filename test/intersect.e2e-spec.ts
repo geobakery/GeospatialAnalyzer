@@ -395,7 +395,7 @@ describe('IntersectController (e2e)', () => {
     const inputWithoutBuffer = await getGeoJSONFeature({
       topics: ['flurstueck_f'],
       returnGeometry: false,
-      fixGeometry: point, // GEÄNDERT: fehlte — ohne das griff die Default-Geometrie
+      fixGeometry: point,
     });
     const resultWithoutBuffer = await app.inject({
       method: POST,
@@ -411,7 +411,7 @@ describe('IntersectController (e2e)', () => {
       ...(await getGeoJSONFeature({
         topics: ['flurstueck_f'],
         returnGeometry: false,
-        fixGeometry: point, // GEÄNDERT: dieselbe fehlende Zeile
+        fixGeometry: point,
       })),
       buffer: 100,
     };
