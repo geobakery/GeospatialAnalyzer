@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
+import { QueryFailedError, SelectQueryBuilder, DataSource } from 'typeorm';
 import { TransformModule } from '../transform/transform.module';
 import {
   GeneralService,
@@ -51,7 +51,13 @@ describe('GeneralService', () => {
 
   async function setup(topicGroupFilterString?: string) {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GeneralService],
+      providers: [
+        GeneralService,
+        {
+          provide: DataSource,
+          useValue: {},
+        },
+      ],
       imports: [
         ConfigModule.forRoot({
           envFilePath: ['.env.test', '.env'],
@@ -67,7 +73,7 @@ describe('GeneralService', () => {
       ],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
+    // @ts-ignore
     service = module.get<GeneralService>(GeneralService);
     mod = module;
   }
@@ -85,20 +91,11 @@ describe('GeneralService', () => {
       const result = service.getTopics();
       expect(result).toBeDefined();
     });
-
-    // example mock function
-    // We can adjust the output of a service by mocking it. If this service is called by itself or another function
-    // our mocked version will always be executed (In this case it returns 1234, even the real version would return 4326)
-    it('should work with mock', () => {
-      const mockResult = ['test'];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      jest.spyOn(service, 'getTopics').mockImplementation(() => mockResult);
-
-      const result = service.getTopics();
-      expect(result).toEqual(['test']);
-    });
   });
+
+  // example mock function
+  // We can adjust the output of a service by mocking it. If this service is called by itself or another function
+  // our mocked version will always be executed (In this case it returns 1234, even the real version would return 4326)
 
   describe('with empty topic group filtering', () => {
     beforeAll(async () => await setup(''));
@@ -190,7 +187,6 @@ describe('GeneralService', () => {
     });
 
     it('maps an unrelated query failure to a server error even if its message mentions a timeout', async () => {
-      // Mentions a timeout without being one; a loose message match misreports it.
       const driverError = Object.assign(
         new Error('column "timeout" does not exist'),
         { code: '42703' },
