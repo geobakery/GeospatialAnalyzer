@@ -62,4 +62,8 @@ export abstract class DbAdapterService {
   abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
 
   abstract unionAll(queries: string[]): string;
+
+  configureClipTouchedSupport(_supported: boolean): void {
+    // no-op by default
+  }
 }

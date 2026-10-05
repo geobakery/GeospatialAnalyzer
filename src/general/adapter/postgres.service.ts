@@ -5,11 +5,10 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
-  private readonly clipTouchedArg: string;
+  private clipTouchedArg = '';
 
-  constructor(postgisSupportsClipTouched: boolean = true) {
-    super();
-    this.clipTouchedArg = postgisSupportsClipTouched ? ', true' : '';
+  override configureClipTouchedSupport(supported: boolean): void {
+    this.clipTouchedArg = supported ? ', true' : '';
   }
 
   override areFeaturesIntersecting(
