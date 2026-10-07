@@ -12,7 +12,6 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import {
   NearestNeighbourParameterDto,
   SCHEMA_VALID_OUT_SRS,
-  SCHEMA_VALID_RETURN_BUFFER_GEOMETRY,
 } from '../general/dto/parameter.dto';
 import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
@@ -49,7 +48,6 @@ export class NearestNeighbourController {
       allOf: [
         { $ref: getSchemaPath(NearestNeighbourParameterDto) },
         SCHEMA_VALID_OUT_SRS,
-        SCHEMA_VALID_RETURN_BUFFER_GEOMETRY,
       ],
     },
   })

@@ -165,7 +165,7 @@ export class BufferParameterDto extends ParameterDto {
 }
 
 export class IntersectParameterDto extends BufferParameterDto {}
-export class NearestNeighbourParameterDto extends BufferParameterDto {
+export class NearestNeighbourParameterDto extends ParameterDto {
   @ApiProperty({ example: 3 })
   count: number;
 
