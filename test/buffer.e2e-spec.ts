@@ -54,11 +54,6 @@ describe('Buffer parameter validation (e2e)', () => {
   const ENDPOINTS = [
     { name: 'within', url: WITHIN_URL, extraFields: {} },
     { name: 'intersect', url: INTERSECT_URL, extraFields: {} },
-    {
-      name: 'nearestNeighbour',
-      url: NEAREST_URL,
-      extraFields: { count: 1, maxDistanceToNeighbour: 100000 },
-    },
   ];
 
   describe.each(ENDPOINTS)('$name', ({ url, extraFields }) => {
@@ -202,6 +197,9 @@ describe('Buffer parameter validation (e2e)', () => {
         f.properties.__geoProperties?.__geometryIdentifier__ === 'my-custom-id',
     );
     expect(firstBuffer).toBeDefined();
+    expect(firstBuffer.properties.__geoProperties.__geometryIdentifier__).toBe(
+      'my-custom-id',
+    );
     expect(firstBuffer.properties.__geoProperties.name).toBe('first');
     expect(firstBuffer.properties.__topic).toBeUndefined();
 
@@ -209,8 +207,39 @@ describe('Buffer parameter validation (e2e)', () => {
       (f) => f.properties.__geoProperties?.name === 'second',
     );
     expect(secondBuffer).toBeDefined();
-    expect(
-      secondBuffer.properties.__geoProperties.__geometryIdentifier__,
-    ).toBeDefined();
+    expect(secondBuffer.properties.__geoProperties.__geometryIdentifier__).toBe(
+      '__ID_1',
+    );
+  });
+  it('nearestNeighbour rejects buffer as an unknown field', async () => {
+    const payload = {
+      ...getGeoJSONFeature({ topics: ['kreis_f'] }),
+      count: 1,
+      maxDistanceToNeighbour: 100000,
+      buffer: 100,
+    };
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+    expect(result.statusCode).toBe(400);
+  });
+
+  it('nearestNeighbour rejects returnBufferGeometry as an unknown field', async () => {
+    const payload = {
+      ...getGeoJSONFeature({ topics: ['kreis_f'] }),
+      count: 1,
+      maxDistanceToNeighbour: 100000,
+      returnBufferGeometry: true,
+    };
+    const result = await app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload,
+      headers: HEADERS_JSON,
+    });
+    expect(result.statusCode).toBe(400);
   });
 });
