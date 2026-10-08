@@ -505,16 +505,12 @@ export class GeneralService {
 
           const isBufferFeature = feature.properties.__buffer === true;
 
+          feature.properties.__geoProperties = map.get(result.id);
+
           if (isBufferFeature) {
-            const sourceId = feature.properties.__bufferSourceId as
-              string | undefined;
-
-            feature.properties.__geoProperties =
-              sourceId !== undefined ? map.get(sourceId) : undefined;
-
             return;
           }
-          feature.properties.__geoProperties = map.get(result.id);
+
           feature.properties.__topic = result.topic;
 
           const sourceName = (feature.properties as any)[

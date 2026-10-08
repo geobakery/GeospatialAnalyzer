@@ -73,7 +73,6 @@ export class PostgresService extends DbAdapterService {
   override getBufferJsonStructure(
     bufferGeometry: string,
     bufferDistance: string,
-    bufferSourceId: string,
   ): string {
     return `
       json_build_object(
@@ -86,8 +85,7 @@ export class PostgresService extends DbAdapterService {
             'properties',
             json_build_object(
               '__buffer', true,
-              '__bufferDistance', ${bufferDistance},
-              '__bufferSourceId', ${bufferSourceId}
+              '__bufferDistance', ${bufferDistance}
             )
           )
         )

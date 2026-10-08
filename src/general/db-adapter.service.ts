@@ -39,7 +39,6 @@ export abstract class DbAdapterService {
   abstract getBufferJsonStructure(
     bufferGeometry: string,
     bufferDistance: string,
-    bufferSourceId: string,
   ): string;
 
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;

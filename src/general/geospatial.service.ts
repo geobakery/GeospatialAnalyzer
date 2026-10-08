@@ -104,13 +104,12 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
         );
 
         bufferQueryBuilder
-          .select(`:${bufferFeatureIdParameter}::text`, DB_FEATURE_ID_NAME)
-          .addSelect(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .select(`'__BUFFER__'`, DB_TOPIC_NAME)
+          .addSelect(`:${bufferFeatureIdParameter}::text`, DB_FEATURE_ID_NAME)
           .addSelect(
             this.adapter.getBufferJsonStructure(
               bufferGeometry,
               `:${bufferDistanceParameter}`,
-              `:${bufferFeatureIdParameter}::text`,
             ),
             DB_JSON_STRUCTURE_NAME,
           );
