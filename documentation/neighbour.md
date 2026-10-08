@@ -37,9 +37,7 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326,
-  "buffer": 100,
-  "returnBufferGeometry": false
+  "outSRS": 4326
 }
 ```
 
@@ -62,9 +60,7 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f", "land_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326,
-  "buffer": 100,
-  "returnBufferGeometry": false
+  "outSRS": 4326
 }
 ```
 
@@ -90,9 +86,7 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326,
-  "buffer": 100,
-  "returnBufferGeometry": false
+  "outSRS": 4326
 }
 ```
 
@@ -117,14 +111,14 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326,
-  "buffer": 100,
-  "returnBufferGeometry": false
+  "outSRS": 4326
 }
 ```
 
 ## Known Limitations - Work in progres
 
+- Unsupported user parameter:
+  - buffer
 - Complete parameter validation
 - API token authentication
 
