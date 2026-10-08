@@ -32,8 +32,7 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     logicalRequest: GeospatialLogicalRequest,
     request: NearestNeighbourParameterDto,
   ): void {
-    const { fieldsToQuery, topic, feature, featureIndex, buffer } =
-      logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
@@ -48,7 +47,6 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
         topicSource.srid,
         feature,
         featureIndex,
-        buffer,
       );
       subQuery
         .addSelect(featureDistanceString, DB_DIST_NAME)
@@ -71,14 +69,12 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
-    buffer?: number,
   ): string {
     const queryFeature = this.getAnalysisGeometry(
       queryStart,
       srid,
       feature,
       featureIndex,
-      buffer,
     );
 
     // Within call
