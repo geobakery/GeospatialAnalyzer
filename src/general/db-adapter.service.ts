@@ -29,6 +29,22 @@ export abstract class DbAdapterService {
 
   abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
 
+  abstract getLineHeightProfile(
+    feature: SqlParameter,
+    segmentLength: SqlParameter,
+    pointsPerChunk: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
+  abstract getPolygonHeightStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;
 
   abstract getJsonStructure(returnGeometry: boolean): string;
@@ -46,4 +62,8 @@ export abstract class DbAdapterService {
   abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
 
   abstract unionAll(queries: string[]): string;
+
+  configureClipTouchedSupport(_supported: boolean): void {
+    // no-op by default
+  }
 }
