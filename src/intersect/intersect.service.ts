@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { IntersectParameterDto } from '../general/dto/parameter.dto';
-import {
-  DB_GEOMETRY_NAME,
-  QUERY_FEATURE_INDEX,
-  STANDARD_SRID,
-} from '../general/general.constants';
+import { DB_GEOMETRY_NAME } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
   GeneralService,
@@ -36,7 +31,8 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex, buffer } =
+      logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
@@ -55,6 +51,7 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
       topicSource.srid,
       feature,
       featureIndex,
+      buffer,
     );
     queryBuilder.andWhere(featureIntersect);
   }
@@ -64,22 +61,14 @@ export class IntersectService extends GeospatialService<IntersectParameterDto> {
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
+    buffer?: number,
   ): string {
-    // GeoJSON RFC7946: A Feature object's geometry member may be null (section
-    // 3.2), but a Geometry object itself may never be null (section 3.1).
-    const featureWkt =
-      feature.geometry !== null
-        ? geojsonToWKT(feature.geometry)
-        : 'POINT EMPTY';
-
-    // setup for left and right side of intersect
-    queryStart.setParameter(
-      `${QUERY_FEATURE_INDEX}${featureIndex}`,
-      STANDARD_SRID + featureWkt,
-    );
-    const queryFeature = this.adapter.transformFeature(
-      { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
+    const queryFeature = this.getAnalysisGeometry(
+      queryStart,
       srid,
+      feature,
+      featureIndex,
+      buffer,
     );
 
     // intersect call

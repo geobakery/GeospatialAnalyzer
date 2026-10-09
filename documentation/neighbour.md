@@ -117,7 +117,7 @@ Post-call http://localhost:3000/v2/nearestNeighbour with JSON body:
 
 ## Known Limitations - Work in progres
 
-- Currently, unsupported user parameter
+- Unsupported user parameter:
   - buffer
 - Complete parameter validation
 - API token authentication

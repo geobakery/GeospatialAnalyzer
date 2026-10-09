@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, LessThanOrEqual, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { NearestNeighbourParameterDto } from '../general/dto/parameter.dto';
-import {
-  DB_DIST_NAME,
-  DB_GEOMETRY_NAME,
-  QUERY_FEATURE_INDEX,
-  STANDARD_SRID,
-} from '../general/general.constants';
+import { DB_DIST_NAME, DB_GEOMETRY_NAME } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
   GeneralService,
@@ -76,14 +70,11 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     feature: GeoJSONFeatureDto,
     featureIndex: number,
   ): string {
-    // setup for left and right side of Within
-    queryStart.setParameter(
-      `${QUERY_FEATURE_INDEX}${featureIndex}`,
-      STANDARD_SRID + geojsonToWKT(feature.geometry),
-    );
-    const queryFeature = this.adapter.transformFeature(
-      { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
+    const queryFeature = this.getAnalysisGeometry(
+      queryStart,
       srid,
+      feature,
+      featureIndex,
     );
 
     // Within call
