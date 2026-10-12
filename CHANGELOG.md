@@ -8,6 +8,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [2.1.0] - 2026-10-12
 
+### Highlights
+
+`intersect` and `within` now support an optional `buffer` parameter to expand input geometries by a distance in meters before evaluating the spatial predicate (#247). With `returnBufferGeometry: true`, the buffer geometries are returned as additional features.
+
 ### Added
 
 - `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset (#254).
