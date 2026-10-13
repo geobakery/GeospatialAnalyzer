@@ -41,3 +41,4 @@ lerna-debug.log*
 .env.docker.dev
 .env.prod
 swagger-description.md
+tsconfig.build.tsbuildinfo

@@ -62,18 +62,20 @@ export class PostgresService extends DbAdapterService {
     return `(
     WITH line AS MATERIALIZED (
       SELECT
-        ${feature.value}::geography AS geom_geog,
         ${lineInRasterCrs} AS geom,
         ST_Length(${feature.value}::geography) AS length
     ),
+    pixel_margin AS MATERIALIZED (
+      SELECT GREATEST(
+        ABS(ST_PixelWidth("${sourceAlias}".rast)),
+        ABS(ST_PixelHeight("${sourceAlias}".rast))
+      ) AS margin
+      FROM ${sourceTable} "${sourceAlias}"
+      LIMIT 1
+    ),
     line_corridor AS MATERIALIZED (
-      SELECT
-        geom,
-        ST_Buffer(
-          geom,
-          ${interpolationDistance.value} / 2.0
-        ) AS corridor
-      FROM line
+      SELECT ST_Buffer(line.geom, pixel_margin.margin) AS corridor
+      FROM line, pixel_margin
     ),
     clipped_line_raster AS MATERIALIZED (
       SELECT
@@ -81,38 +83,30 @@ export class PostgresService extends DbAdapterService {
           ST_Clip(
             "${sourceAlias}".rast,
             line_corridor.corridor,
-            true${this.clipTouchedArg}
+            true
           )
         ) AS rast
       FROM line_corridor
       JOIN ${sourceTable} "${sourceAlias}"
-        ON ST_Intersects(
-          "${sourceAlias}".rast,
-          line_corridor.corridor
-        )
+        ON ST_Intersects("${sourceAlias}".rast, line_corridor.corridor)
     ),
     sample_points AS MATERIALIZED (
       SELECT
         i AS idx,
         (i / ${pointsPerChunk.value})::int AS chunk_id,
-        ST_Transform(
-          ST_LineInterpolatePoint(
-            ST_LineMerge(line.geom_geog::geometry),
-            CASE
-              WHEN i = 0 THEN 0
-              WHEN i = point_count THEN 1
-              ELSE (i * ${interpolationDistance.value}) / line.length
-            END
-          ),
-          ${srid}
+        ST_LineInterpolatePoint(
+          ST_LineMerge(line.geom),
+          CASE
+            WHEN i = 0 THEN 0
+            WHEN i = point_count THEN 1
+            ELSE (i * ${interpolationDistance.value}) / line.length
+          END
         ) AS pt
       FROM line
       CROSS JOIN LATERAL (
         SELECT
           i,
-          CEIL(
-            line.length / ${interpolationDistance.value}
-          )::int AS point_count
+          CEIL(line.length / ${interpolationDistance.value})::int AS point_count
         FROM generate_series(
           0,
           CEIL(line.length / ${interpolationDistance.value})::int
@@ -122,12 +116,9 @@ export class PostgresService extends DbAdapterService {
     group_bbox AS MATERIALIZED (
       SELECT
         chunk_id,
-        ST_Expand(
-          ST_Envelope(ST_Collect(pt)),
-          ${interpolationDistance.value} / 2.0
-        ) AS bbox
-      FROM sample_points
-      GROUP BY chunk_id
+        ST_Expand(ST_Envelope(ST_Collect(pt)), pixel_margin.margin) AS bbox
+      FROM sample_points, pixel_margin
+      GROUP BY chunk_id, pixel_margin.margin
     ),
     clipped_chunk_raster AS MATERIALIZED (
       SELECT
@@ -135,7 +126,7 @@ export class PostgresService extends DbAdapterService {
         ST_Clip(
           clipped_line_raster.rast,
           group_bbox.bbox,
-          true${this.clipTouchedArg}
+          true
         ) AS rast
       FROM group_bbox
       CROSS JOIN clipped_line_raster
@@ -146,24 +137,15 @@ export class PostgresService extends DbAdapterService {
       'max', MAX(height),
       'mean', ROUND(AVG(height)::numeric, 2),
       'points', json_agg(
-        json_build_object(
-          'index', idx,
-          'height', height
-        ) ORDER BY idx
+        json_build_object('index', idx, 'height', height) ORDER BY idx
       )
     )
     FROM (
       SELECT
         sample_points.idx,
         CASE
-          WHEN ST_Intersects(
-            sample_points.pt,
-            clipped_chunk_raster.rast
-          )
-          THEN ST_Value(
-            clipped_chunk_raster.rast,
-            sample_points.pt
-          )
+          WHEN ST_Intersects(sample_points.pt, clipped_chunk_raster.rast)
+          THEN ST_Value(clipped_chunk_raster.rast, sample_points.pt)
           ELSE NULL
         END AS height
       FROM sample_points
