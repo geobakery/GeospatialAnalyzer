@@ -5,6 +5,8 @@ In this document we will describe important and good-to-know facts about the wit
 ## Functionality
 
 Returns all features, where the transferred geometries are completely contained.
+An optional buffer around each input geometry is also supported.
+Using the buffer parameter, its distance can be entered in meters (between 0 and 20 000m).
 
 ## Examples
 
@@ -37,7 +39,9 @@ Post-call http://localhost:3000/v2/within with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -60,7 +64,9 @@ Post-call http://localhost:3000/v2/within with JSON body:
   "topics": ["kreis_f", "land_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -86,7 +92,9 @@ Post-call http://localhost:3000/v2/within with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -111,7 +119,9 @@ Post-call http://localhost:3000/v2/within with JSON body:
   "topics": ["kreis_f"],
   "returnGeometry": false,
   "outputFormat": "geojson",
-  "outSRS": 4326
+  "outSRS": 4326,
+  "buffer": 100,
+  "returnBufferGeometry": false
 }
 ```
 
@@ -122,3 +132,8 @@ Post-call http://localhost:3000/v2/within with JSON body:
   - MultiLineString
   - MultiPoint
   - GeometryCollection
+
+- Accuracy of buffer is limited (10cm)
+  - polygonal approximation using quadSegs (count of segments per quarter circle)
+  - count depends on buffer distance (so max. error from "real" buffer is 10cm)
+  - max. 256 quadSegs

@@ -31,6 +31,7 @@ export const DB_RASTER_DATA_NAME = 'rast';
 export const DB_TOPIC_NAME = 'topic';
 
 export const QUERY_FEATURE_INDEX = 'feature_wkt_';
+export const QUERY_BUFFER_INDEX = 'buffer_';
 
 export const LINE_INTERPOLATION_DISTANCE_METERS = 10;
 export const QUERY_INTERPOLATION_DISTANCE_INDEX = 'interpolation_distance_';

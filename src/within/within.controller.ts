@@ -11,6 +11,7 @@ import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import {
   SCHEMA_VALID_OUT_SRS,
+  SCHEMA_VALID_RETURN_BUFFER_GEOMETRY,
   WithinParameterDto,
 } from '../general/dto/parameter.dto';
 import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
@@ -46,6 +47,7 @@ export class WithinController {
       allOf: [
         { $ref: getSchemaPath(WithinParameterDto) },
         SCHEMA_VALID_OUT_SRS,
+        SCHEMA_VALID_RETURN_BUFFER_GEOMETRY,
       ],
     },
   })

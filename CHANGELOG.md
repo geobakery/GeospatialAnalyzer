@@ -6,30 +6,34 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-12
+
+### Highlights
+
+`intersect` and `within` now support an optional `buffer` parameter to expand input geometries by a distance in meters before evaluating the spatial predicate (#247). With `returnBufferGeometry: true`, the buffer geometries are returned as additional features.
+
 ### Added
 
-- `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset.
-- `sn_flurstueck_f`/`flurstueck_f` now provide `gemarkungsschluessel` and `gemarkungsname`.
-- `valuesAtPoint` now supports the query of `LineString` and `Polygon` in addition to `Point`. In case of a `LineString` query, sample points are interpolated (every 10m) along the line. The service returns their value. In case of a `Polygon` query, summary statistics of the contained values are calculated. The service returns their count, summary, mean, minimum, maximum and standard deviation.
+- `GEOSPATIAL_ANALYZER_CORS_ORIGINS` environment variable to configure allowed CORS origins as a comma-separated list. CORS remains disabled when the variable is unset (#254).
+- `sn_flurstueck_f`/`flurstueck_f` now provide `gemarkungsschluessel` and `gemarkungsname` (#255).
+- `intersect` and `within` accept an optional `buffer` parameter specifying a distance in meters (0 - 20000). The buffer expands each input geometry before evaluating the spatial predicate. Arcs are approximated by line segments with a maximum deviation of 10 cm from the exact arc. When `returnBufferGeometry` is `true`, the response additionally includes a separate feature for the buffer geometry of each input, marked with the `__buffer` and `__bufferDistance` properties. It requires `buffer` to be greater than 0, otherwise the request is rejected with HTTP 400 (#247).
 
 ### Changed
 
-- The runtime image no longer includes npm, Corepack or Yarn. The app runs directly with `node dist/main.js` (#224).
-- Updated dependencies, including security patches.
+- The runtime image no longer includes npm, Corepack or Yarn. The app runs directly with `node dist/main.js`. This also removes the image scan finding for CVE-2026-59873 in the bundled `node-tar` 7.5.13, which was not reachable at runtime (#224).
 
 ### Deprecated
 
-- `gemarkung` of `sn_flurstueck_f`/`flurstueck_f` is deprecated. Use `gemarkungsschluessel` instead. It contains the same value.
-- `gemarkung` of `sn_flurstueck_f`/`flurstueck_f` will be removed in API v3.
+- `gemarkung` of `sn_flurstueck_f`/`flurstueck_f` is deprecated and will be removed in API v3. Use `gemarkungsschluessel` instead. It contains the same value (#255).
 
 ### Fixed
 
 - `GEOSPATIAL_ANALYZER_STATEMENT_TIMEOUT_MS` and `GEOSPATIAL_ANALYZER_QUERY_TIMEOUT_MS` are now applied. Both were ignored due to incorrect environment variable names (#228).
-- SQL query timeouts are now detected using SQLSTATE `57014` instead of database driver error messages. This prevents unrelated errors containing "timeout" from being returned as HTTP 422 instead of 500 and makes timeout detection independent of the database server locale (#220).
+- Database errors unrelated to timeouts are no longer returned as HTTP 422 instead of 500 (#220).
 
-### Security
+**Contributors:** @NtnHgr, @sebeweiss, @dependabot[bot]
 
-- Removed npm, Corepack and Yarn from the runtime image. The bundled package managers included `node-tar` 7.5.13, which was affected by CVE-2026-59873. The package was not reachable at runtime because the application never runs them. Removing them also removes the finding from image scans (#224).
+**Full Changelog:** https://github.com/geobakery/GeospatialAnalyzer/compare/v2.0.0...v2.1.0
 
 ## [2.0.0] - 2026-05-29
 
@@ -168,7 +172,8 @@ Initial stable release. Compared to [1.0.0-rc1], this release fixes typos and po
 
 Initial release candidate. README and documentation finalized for the first public release (#44).
 
-[Unreleased]: https://github.com/geobakery/GeospatialAnalyzer/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/geobakery/GeospatialAnalyzer/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/geobakery/GeospatialAnalyzer/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/geobakery/GeospatialAnalyzer/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/geobakery/GeospatialAnalyzer/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/geobakery/GeospatialAnalyzer/compare/v1.2.0...v1.2.1

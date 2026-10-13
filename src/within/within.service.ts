@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { WithinParameterDto } from '../general/dto/parameter.dto';
-import {
-  DB_GEOMETRY_NAME,
-  QUERY_FEATURE_INDEX,
-  STANDARD_SRID,
-} from '../general/general.constants';
+import { DB_GEOMETRY_NAME } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import {
   GeneralService,
@@ -34,7 +29,8 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
   ): void {
-    const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
+    const { fieldsToQuery, topic, feature, featureIndex, buffer } =
+      logicalRequest;
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
 
@@ -53,6 +49,7 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
       topicSource.srid,
       feature,
       featureIndex,
+      buffer,
     );
     queryBuilder.andWhere(featureWithin);
   }
@@ -62,15 +59,14 @@ export class WithinService extends GeospatialService<WithinParameterDto> {
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
+    buffer?: number,
   ): string {
-    // setup for left and right side of Within
-    queryStart.setParameter(
-      `${QUERY_FEATURE_INDEX}${featureIndex}`,
-      STANDARD_SRID + geojsonToWKT(feature.geometry),
-    );
-    const queryFeature = this.adapter.transformFeature(
-      { raw: true, value: `:${QUERY_FEATURE_INDEX}${featureIndex}` },
+    const queryFeature = this.getAnalysisGeometry(
+      queryStart,
       srid,
+      feature,
+      featureIndex,
+      buffer,
     );
 
     // Within call
