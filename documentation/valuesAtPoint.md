@@ -4,7 +4,7 @@ In this document we will describe important and good-to-know facts about the val
 
 ## Functionality
 
-Returns values of a raster that is covered by the transferred geometry.
+Returns values of a grid that is covered by the transferred geometry.
 
 For a **Point**, the service returns the value at the given location.
 
@@ -13,6 +13,8 @@ For a **LineString**, the service samples points along the line (every 10m) and 
 
 For a **Polygon**, the service calculates statistics of the cells, that are covered by the polygon.
 It returns the count, summary, mean, minimum, maximum and standard deviation of the values.
+The Polygon must not be complex (self-crossing).
+The accuracy depends on the used PostGIS version (if parameter `touched` of ST_Clip is supported). A PostGIS version less than 3.5 excludes pixels where the center of the pixel is not covered by the Polygon (less accurate).
 
 ## Examples
 
