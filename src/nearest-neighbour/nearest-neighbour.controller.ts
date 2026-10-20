@@ -17,6 +17,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { NearestNeighbourService } from './nearest-neighbour.service';
+import { validateGeometryTypes } from '../general/geometry-type-validation';
 
 @ApiTags('NearestNeighbour')
 @Controller({
@@ -82,6 +83,8 @@ export class NearestNeighbourController {
   async nearestNeighbour(
     @Body() args: NearestNeighbourParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
+    validateGeometryTypes('nearestNeighbour', args.inputGeometries);
+
     return await this.nearestNeighbourService.handleRequest(args);
   }
 }
