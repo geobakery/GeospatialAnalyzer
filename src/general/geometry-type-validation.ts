@@ -21,11 +21,7 @@ interface GeometryLike {
 }
 
 function extractGeometryTypes(input: unknown): string[] {
-  const geometries = Array.isArray(input)
-    ? input
-    : input
-      ? [input]
-      : [];
+  const geometries = Array.isArray(input) ? input : input ? [input] : [];
 
   const types: string[] = [];
 
@@ -92,9 +88,7 @@ export function validateGeometryTypes(
   }
 
   const unsupportedTypes = [
-    ...new Set(
-      geometryTypes.filter((type) => !supportedTypes.includes(type)),
-    ),
+    ...new Set(geometryTypes.filter((type) => !supportedTypes.includes(type))),
   ];
 
   if (unsupportedTypes.length > 0) {
