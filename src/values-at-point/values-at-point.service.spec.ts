@@ -107,7 +107,7 @@ describe('ValuesAtPointService – geometry type handling', () => {
     expect(sql).not.toMatch(/ST_SummaryStats/i);
   });
 
-  it('uses the line height profile with a two-stage raster clip for a LineString', async () => {
+  it('uses per-point lookups via the spatial index for a LineString', async () => {
     await service.handleRequest(
       buildRequest({
         type: 'LineString',
@@ -119,9 +119,8 @@ describe('ValuesAtPointService – geometry type handling', () => {
     );
     const sql = capturedQb.getQuery();
     expect(sql).toMatch(/ST_LineInterpolatePoint/i);
-    expect(sql).toMatch(/clipped_line_raster/i);
-    expect(sql).toMatch(/clipped_chunk_raster/i);
-    expect(sql).toMatch(/group_bbox/i);
+    expect(sql).toMatch(/sample_points/i);
+    expect(sql).toMatch(/point_heights/i);
     expect(sql).toMatch(/ST_Value/i);
     expect(sql).toMatch(/ROUND\(AVG\(height\)::numeric, 2\)/i);
   });

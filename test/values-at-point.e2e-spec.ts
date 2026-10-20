@@ -172,8 +172,8 @@ describe('ValuesAtPointController (e2e)', () => {
           geometry: {
             type: 'LineString',
             coordinates: [
-              [13.786, 51.062],
-              [13.788, 51.063],
+              [13.786000, 51.063000],
+              [13.786000, 51.063050],
             ],
           },
           properties: {},
@@ -250,11 +250,10 @@ describe('ValuesAtPointController (e2e)', () => {
     ];
 
     const OUTSIDE_COVERAGE_RING = [
-      [13.4, 52.52],
-      [13.4002, 52.52],
-      [13.4002, 52.5202],
-      [13.4, 52.5202],
-      [13.4, 52.52],
+      [14.384556, 50.985494],
+      [14.487489, 51.006884],
+      [14.432138, 50.953695],
+      [14.384556, 50.985494]
     ];
 
     const postPolygon = (ring: number[][]) => {
