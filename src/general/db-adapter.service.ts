@@ -43,8 +43,7 @@ export abstract class DbAdapterService {
 
   abstract getLineHeightProfile(
     feature: SqlParameter,
-    segmentLength: SqlParameter,
-    pointsPerChunk: SqlParameter,
+    interpolationDistance: SqlParameter,
     sourceTable: string,
     sourceAlias: string,
     srid: number,

@@ -36,23 +36,18 @@ export class PostgresService extends DbAdapterService {
     return `ST_value(${raster.value}, ${point.value})`;
   }
 
-  /**
-   * The line is interpolated into evenly spaced sample points (`segmentLength` apart),
-   * grouped into chunks of `pointsPerChunk` consecutive points.
-   *
-   * The raster gets clipped by the bounding boxes of each chunk.
-   * To reduce its runtime, the original raster gets prevously clipped by the bounding box
-   * of the whole line. Then `ST_Value` is evaluated for each Point, but only in the raster,
-   * clipped by its chunk.
-   *
-   * Points whose chunk raster has no data at their location (e.g. outside the
-   * raster's actual coverage) yield `height: null` instead of failing.
-   */
+/**
+ * The line is interpolated into evenly spaced sample points
+ * (`interpolationDistance` meters apart, measured geodetically, always
+ * including start and end). For each point the height is read from the tile
+ * that contains it, found via the spatial index of the source table.
+ *
+ * Points without raster coverage yield `height: null`.
+ */
 
   override getLineHeightProfile(
     feature: SqlParameter,
     interpolationDistance: SqlParameter,
-    pointsPerChunk: SqlParameter,
     sourceTable: string,
     sourceAlias: string,
     srid: number,
@@ -60,99 +55,55 @@ export class PostgresService extends DbAdapterService {
     const lineInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
 
     return `(
-    WITH line AS MATERIALIZED (
-      SELECT
-        ${lineInRasterCrs} AS geom,
-        ST_Length(${feature.value}::geography) AS length
-    ),
-    pixel_margin AS MATERIALIZED (
-      SELECT GREATEST(
-        ABS(ST_PixelWidth("${sourceAlias}".rast)),
-        ABS(ST_PixelHeight("${sourceAlias}".rast))
-      ) AS margin
-      FROM ${sourceTable} "${sourceAlias}"
-      LIMIT 1
-    ),
-    line_corridor AS MATERIALIZED (
-      SELECT ST_Buffer(line.geom, pixel_margin.margin) AS corridor
-      FROM line, pixel_margin
-    ),
-    clipped_line_raster AS MATERIALIZED (
-      SELECT
-        ST_Union(
-          ST_Clip(
-            "${sourceAlias}".rast,
-            line_corridor.corridor,
-            true
-          )
-        ) AS rast
-      FROM line_corridor
-      JOIN ${sourceTable} "${sourceAlias}"
-        ON ST_Intersects("${sourceAlias}".rast, line_corridor.corridor)
-    ),
-    sample_points AS MATERIALIZED (
-      SELECT
-        i AS idx,
-        (i / ${pointsPerChunk.value})::int AS chunk_id,
-        ST_LineInterpolatePoint(
-          ST_LineMerge(line.geom),
-          CASE
-            WHEN i = 0 THEN 0
-            WHEN i = point_count THEN 1
-            ELSE (i * ${interpolationDistance.value}) / line.length
-          END
-        ) AS pt
-      FROM line
-      CROSS JOIN LATERAL (
+      WITH line AS MATERIALIZED (
         SELECT
-          i,
-          CEIL(line.length / ${interpolationDistance.value})::int AS point_count
-        FROM generate_series(
-          0,
-          CEIL(line.length / ${interpolationDistance.value})::int
-        ) AS i
-      ) points
-    ),
-    group_bbox AS MATERIALIZED (
-      SELECT
-        chunk_id,
-        ST_Expand(ST_Envelope(ST_Collect(pt)), pixel_margin.margin) AS bbox
-      FROM sample_points, pixel_margin
-      GROUP BY chunk_id, pixel_margin.margin
-    ),
-    clipped_chunk_raster AS MATERIALIZED (
-      SELECT
-        group_bbox.chunk_id,
-        ST_Clip(
-          clipped_line_raster.rast,
-          group_bbox.bbox,
-          true
-        ) AS rast
-      FROM group_bbox
-      CROSS JOIN clipped_line_raster
-      WHERE clipped_line_raster.rast IS NOT NULL
-    )
-    SELECT json_build_object(
-      'min', MIN(height),
-      'max', MAX(height),
-      'mean', ROUND(AVG(height)::numeric, 2),
-      'points', json_agg(
-        json_build_object('index', idx, 'height', height) ORDER BY idx
+          ${lineInRasterCrs} AS geom,
+          ST_Length(${feature.value}::geography) AS length
+      ),
+      sample_points AS MATERIALIZED (
+        SELECT
+          i AS idx,
+          ST_LineInterpolatePoint(
+            ST_LineMerge(line.geom),
+            CASE
+              WHEN i = 0 THEN 0
+              WHEN i = point_count THEN 1
+              ELSE (i * ${interpolationDistance.value}) / line.length
+            END
+          ) AS pt
+        FROM line
+        CROSS JOIN LATERAL (
+          SELECT
+            i,
+            CEIL(line.length / ${interpolationDistance.value})::int AS point_count
+          FROM generate_series(
+            0,
+            CEIL(line.length / ${interpolationDistance.value})::int
+          ) AS i
+        ) points
+      ),
+      point_heights AS MATERIALIZED (
+        SELECT
+          sample_points.idx,
+          ST_Value(
+            "${sourceAlias}".rast,
+            sample_points.pt
+          ) AS height
+        FROM sample_points
+        LEFT JOIN ${sourceTable} "${sourceAlias}"
+          ON ST_Intersects(
+            "${sourceAlias}".rast,
+            sample_points.pt
+          )
       )
-    )
-    FROM (
-      SELECT
-        sample_points.idx,
-        CASE
-          WHEN ST_Intersects(sample_points.pt, clipped_chunk_raster.rast)
-          THEN ST_Value(clipped_chunk_raster.rast, sample_points.pt)
-          ELSE NULL
-        END AS height
-      FROM sample_points
-      JOIN clipped_chunk_raster
-        ON clipped_chunk_raster.chunk_id = sample_points.chunk_id
-    ) points
-  )`;
+      SELECT json_build_object(
+        'min', MIN(height),
+        'max', MAX(height),
+        'mean', ROUND(AVG(height)::numeric, 2),
+        'points', json_agg(json_build_object('index', idx,'height', height) ORDER BY idx)
+      )
+      FROM point_heights
+    )`;
   }
 
   override getPolygonHeightStats(

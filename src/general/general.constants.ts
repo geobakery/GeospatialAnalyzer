@@ -35,8 +35,6 @@ export const QUERY_BUFFER_INDEX = 'buffer_';
 
 export const LINE_INTERPOLATION_DISTANCE_METERS = 10;
 export const QUERY_INTERPOLATION_DISTANCE_INDEX = 'interpolation_distance_';
-export const LINE_HEIGHT_PROFILE_POINTS_PER_CHUNK = 10;
-export const QUERY_POINTS_PER_CHUNK_INDEX = 'points_per_chunk_';
 export const DB_HEIGHT_PROFILE_NAME = 'heights';
 
 export const DB_HEIGHT_STATS_NAME = 'heightStats';
