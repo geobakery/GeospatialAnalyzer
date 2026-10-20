@@ -1,3 +1,4 @@
+import { Controller, Post, VersioningType } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -127,5 +128,90 @@ describe('Metrics (e2e)', () => {
         'geospatialanalyzer_http_active_connections',
       );
     });
+  });
+});
+
+@Controller({ path: 'intersect', version: '2' })
+class IntersectTestController {
+  @Post()
+  intersect(): unknown[] {
+    return [];
+  }
+}
+
+// prefix as set in GEOSPATIAL_ANALYZER_URL_PREFIX, basePath as it appears in the URL
+describe.each([
+  { prefix: '', basePath: '' },
+  { prefix: '/', basePath: '' },
+  { prefix: 'ga', basePath: '/ga' },
+])('Metrics with URL prefix "$prefix" (e2e)', ({ prefix, basePath }) => {
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [MetricsModule.forRoot()],
+      controllers: [IntersectTestController],
+    }).compile();
+
+    app = moduleFixture.createNestApplication<NestFastifyApplication>(
+      new FastifyAdapter(),
+    );
+    // same condition as in main.ts
+    if (prefix) app.setGlobalPrefix(prefix);
+    app.enableVersioning({ type: VersioningType.URI });
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  async function countRequests(
+    predicate: (labels: Record<string, string | number>) => boolean,
+  ): Promise<number> {
+    const metric = await app.get(MetricsService).httpRequestsTotal.get();
+    return metric.values
+      .filter((v) => predicate(v.labels))
+      .reduce((sum, v) => sum + v.value, 0);
+  }
+
+  it('should not count scrapes of the /metrics endpoint', async () => {
+    for (let i = 0; i < 2; i++) {
+      const response = await app.inject({
+        method: 'GET',
+        url: `${basePath}/metrics`,
+      });
+      expect(response.statusCode).toBe(200);
+    }
+
+    expect(
+      await countRequests((labels) =>
+        String(labels.endpoint).includes('metrics'),
+      ),
+    ).toBe(0);
+  });
+
+  it('should label requests without prefix and version', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: `${basePath}/v2/intersect`,
+      payload: {},
+    });
+    expect(response.statusCode).toBe(201);
+
+    expect(
+      await countRequests(
+        (labels) =>
+          labels.endpoint === '/intersect' && labels.method === 'POST',
+      ),
+    ).toBe(1);
+    expect(
+      await countRequests(
+        (labels) =>
+          String(labels.endpoint).includes('intersect') &&
+          labels.endpoint !== '/intersect',
+      ),
+    ).toBe(0);
   });
 });

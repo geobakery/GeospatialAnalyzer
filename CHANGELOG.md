@@ -8,9 +8,11 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## Added
 - `valuesAtPoint` now supports LineString and Polygon geometries. The request of a LineSting responses a profile (interpolated Points each 10m) and its statistics. The request of a Polygon responses the statistics of all pixels of the grid covered by the Polygon. Its accuracy depends on the used PostGIS version (if parameter `touched` of ST_Clip is supported). A PostGIS version less than 3.5 excludes pixels where the center of the pixel is not covered by the Polygon (less accurate).
-
-
 It samples raster heights every 10 meters along the line, including the start and end points, and returns the height profile in the heights property with the minimum, maximum, mean, and ordered sample points.
+
+### Fixed
+
+- With `GEOSPATIAL_ANALYZER_URL_PREFIX` set, `/metrics` scrapes are no longer counted as HTTP requests, and the `endpoint` label no longer contains the prefix and API version (e.g. `/ga/v2/intersect` -> `/intersect`) (#249).
 
 ## [2.1.0] - 2026-10-12
 
