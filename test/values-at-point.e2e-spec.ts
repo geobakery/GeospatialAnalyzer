@@ -172,8 +172,8 @@ describe('ValuesAtPointController (e2e)', () => {
           geometry: {
             type: 'LineString',
             coordinates: [
-              [13.786000, 51.063000],
-              [13.786000, 51.063050],
+              [13.786, 51.063],
+              [13.786, 51.06305],
             ],
           },
           properties: {},
@@ -253,7 +253,7 @@ describe('ValuesAtPointController (e2e)', () => {
       [14.384556, 50.985494],
       [14.487489, 51.006884],
       [14.432138, 50.953695],
-      [14.384556, 50.985494]
+      [14.384556, 50.985494],
     ];
 
     const postPolygon = (ring: number[][]) => {

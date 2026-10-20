@@ -36,14 +36,14 @@ export class PostgresService extends DbAdapterService {
     return `ST_value(${raster.value}, ${point.value})`;
   }
 
-/**
- * The line is interpolated into evenly spaced sample points
- * (`interpolationDistance` meters apart, measured geodetically, always
- * including start and end). For each point the height is read from the tile
- * that contains it, found via the spatial index of the source table.
- *
- * Points without raster coverage yield `height: null`.
- */
+  /**
+   * The line is interpolated into evenly spaced sample points
+   * (`interpolationDistance` meters apart, measured geodetically, always
+   * including start and end). For each point the height is read from the tile
+   * that contains it, found via the spatial index of the source table.
+   *
+   * Points without raster coverage yield `height: null`.
+   */
 
   override getLineHeightProfile(
     feature: SqlParameter,
