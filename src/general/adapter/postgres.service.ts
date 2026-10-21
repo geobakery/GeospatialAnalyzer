@@ -201,7 +201,9 @@ export class PostgresService extends DbAdapterService {
         'profilePoints', json_agg(
           json_build_object(
             'index', idx,
-            'height', height
+            'height', height,
+            'isVertex', is_vertex,
+            'chainageMeters', ROUND(distance_from_start::numeric, 2)
           )
           ORDER BY idx
         )
