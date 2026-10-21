@@ -113,7 +113,7 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     const geometryType: string | undefined = feature.geometry?.type;
     if (geometryType !== 'Polygon') {
       throw new BadRequestException(
-        `polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures can only be used with polygon input geometries, got "${geometryType ?? 'null'}"`,
+        `polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures can only be used with polygon input geometries, got ${geometryType ?? 'null'}`,
       );
     }
   }

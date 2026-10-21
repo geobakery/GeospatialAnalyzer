@@ -39,6 +39,49 @@ import {
 describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
 
+  const smallPolygonInDresden = {
+    type: 'Polygon' as const,
+    coordinates: [
+      [
+        [13.749, 51.069],
+        [13.751, 51.069],
+        [13.751, 51.071],
+        [13.749, 51.071],
+        [13.749, 51.069],
+      ],
+    ],
+  };
+  // Covers the whole city of Dresden, neighbouring Landkreise are only partly inside.
+  const polygonAroundDresden = {
+    type: 'Polygon' as const,
+    coordinates: [
+      [
+        [13.5, 50.9],
+        [14.1, 50.9],
+        [14.1, 51.25],
+        [13.5, 51.25],
+        [13.5, 50.9],
+      ],
+    ],
+  };
+
+  const post = (geometry: any, extra: Record<string, unknown> = {}) =>
+    app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: {
+        ...getGeoJSONFeature({
+          topics: ['kreis_f'],
+          returnGeometry: false,
+          fixGeometry: geometry,
+        }),
+        count: 2,
+        maxDistanceToNeighbour: 0,
+        ...extra,
+      },
+      headers: HEADERS_JSON,
+    });
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [NearestNeighbourController],
@@ -316,5 +359,77 @@ describe('NearestNeighbourController (e2e)', () => {
     });
 
     expect(result.statusCode).toBe(400);
+  });
+
+  it('without option the enclosing Kreis is the nearest neighbour', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(smallPolygonInDresden),
+    );
+    expect(features[0].properties['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(features[0].properties[DB_DIST_NAME]).toBe(0);
+  });
+
+  it('polygonExcludesInnerFeatures removes the enclosing Kreis and still fills count', async () => {
+    const result = await post(smallPolygonInDresden, {
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus200('polygonExcludesInnerFeatures', result);
+    const features = await getGeoJSONFeatureFromResponse(result);
+    // Length 2 shows that the filter runs before LIMIT.
+    expect(features).toHaveLength(2);
+    for (const f of features) {
+      expect(f.properties['NO_RESULT']).toBeUndefined();
+      expect(f.properties['name']).not.toBe('Kreisfreie Stadt Dresden');
+      expect(f.properties[DB_DIST_NAME]).toBeGreaterThan(0);
+    }
+  });
+
+  it('polygonExcludesEntirelyInnerFeatures keeps the enclosing Kreis', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(smallPolygonInDresden, {
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    );
+    expect(features[0].properties['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(features[0].properties[DB_DIST_NAME]).toBe(0);
+  });
+
+  it('polygonExcludesEntirelyInnerFeatures removes entirely inner features but keeps crossing ones', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(polygonAroundDresden, {
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    );
+    expect(features.map((f) => f.properties['name'])).not.toContain(
+      'Kreisfreie Stadt Dresden',
+    );
+    expect(features.some((f) => f.properties[DB_DIST_NAME] === 0)).toBe(true);
+  });
+
+  it('rejects both options set to true', async () => {
+    const result = await post(smallPolygonInDresden, {
+      polygonExcludesInnerFeatures: true,
+      polygonExcludesEntirelyInnerFeatures: true,
+    });
+    await testStatus400('both options', result);
+  });
+
+  it('rejects an option set to true for a point input', async () => {
+    const result = await post(
+      { type: 'Point', coordinates: [13.75, 51.07] },
+      { polygonExcludesInnerFeatures: true },
+    );
+    await testStatus400('point input', result);
+    expect(JSON.parse(result.payload).message).toContain(
+      'polygon input geometries',
+    );
+  });
+
+  it('accepts false for a point input', async () => {
+    const result = await post(
+      { type: 'Point', coordinates: [13.75, 51.07] },
+      { polygonExcludesInnerFeatures: false },
+    );
+    await testStatus200('false for point', result);
   });
 });
