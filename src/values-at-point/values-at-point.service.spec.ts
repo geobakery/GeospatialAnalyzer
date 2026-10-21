@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { ValuesAtPointService } from './values-at-point.service';
+import { ValuesAtGridService } from './values-at-point.service';
 import { GeneralService } from '../general/general.service';
 import { TransformService } from '../transform/transform.service';
 import { PostgresService } from '../general/adapter/postgres.service';
@@ -44,8 +44,8 @@ function makeFakeQueryBuilder() {
   return qb;
 }
 
-describe('ValuesAtPointService – geometry type handling', () => {
-  let service: ValuesAtPointService;
+describe('ValuesAtGridService – geometry type handling', () => {
+  let service: ValuesAtGridService;
   let dataSource: DataSource;
   let generalService: Partial<GeneralService>;
   let transformService: Partial<TransformService>;
@@ -90,7 +90,7 @@ describe('ValuesAtPointService – geometry type handling', () => {
       normalizeInputGeometries: jest.fn().mockImplementation((geoms) => geoms),
     } as unknown as TransformService;
 
-    service = new ValuesAtPointService(
+    service = new ValuesAtGridService(
       dataSource,
       generalService as GeneralService,
       transformService as TransformService,

@@ -11,21 +11,21 @@ import { EsriJsonDto } from '../general/dto/esri-json.dto';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import {
   SCHEMA_VALID_OUT_SRS,
-  ValuesAtPointParameterDto,
+  ValuesAtGridParameterDto,
 } from '../general/dto/parameter.dto';
 import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
-import { ValuesAtPointService } from './values-at-point.service';
+import { ValuesAtGridService } from './values-at-point.service';
 
 @ApiTags('ValuesAtPoint')
 @Controller({
   version: '2',
   path: 'valuesAtPoint',
 })
-@ApiExtraModels(ValuesAtPointParameterDto, EsriJsonDto, GeoJSONFeatureDto)
-export class ValuesAtPointController {
-  constructor(private readonly valuesAtPointService: ValuesAtPointService) {}
+@ApiExtraModels(ValuesAtGridParameterDto, EsriJsonDto, GeoJSONFeatureDto)
+export class ValuesAtGridController {
+  constructor(private readonly valuesAtGridService: ValuesAtGridService) {}
 
   @ApiResponse({
     status: 200,
@@ -38,20 +38,20 @@ export class ValuesAtPointController {
   })
   @Get('topics')
   topic(): topicDefinitionOutside[] {
-    return this.valuesAtPointService.getTopics();
+    return this.valuesAtGridService.getTopics();
   }
 
   @ApiBody({
     schema: {
       allOf: [
-        { $ref: getSchemaPath(ValuesAtPointParameterDto) },
+        { $ref: getSchemaPath(ValuesAtGridParameterDto) },
         SCHEMA_VALID_OUT_SRS,
       ],
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Calculates the values at point',
+    description: 'Calculates the values at the transferred point',
     content: {
       'application/json': {
         schema: {
@@ -77,8 +77,8 @@ export class ValuesAtPointController {
   })
   @Post('/')
   async valuesAtPoint(
-    @Body() args: ValuesAtPointParameterDto,
+    @Body() args: ValuesAtGridParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
-    return await this.valuesAtPointService.handleRequest(args);
+    return await this.valuesAtGridService.handleRequest(args);
   }
 }

@@ -3,23 +3,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { createUnitTestModules } from '../../test/helpers/database.helper';
 import { GeneralModule } from '../general/general.module';
 import { TransformModule } from '../transform/transform.module';
-import { ValuesAtPointController } from './values-at-point.controller';
-import { ValuesAtPointService } from './values-at-point.service';
+import { ValuesAtGridController } from './values-at-point.controller';
+import { ValuesAtGridService } from './values-at-point.service';
 
-describe('ValuesAtPointController', () => {
-  let controller: ValuesAtPointController;
+describe('ValuesAtGridController', () => {
+  let controller: ValuesAtGridController;
   let mod: TestingModule;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ValuesAtPointController],
+      controllers: [ValuesAtGridController],
       imports: [...createUnitTestModules(), GeneralModule, TransformModule],
-      providers: [ValuesAtPointService],
+      providers: [ValuesAtGridService],
     }).compile();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    controller = module.get<ValuesAtPointController>(ValuesAtPointController);
+    controller = module.get<ValuesAtGridController>(ValuesAtGridController);
     mod = module;
   });
 

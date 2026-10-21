@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { geojsonToWKT } from '@terraformer/wkt';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
-import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
+import { ValuesAtGridParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_VALUE_NAME,
   DB_VALUE_PROFILE_NAME,
@@ -23,7 +23,7 @@ import { GeospatialService } from '../general/geospatial.service';
 import { TransformService } from '../transform/transform.service';
 
 @Injectable()
-export class ValuesAtPointService extends GeospatialService<ValuesAtPointParameterDto> {
+export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameterDto> {
   constructor(
     dataSource: DataSource,
     generalService: GeneralService,

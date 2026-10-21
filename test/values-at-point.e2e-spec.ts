@@ -6,19 +6,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import { createE2eTestModules } from './helpers/database.helper';
-import { ValuesAtPointParameterDto } from '../src/general/dto/parameter.dto';
+import { ValuesAtGridParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { TransformModule } from '../src/transform/transform.module';
-import { ValuesAtPointController } from '../src/values-at-point/values-at-point.controller';
-import { ValuesAtPointService } from '../src/values-at-point/values-at-point.service';
+import { ValuesAtGridController } from '../src/values-at-point/values-at-point.controller';
+import { ValuesAtGridService } from '../src/values-at-point/values-at-point.service';
 import {
   GET,
   HEADERS_JSON,
   POST,
   TOPIC_URL,
   URL_START,
-  VAlUES_AT_POINT,
-  VALUES_AT_POINT_URL,
+  VAlUES_AT_GRID,
+  VALUES_AT_GRID_URL,
 } from './common/constants';
 import {
   getGeoJSONFeatureFromResponse,
@@ -31,14 +31,14 @@ import { getGeoJSONFeature } from './common/testDataPreparer';
 const hasAtMostDecimals = (value: number, decimals: number) =>
   Number(value.toFixed(decimals)) === value;
 
-describe('ValuesAtPointController (e2e)', () => {
+describe('ValuesAtGridController (e2e)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [ValuesAtPointController],
+      controllers: [ValuesAtGridController],
       imports: [...createE2eTestModules(), GeneralModule, TransformModule],
-      providers: [ValuesAtPointService],
+      providers: [ValuesAtGridService],
     }).compile();
 
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
@@ -56,7 +56,7 @@ describe('ValuesAtPointController (e2e)', () => {
   it('/GET Topics', async () => {
     const result = await app.inject({
       method: GET,
-      url: URL_START + VALUES_AT_POINT_URL + TOPIC_URL,
+      url: URL_START + VALUES_AT_GRID_URL + TOPIC_URL,
     });
     await testStatus200('/GET Topics', result);
   });
@@ -72,7 +72,7 @@ describe('ValuesAtPointController (e2e)', () => {
     });
     const result = await app.inject({
       method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
+      url: URL_START + VALUES_AT_GRID_URL,
       payload: input,
       headers: HEADERS_JSON,
     });
@@ -81,8 +81,8 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(2);
-    await topicTest(VAlUES_AT_POINT, geoJSON[0], 'hoehe_r');
-    await topicTest(VAlUES_AT_POINT, geoJSON[1], 'hoehe_r');
+    await topicTest(VAlUES_AT_GRID, geoJSON[0], 'hoehe_r');
+    await topicTest(VAlUES_AT_GRID, geoJSON[1], 'hoehe_r');
     await resultIsGeoJSONFeatureWithoutGeometry(result);
   });
   it('/POST within custom without geometry', async () => {
@@ -96,7 +96,7 @@ describe('ValuesAtPointController (e2e)', () => {
     });
     const result = await app.inject({
       method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
+      url: URL_START + VALUES_AT_GRID_URL,
       payload: input,
       headers: HEADERS_JSON,
     });
@@ -164,7 +164,7 @@ describe('ValuesAtPointController (e2e)', () => {
   });
 
   it('/POST valuesAtPoint with a LineString returns a value profile', async () => {
-    const payload: ValuesAtPointParameterDto = {
+    const payload: ValuesAtGridParameterDto = {
       topics: ['hoehe_r'],
       inputGeometries: [
         {
@@ -186,7 +186,7 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const result = await app.inject({
       method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
+      url: URL_START + VALUES_AT_GRID_URL,
       payload,
       headers: HEADERS_JSON,
     });
@@ -273,7 +273,7 @@ describe('ValuesAtPointController (e2e)', () => {
     ];
 
     const postPolygon = (ring: number[][]) => {
-      const payload: ValuesAtPointParameterDto = {
+      const payload: ValuesAtGridParameterDto = {
         topics: ['hoehe_r'],
         inputGeometries: [
           {
@@ -288,7 +288,7 @@ describe('ValuesAtPointController (e2e)', () => {
       };
       return app.inject({
         method: POST,
-        url: URL_START + VALUES_AT_POINT_URL,
+        url: URL_START + VALUES_AT_GRID_URL,
         payload,
         headers: HEADERS_JSON,
       });
@@ -389,7 +389,7 @@ describe('ValuesAtPointController (e2e)', () => {
       };
       const result = await app.inject({
         method: POST,
-        url: URL_START + VALUES_AT_POINT_URL,
+        url: URL_START + VALUES_AT_GRID_URL,
         payload,
         headers: HEADERS_JSON,
       });
@@ -398,7 +398,7 @@ describe('ValuesAtPointController (e2e)', () => {
   });
 
   it('/POST valuesAtPoint with a Point keeps the existing response structure', async () => {
-    const payload: ValuesAtPointParameterDto = {
+    const payload: ValuesAtGridParameterDto = {
       topics: ['hoehe_r'],
       inputGeometries: [
         {
@@ -417,7 +417,7 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const result = await app.inject({
       method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
+      url: URL_START + VALUES_AT_GRID_URL,
       payload,
       headers: HEADERS_JSON,
     });
@@ -441,7 +441,7 @@ describe('ValuesAtPointController (e2e)', () => {
   });
 
   it(`should reject GeoJSON output with any SRS other than WGS 84`, async () => {
-    const payload: ValuesAtPointParameterDto = {
+    const payload: ValuesAtGridParameterDto = {
       inputGeometries: [],
       outputFormat: 'geojson',
       outSRS: 12345,
@@ -451,7 +451,7 @@ describe('ValuesAtPointController (e2e)', () => {
 
     const result = await app.inject({
       method: POST,
-      url: URL_START + VALUES_AT_POINT_URL,
+      url: URL_START + VALUES_AT_GRID_URL,
       payload,
       headers: HEADERS_JSON,
     });
