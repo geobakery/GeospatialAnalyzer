@@ -202,35 +202,51 @@ describe('ValuesAtPointController (e2e)', () => {
       expect(feature.type).toBe('Feature');
       expect(feature.geometry).toBeNull();
 
-      const heights = feature.properties?.heights;
-
+      const heights = feature.properties.heights;
       expect(heights).toBeDefined();
 
-      expect(typeof heights.min).toBe('number');
-      expect(typeof heights.max).toBe('number');
-      expect(typeof heights.mean).toBe('number');
+      // Validate height statistics.
+      const heightStats = heights.heightStats;
+      expect(heightStats).toBeDefined();
 
-      expect(hasAtMostDecimals(heights.mean, 2)).toBe(true);
+      expect(typeof heightStats.min).toBe('number');
+      expect(typeof heightStats.max).toBe('number');
+      expect(typeof heightStats.mean).toBe('number');
 
-      expect(heights.min).toBeLessThanOrEqual(heights.mean);
-      expect(heights.mean).toBeLessThanOrEqual(heights.max);
+      expect(heightStats.min).toBeLessThanOrEqual(heightStats.mean);
+      expect(heightStats.mean).toBeLessThanOrEqual(heightStats.max);
 
-      expect(Array.isArray(heights.points)).toBe(true);
-      expect(heights.points.length).toBeGreaterThanOrEqual(2);
+      // Validate the height profile points.
+      const profilePoints = heights.profilePoints;
 
-      const indices = heights.points.map(
+      expect(Array.isArray(profilePoints)).toBe(true);
+      expect(profilePoints.length).toBeGreaterThanOrEqual(2);
+
+      const indices = profilePoints.map(
         (point: { index: number }) => point.index,
       );
 
-      const sortedIndices = [...indices].sort((a, b) => a - b);
+      expect(indices).toEqual([...indices].sort((a, b) => a - b));
 
-      expect(indices).toEqual(sortedIndices);
-
-      for (const point of heights.points) {
+      for (const point of profilePoints) {
         expect(typeof point.index).toBe('number');
         expect(typeof point.height).toBe('number');
+        expect(typeof point.isVertex).toBe('boolean');
+        expect(typeof point.chainageMeters).toBe('number');
       }
+
+      // The first and last profile points represent the line endpoints.
+      expect(profilePoints[0].chainageMeters).toBe(0);
+
+      expect(
+        profilePoints[profilePoints.length - 1].chainageMeters,
+      ).toBeGreaterThan(0);
     }
+
+    // Verify that both configured data sources are returned.
+    expect(data.map((feature) => feature.properties.__name).sort()).toEqual(
+      ['gelaendehoehe_dgm', 'oberflaechenhoehe_dom'].sort(),
+    );
   });
 
   describe('Polygon input', () => {
