@@ -8,8 +8,7 @@ Returns values of a grid that is covered by the transferred geometry.
 
 For a **Point**, the service returns the value at the given location.
 
-For a **LineString**, the service samples points along the line (every 10m) and returns the value at their given location
-(ordered by their location). Also the minimum, maximum, and average value is given.
+For a **LineString**, the service samples points along the line at 10-meter intervals between the vertices. The value is retrieved at each point's location (vertices and interpolated). The results are returned as a profile, consisting of these points in order along the line. Each point includes its grid value, an indicator of whether it is a vertex, and its chainage (distance along the line) in meters. In addition, the response provides statistics of the grid values (minimum, maximum, and mean).
 
 For a **Polygon**, the service calculates statistics of the cells, that are covered by the polygon.
 It returns the count, summary, mean, minimum, maximum and standard deviation of the values.
