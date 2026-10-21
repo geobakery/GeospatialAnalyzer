@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TransformModule } from '../transform/transform.module';
-import { ValuesAtPointController } from './values-at-point.controller';
-import { ValuesAtPointService } from './values-at-point.service';
+import { ValuesAtGridController } from './values-at-point.controller';
+import { ValuesAtGridService } from './values-at-point.service';
 import { GeneralModule } from '../general/general.module';
 
 @Module({
   imports: [GeneralModule, TransformModule],
-  controllers: [ValuesAtPointController],
-  providers: [ValuesAtPointService],
+  controllers: [ValuesAtGridController],
+  providers: [ValuesAtGridService],
 })
-export class ValuesAtPointModule {}
+export class ValuesAtGridModule {}
