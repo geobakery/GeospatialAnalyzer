@@ -165,12 +165,40 @@ export class BufferParameterDto extends ParameterDto {
 }
 
 export class IntersectParameterDto extends BufferParameterDto {}
+
+export const SCHEMA_VALID_POLYGON_EXCLUSIONS: Readonly<SchemaObject> = {
+  anyOf: [
+    { properties: { polygonExcludesInnerFeatures: { enum: [false] } } },
+    { properties: { polygonExcludesEntirelyInnerFeatures: { enum: [false] } } },
+  ],
+};
+
 export class NearestNeighbourParameterDto extends ParameterDto {
   @ApiProperty({ example: 3 })
   count: number;
 
   @ApiProperty({ example: 10000 })
   maxDistanceToNeighbour: number;
+
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+    default: false,
+    example: false,
+    description:
+      'Only allowed for polygon input geometries. Excludes every feature that has a part inside the polygon. Cannot be combined with polygonExcludesEntirelyInnerFeatures.',
+  })
+  polygonExcludesInnerFeatures?: boolean;
+
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+    default: false,
+    example: false,
+    description:
+      'Only allowed for polygon input geometries. Excludes features that lie entirely inside the polygon. Cannot be combined with PolygonExcludesInnerFeatures.',
+  })
+  polygonExcludesEntirelyInnerFeatures?: boolean;
 }
 export class ValuesAtPointParameterDto extends ParameterDto {
   @ApiProperty({
