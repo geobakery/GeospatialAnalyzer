@@ -6,6 +6,13 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Added
+- `nearestNeighbour` has two optional parameters, exclusively for polygons as input geometries. `polygonExcludingInnerFeatures` excludes features that have any part inside the input polygon. `polygonExcludesEntirelyInnerFeatures`excludes features, that are entirely inside the input polygon (geometries that only intersect with the border of the Polygon are not excluded). These parameters are mutually exclusive. Only one of them can be enabled at a time.
+
+### Fixed
+
+- With `GEOSPATIAL_ANALYZER_URL_PREFIX` set, `/metrics` scrapes are no longer counted as HTTP requests, and the `endpoint` label no longer contains the prefix and API version (e.g. `/ga/v2/intersect` -> `/intersect`) (#249).
+
 ## [2.1.0] - 2026-10-12
 
 ### Highlights
