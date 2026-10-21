@@ -52,55 +52,159 @@ export class PostgresService extends DbAdapterService {
     sourceAlias: string,
     srid: number,
   ): string {
-    const lineInRasterCrs = `ST_Transform(${feature.value}::text, ${srid})`;
+    const lineGeometry = `ST_LineMerge(${feature.value}::geometry)`;
 
     return `(
       WITH line AS MATERIALIZED (
-        SELECT
-          ${lineInRasterCrs} AS geom,
-          ST_Length(${feature.value}::geography) AS length
+        SELECT ${lineGeometry} AS geom
       ),
-      sample_points AS MATERIALIZED (
+      line_parts AS MATERIALIZED (
         SELECT
-          i AS idx,
-          ST_LineInterpolatePoint(
-            ST_LineMerge(line.geom),
-            CASE
-              WHEN i = 0 THEN 0
-              WHEN i = point_count THEN 1
-              ELSE (i * ${interpolationDistance.value}) / line.length
-            END
-          ) AS pt
+          d.path AS part_path,
+          d.geom AS geom
         FROM line
+        CROSS JOIN LATERAL ST_Dump(line.geom) AS d
+      ),
+      vertices AS MATERIALIZED (
+        SELECT
+          lp.part_path,
+          (p).path[1] AS vertex_idx,
+          (p).geom AS pt
+        FROM line_parts lp
+        CROSS JOIN LATERAL ST_DumpPoints(lp.geom) AS p
+      ),
+      segment_vertices AS MATERIALIZED (
+        SELECT
+          part_path,
+          vertex_idx,
+          pt AS start_pt,
+          LEAD(pt) OVER (
+            PARTITION BY part_path
+            ORDER BY vertex_idx
+          ) AS end_pt
+        FROM vertices
+      ),
+      segments_base AS MATERIALIZED (
+        SELECT
+          part_path,
+          vertex_idx,
+          ST_MakeLine(start_pt, end_pt) AS geom,
+          ST_Length(
+            ST_MakeLine(start_pt, end_pt)::geography
+          ) AS length
+        FROM segment_vertices
+        WHERE end_pt IS NOT NULL
+      ),
+      segments AS MATERIALIZED (
+        SELECT
+          part_path,
+          vertex_idx,
+          geom,
+          length,
+          COALESCE(
+            SUM(length) OVER (
+              PARTITION BY part_path
+              ORDER BY vertex_idx
+              ROWS BETWEEN UNBOUNDED PRECEDING
+                AND 1 PRECEDING
+            ),
+            0
+          ) AS distance_before
+        FROM segments_base
+        WHERE length > 0
+      ),
+      segment_samples AS MATERIALIZED (
+        SELECT
+          s.part_path,
+          s.vertex_idx,
+          points.i AS sample_idx,
+          (
+            points.i = 0
+            OR points.i = points.point_count
+          ) AS is_vertex,
+          s.distance_before
+            + CASE
+                WHEN points.i = points.point_count
+                  THEN s.length
+                ELSE points.i::double precision
+                  * ${interpolationDistance.value}
+              END AS distance_from_start,
+          ST_Transform(
+            ST_LineInterpolatePoint(
+              s.geom,
+              CASE
+                WHEN points.i = points.point_count
+                  THEN 1.0
+                ELSE
+                  (
+                    points.i::double precision
+                    * ${interpolationDistance.value}
+                  ) / s.length
+              END
+            ),
+            ${srid}
+          ) AS pt
+        FROM segments s
         CROSS JOIN LATERAL (
           SELECT
             i,
-            CEIL(line.length / ${interpolationDistance.value})::int AS point_count
+            CEIL(
+              s.length / ${interpolationDistance.value}
+            )::int AS point_count
           FROM generate_series(
             0,
-            CEIL(line.length / ${interpolationDistance.value})::int
+            CEIL(
+              s.length / ${interpolationDistance.value}
+            )::int
           ) AS i
         ) points
+        WHERE
+          s.length > 0
+          AND (
+            points.i > 0
+            OR s.vertex_idx = 1
+          )
+      ),
+      sample_points AS MATERIALIZED (
+        SELECT
+          ROW_NUMBER() OVER (
+            ORDER BY part_path, vertex_idx, sample_idx
+          ) - 1 AS idx,
+          is_vertex,
+          distance_from_start,
+          pt
+        FROM segment_samples
       ),
       point_heights AS MATERIALIZED (
         SELECT
-          sample_points.idx,
+          sp.idx,
+          sp.is_vertex,
+          sp.distance_from_start,
+          sp.pt AS geom,
           ST_Value(
             "${sourceAlias}".rast,
-            sample_points.pt
+            sp.pt
           ) AS height
-        FROM sample_points
+        FROM sample_points sp
         LEFT JOIN ${sourceTable} "${sourceAlias}"
           ON ST_Intersects(
             "${sourceAlias}".rast,
-            sample_points.pt
+            sp.pt
           )
       )
       SELECT json_build_object(
-        'min', MIN(height),
-        'max', MAX(height),
-        'mean', ROUND(AVG(height)::numeric, 2),
-        'points', json_agg(json_build_object('index', idx,'height', height) ORDER BY idx)
+        'heightstats', json_build_object(
+          'min', MIN(height),
+          'max', MAX(height),
+          'mean', ROUND(AVG(height)::numeric, 2)
+        ),
+        'profilePoints', json_agg(
+          json_build_object(
+            'index', idx,
+            'height', height
+          )
+          ORDER BY idx
+        )
       )
       FROM point_heights
     )`;
