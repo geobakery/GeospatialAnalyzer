@@ -117,7 +117,7 @@ describe('ValuesAtGridController (e2e)', () => {
     const props = valuesGeoJSON.properties;
     expect(props['__name']).toBe('gelaendehoehe_dgm');
     expect(props['__topic']).toBe('hoehe_r');
-    expect(props['height']).toBe(248.86);
+    expect(props['value']).toBe(248.86);
     expect(props['__unit']).toBe('m');
     expect(props['__verticalDatum']).toBe('DHHN2016');
     expect(props['__attribution']).toEqual([
@@ -143,7 +143,7 @@ describe('ValuesAtGridController (e2e)', () => {
     const propsLand = domGeoJSON.properties;
     expect(propsLand['__name']).toBe('oberflaechenhoehe_dom');
     expect(propsLand['__topic']).toBe('hoehe_r');
-    expect(propsLand['height']).toBe(248.86);
+    expect(propsLand['value']).toBe(248.86);
     expect(propsLand['__unit']).toBe('m');
     expect(propsLand['__verticalDatum']).toBe('DHHN2016');
     expect(propsLand['__attribution']).toEqual([
@@ -202,11 +202,11 @@ describe('ValuesAtGridController (e2e)', () => {
       expect(feature.type).toBe('Feature');
       expect(feature.geometry).toBeNull();
 
-      const valueProfile = feature.properties.heightProfile;
+      const valueProfile = feature.properties.valueProfile;
       expect(valueProfile).toBeDefined();
 
       // Validate value statistics.
-      const valueStats = valueProfile.heightStats;
+      const valueStats = valueProfile.valueStats;
       expect(valueStats).toBeDefined();
 
       expect(typeof valueStats.min).toBe('number');
@@ -230,7 +230,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
       for (const point of profilePoints) {
         expect(typeof point.index).toBe('number');
-        expect(typeof point.height).toBe('number');
+        expect(typeof point.value).toBe('number');
         expect(typeof point.isVertex).toBe('boolean');
         expect(typeof point.chainageMeters).toBe('number');
       }
@@ -296,7 +296,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
     const statsOf = (data: any[], sourceName: string) =>
       data.find((f) => f.properties?.__name === sourceName)?.properties
-        ?.heightStats;
+        ?.valueStats;
 
     it('/POST valuesAtPoint with a Polygon returns plausible value statistics for both sources', async () => {
       const result = await postPolygon(RECTANGLE_RING);
@@ -309,10 +309,10 @@ describe('ValuesAtGridController (e2e)', () => {
         expect(feature.type).toBe('Feature');
         expect(feature.geometry).toBeNull();
 
-        expect(feature.properties?.height).toBeUndefined();
-        expect(feature.properties?.heightProfile).toBeUndefined();
+        expect(feature.properties?.value).toBeUndefined();
+        expect(feature.properties?.valueProfile).toBeUndefined();
 
-        const stats = feature.properties?.heightStats;
+        const stats = feature.properties?.valueStats;
         expect(stats).toBeDefined();
 
         expect(Number.isInteger(stats.count)).toBe(true);
@@ -365,7 +365,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
       const data = JSON.parse(result.payload) as any[];
       for (const feature of data) {
-        const stats = feature.properties?.heightStats;
+        const stats = feature.properties?.valueStats;
         expect(stats).toBeDefined();
         expect([null, 0]).toContain(stats.count);
         expect(stats.min).toBeNull();
@@ -433,10 +433,10 @@ describe('ValuesAtGridController (e2e)', () => {
       expect(feature.geometry).toBeNull();
 
       // Point requests continue to use the existing single value.
-      expect(feature.properties?.height).toBeDefined();
+      expect(feature.properties?.value).toBeDefined();
 
       // The value profile is only expected for LineString requests.
-      expect(feature.properties?.heights).toBeUndefined();
+      expect(feature.properties?.valueProfile).toBeUndefined();
     }
   });
 

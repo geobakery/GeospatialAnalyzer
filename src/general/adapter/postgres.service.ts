@@ -42,7 +42,7 @@ export class PostgresService extends DbAdapterService {
    * including start and end). For each point the value is read from the tile
    * that contains it, found via the spatial index of the source table.
    *
-   * Points without raster coverage yield `height: null`.
+   * Points without raster coverage yield `value: null`.
    */
 
   override getLineValueProfile(
@@ -193,7 +193,7 @@ export class PostgresService extends DbAdapterService {
           )
       )
       SELECT json_build_object(
-        'heightStats', json_build_object(
+        'valueStats', json_build_object(
           'min', MIN(value),
           'max', MAX(value),
           'mean', ROUND(AVG(value)::numeric, 2)
@@ -201,7 +201,7 @@ export class PostgresService extends DbAdapterService {
         'profilePoints', json_agg(
           json_build_object(
             'index', idx,
-            'height', value,
+            'value', value,
             'isVertex', is_vertex,
             'chainageMeters', ROUND(distance_from_start::numeric, 2)
           )
