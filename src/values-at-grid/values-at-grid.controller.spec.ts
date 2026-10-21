@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { createUnitTestModules } from '../../test/helpers/database.helper';
 import { GeneralModule } from '../general/general.module';
 import { TransformModule } from '../transform/transform.module';
-import { ValuesAtGridController } from './values-at-point.controller';
-import { ValuesAtGridService } from './values-at-point.service';
+import { ValuesAtGridController } from './values-at-grid.controller';
+import { ValuesAtGridService } from './values-at-grid.service';
 
 describe('ValuesAtGridController', () => {
   let controller: ValuesAtGridController;

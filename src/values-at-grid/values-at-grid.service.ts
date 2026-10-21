@@ -34,7 +34,7 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
 
   getTopics(): topicDefinitionOutside[] {
     return this.generalService.getTopicsInformationForOutsideSpecific(
-      'valuesAtPoint',
+      'valuesAtGrid',
     );
   }
 

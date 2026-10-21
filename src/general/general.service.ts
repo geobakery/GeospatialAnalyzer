@@ -64,7 +64,7 @@ export class GeneralService implements OnModuleInit {
     intersect: [],
     within: [],
     nearestNeighbour: [],
-    valuesAtPoint: [],
+    valuesAtGrid: [],
   };
 
   constructor(

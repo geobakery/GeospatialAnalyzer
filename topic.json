@@ -78,7 +78,7 @@
         "unit": "m",
         "verticalDatum": "DHHN2016"
       },
-      "__supports__": ["valuesAtPoint"],
+      "__supports__": ["valuesAtGrid"],
       "__filterGroups__": ["proddata", "demodata"]
     },
     {

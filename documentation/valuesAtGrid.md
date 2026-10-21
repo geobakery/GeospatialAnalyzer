@@ -1,6 +1,6 @@
-# ValuesAtPoint - API Call
+# ValuesAtGrid - API Call
 
-In this document we will describe important and good-to-know facts about the valuesAtPoint service.
+In this document we will describe important and good-to-know facts about the valuesAtGrid service.
 
 ## Functionality
 
@@ -17,7 +17,7 @@ The accuracy depends on the used PostGIS version (if parameter `touched` of ST_C
 
 ## Examples
 
-Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
+Post-call http://localhost:3000/v2/valuesAtGrid with JSON body:
 
 ### Point
 
@@ -188,7 +188,7 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
 
 ## Value metadata in responses
 
-- Each returned feature may include two optional properties with value metadata. This is particularly useful for metadata descriptions of elevation data using interface `valuesAtPoint`.
+- Each returned feature may include two optional properties with value metadata. This is particularly useful for metadata descriptions of elevation data using interface `valuesAtGrid`.
   - `__unit`: unit of the value (e.g. "m", "cm").
   - `__verticalDatum`: vertical datum of the value (e.g. "DHHN2016")
 

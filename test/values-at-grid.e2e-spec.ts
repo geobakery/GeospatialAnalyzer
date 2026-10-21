@@ -9,15 +9,15 @@ import { createE2eTestModules } from './helpers/database.helper';
 import { ValuesAtGridParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { TransformModule } from '../src/transform/transform.module';
-import { ValuesAtGridController } from '../src/values-at-point/values-at-point.controller';
-import { ValuesAtGridService } from '../src/values-at-point/values-at-point.service';
+import { ValuesAtGridController } from '../src/values-at-grid/values-at-grid.controller';
+import { ValuesAtGridService } from '../src/values-at-grid/values-at-grid.service';
 import {
   GET,
   HEADERS_JSON,
   POST,
   TOPIC_URL,
   URL_START,
-  VAlUES_AT_GRID,
+  VALUES_AT_GRID,
   VALUES_AT_GRID_URL,
 } from './common/constants';
 import {
@@ -61,7 +61,7 @@ describe('ValuesAtGridController (e2e)', () => {
     await testStatus200('/GET Topics', result);
   });
 
-  it('/POST ValuesAtPoint without geometry', async () => {
+  it('/POST ValuesAtGrid without geometry', async () => {
     const input = await getGeoJSONFeature({
       topics: ['hoehe_r'],
       returnGeometry: false,
@@ -76,13 +76,13 @@ describe('ValuesAtGridController (e2e)', () => {
       payload: input,
       headers: HEADERS_JSON,
     });
-    const implName = '/POST ValuesAtPoint without geometry';
+    const implName = '/POST ValuesAtGrid without geometry';
     await testStatus200(implName, result);
 
     const geoJSON = await getGeoJSONFeatureFromResponse(result);
     expect(geoJSON.length).toBe(2);
-    await topicTest(VAlUES_AT_GRID, geoJSON[0], 'hoehe_r');
-    await topicTest(VAlUES_AT_GRID, geoJSON[1], 'hoehe_r');
+    await topicTest(VALUES_AT_GRID, geoJSON[0], 'hoehe_r');
+    await topicTest(VALUES_AT_GRID, geoJSON[1], 'hoehe_r');
     await resultIsGeoJSONFeatureWithoutGeometry(result);
   });
   it('/POST within custom without geometry', async () => {
@@ -163,7 +163,7 @@ describe('ValuesAtGridController (e2e)', () => {
     expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
   });
 
-  it('/POST valuesAtPoint with a LineString returns a value profile', async () => {
+  it('/POST valuesAtGrid with a LineString returns a value profile', async () => {
     const payload: ValuesAtGridParameterDto = {
       topics: ['hoehe_r'],
       inputGeometries: [
@@ -191,7 +191,7 @@ describe('ValuesAtGridController (e2e)', () => {
       headers: HEADERS_JSON,
     });
 
-    await testStatus200('/POST valuesAtPoint LineString', result);
+    await testStatus200('/POST valuesAtGrid LineString', result);
 
     const data = JSON.parse(result.payload) as any[];
 
@@ -298,9 +298,9 @@ describe('ValuesAtGridController (e2e)', () => {
       data.find((f) => f.properties?.__name === sourceName)?.properties
         ?.valueStats;
 
-    it('/POST valuesAtPoint with a Polygon returns plausible value statistics for both sources', async () => {
+    it('/POST valuesAtGrid with a Polygon returns plausible value statistics for both sources', async () => {
       const result = await postPolygon(RECTANGLE_RING);
-      await testStatus200('/POST valuesAtPoint Polygon', result);
+      await testStatus200('/POST valuesAtGrid Polygon', result);
 
       const data = JSON.parse(result.payload) as any[];
       expect(data).toHaveLength(2);
@@ -339,11 +339,11 @@ describe('ValuesAtGridController (e2e)', () => {
       expect(statsOf(data, 'oberflaechenhoehe_dom')).toBeDefined();
     });
 
-    it('/POST valuesAtPoint with a Polygon only counts pixels inside the polygon (triangle ≈ half of its bounding rectangle)', async () => {
+    it('/POST valuesAtGrid with a Polygon only counts pixels inside the polygon (triangle ≈ half of its bounding rectangle)', async () => {
       const rectangleResult = await postPolygon(RECTANGLE_RING);
       const triangleResult = await postPolygon(TRIANGLE_RING);
-      await testStatus200('/POST valuesAtPoint Rectangle', rectangleResult);
-      await testStatus200('/POST valuesAtPoint Triangle', triangleResult);
+      await testStatus200('/POST valuesAtGrid Rectangle', rectangleResult);
+      await testStatus200('/POST valuesAtGrid Triangle', triangleResult);
 
       const rectangleCount = statsOf(
         JSON.parse(rectangleResult.payload),
@@ -359,9 +359,9 @@ describe('ValuesAtGridController (e2e)', () => {
       expect(ratio).toBeLessThan(0.6);
     });
 
-    it('/POST valuesAtPoint with a Polygon outside the raster coverage returns empty statistics instead of failing', async () => {
+    it('/POST valuesAtGrid with a Polygon outside the raster coverage returns empty statistics instead of failing', async () => {
       const result = await postPolygon(OUTSIDE_COVERAGE_RING);
-      await testStatus200('/POST valuesAtPoint Polygon outside', result);
+      await testStatus200('/POST valuesAtGrid Polygon outside', result);
 
       const data = JSON.parse(result.payload) as any[];
       for (const feature of data) {
@@ -373,7 +373,7 @@ describe('ValuesAtGridController (e2e)', () => {
       }
     });
 
-    it('/POST valuesAtPoint with an unsupported geometry type is rejected with 400', async () => {
+    it('/POST valuesAtGrid with an unsupported geometry type is rejected with 400', async () => {
       const payload = {
         topics: ['hoehe_r'],
         inputGeometries: [
@@ -397,7 +397,7 @@ describe('ValuesAtGridController (e2e)', () => {
     });
   });
 
-  it('/POST valuesAtPoint with a Point keeps the existing response structure', async () => {
+  it('/POST valuesAtGrid with a Point keeps the existing response structure', async () => {
     const payload: ValuesAtGridParameterDto = {
       topics: ['hoehe_r'],
       inputGeometries: [
@@ -422,7 +422,7 @@ describe('ValuesAtGridController (e2e)', () => {
       headers: HEADERS_JSON,
     });
 
-    await testStatus200('/POST valuesAtPoint Point regression', result);
+    await testStatus200('/POST valuesAtGrid Point regression', result);
 
     const data = JSON.parse(result.payload) as any[];
 

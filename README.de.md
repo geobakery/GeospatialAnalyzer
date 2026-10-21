@@ -40,7 +40,7 @@ Für mehr Informationen lesen sie bitte in der ausführlichen Dokumentation nach
 - [within](documentation/within.md)
 - [intersect](documentation/intersect.md)
 - [nearest-neighbour](documentation/neighbour.md)
-- [valuesAtPoint](documentation/valuesAtPoint.md)
+- [valuesAtGrid](documentation/valuesAtGrid.md)
 - [transform](documentation/transform.md)
 - [health](documentation/health.md)
 - [topics](documentation/topics.md)
