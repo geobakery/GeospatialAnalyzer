@@ -4,9 +4,9 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtPointParameterDto } from '../general/dto/parameter.dto';
 import {
-  DB_HEIGHT_NAME,
-  DB_HEIGHT_PROFILE_NAME,
-  DB_HEIGHT_STATS_NAME,
+  DB_VALUE_NAME,
+  DB_VALUE_PROFILE_NAME,
+  DB_VALUE_STATS_NAME,
   SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
   LINE_INTERPOLATION_DISTANCE_METERS,
@@ -74,7 +74,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     );
 
     const params = {};
-    const heightQueries = [];
+    const valueQueries = [];
 
     for (const [sourceIndex, source] of sources.entries()) {
       const featureValue = this.getValueArRasterString(
@@ -91,24 +91,24 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       );
 
       const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
-      const heightQueryBuilder = queryBuilder
+      const valueQueryBuilder = queryBuilder
         .createQueryBuilder()
         .setParameter(topicSourceParameterName, source.name)
         .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
-        .addSelect(featureValue, DB_HEIGHT_NAME)
+        .addSelect(featureValue, DB_VALUE_NAME)
         .from(source.source, source.name) // TypeORM demands an alias here, but we do not need any specific one.
         .andWhere(featureIntersect);
 
-      this.adapter.injectGeometryField(heightQueryBuilder);
+      this.adapter.injectGeometryField(valueQueryBuilder);
 
-      fieldsToQuery.forEach((field) => heightQueryBuilder.addSelect(field));
+      fieldsToQuery.forEach((field) => valueQueryBuilder.addSelect(field));
 
-      heightQueries.push(heightQueryBuilder.getQuery());
-      Object.assign(params, heightQueryBuilder.getParameters());
+      valueQueries.push(valueQueryBuilder.getQuery());
+      Object.assign(params, valueQueryBuilder.getParameters());
     }
     queryBuilder.setParameters(params);
     queryBuilder.from(
-      this.adapter.unionAll(heightQueries),
+      this.adapter.unionAll(valueQueries),
       this.adapter.getJsonRecordAlias(),
     );
   }
@@ -138,7 +138,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     );
 
     for (const [sourceIndex, source] of sources.entries()) {
-      const profileExpr = this.adapter.getLineHeightProfile(
+      const profileExpr = this.adapter.getLineValueProfile(
         { raw: true, value: `:${featureParam}` },
         { raw: true, value: `:${interpolationDistanceParam}` },
         source.source,
@@ -149,10 +149,10 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
       const profileQueryBuilder = queryBuilder
         .createQueryBuilder()
-        .from('(SELECT 1)', 'line_height_profile_source')
+        .from('(SELECT 1)', 'line_value_profile_source')
         .setParameter(topicSourceParameterName, source.name)
         .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
-        .addSelect(profileExpr, DB_HEIGHT_PROFILE_NAME);
+        .addSelect(profileExpr, DB_VALUE_PROFILE_NAME);
 
       this.adapter.injectGeometryField(profileQueryBuilder);
       fieldsToQuery.forEach((field) => profileQueryBuilder.addSelect(field));
@@ -187,7 +187,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     );
 
     for (const [sourceIndex, source] of sources.entries()) {
-      const statsExpr = this.adapter.getPolygonHeightStats(
+      const statsExpr = this.adapter.getPolygonValueStats(
         { raw: true, value: `:${featureParam}` },
         source.source,
         source.name,
@@ -197,10 +197,10 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
       const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
       const statsQueryBuilder = queryBuilder
         .createQueryBuilder()
-        .from('(SELECT 1)', 'polygon_height_stats_source')
+        .from('(SELECT 1)', 'polygon_value_stats_source')
         .setParameter(topicSourceParameterName, source.name)
         .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
-        .addSelect(statsExpr, DB_HEIGHT_STATS_NAME);
+        .addSelect(statsExpr, DB_VALUE_STATS_NAME);
 
       this.adapter.injectGeometryField(statsQueryBuilder);
       fieldsToQuery.forEach((field) => statsQueryBuilder.addSelect(field));

@@ -41,7 +41,7 @@ export abstract class DbAdapterService {
     bufferDistance: string,
   ): string;
 
-  abstract getLineHeightProfile(
+  abstract getLineValueProfile(
     feature: SqlParameter,
     interpolationDistance: SqlParameter,
     sourceTable: string,
@@ -49,7 +49,7 @@ export abstract class DbAdapterService {
     srid: number,
   ): string;
 
-  abstract getPolygonHeightStats(
+  abstract getPolygonValueStats(
     feature: SqlParameter,
     sourceTable: string,
     sourceAlias: string,

@@ -39,13 +39,13 @@ export class PostgresService extends DbAdapterService {
   /**
    * The line is interpolated into evenly spaced sample points
    * (`interpolationDistance` meters apart, measured geodetically, always
-   * including start and end). For each point the height is read from the tile
+   * including start and end). For each point the value is read from the tile
    * that contains it, found via the spatial index of the source table.
    *
    * Points without raster coverage yield `height: null`.
    */
 
-  override getLineHeightProfile(
+  override getLineValueProfile(
     feature: SqlParameter,
     interpolationDistance: SqlParameter,
     sourceTable: string,
@@ -175,7 +175,7 @@ export class PostgresService extends DbAdapterService {
           pt
         FROM segment_samples
       ),
-      point_heights AS MATERIALIZED (
+      point_values AS MATERIALIZED (
         SELECT
           sp.idx,
           sp.is_vertex,
@@ -184,7 +184,7 @@ export class PostgresService extends DbAdapterService {
           ST_Value(
             "${sourceAlias}".rast,
             sp.pt
-          ) AS height
+          ) AS value
         FROM sample_points sp
         LEFT JOIN ${sourceTable} "${sourceAlias}"
           ON ST_Intersects(
@@ -194,25 +194,25 @@ export class PostgresService extends DbAdapterService {
       )
       SELECT json_build_object(
         'heightStats', json_build_object(
-          'min', MIN(height),
-          'max', MAX(height),
-          'mean', ROUND(AVG(height)::numeric, 2)
+          'min', MIN(value),
+          'max', MAX(value),
+          'mean', ROUND(AVG(value)::numeric, 2)
         ),
         'profilePoints', json_agg(
           json_build_object(
             'index', idx,
-            'height', height,
+            'height', value,
             'isVertex', is_vertex,
             'chainageMeters', ROUND(distance_from_start::numeric, 2)
           )
           ORDER BY idx
         )
       )
-      FROM point_heights
+      FROM point_values
     )`;
   }
 
-  override getPolygonHeightStats(
+  override getPolygonValueStats(
     feature: SqlParameter,
     sourceTable: string,
     sourceAlias: string,

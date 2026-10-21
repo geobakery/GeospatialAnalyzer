@@ -120,12 +120,12 @@ describe('ValuesAtPointService – geometry type handling', () => {
     const sql = capturedQb.getQuery();
     expect(sql).toMatch(/ST_LineInterpolatePoint/i);
     expect(sql).toMatch(/sample_points/i);
-    expect(sql).toMatch(/point_heights/i);
+    expect(sql).toMatch(/point_values/i);
     expect(sql).toMatch(/ST_Value/i);
-    expect(sql).toMatch(/ROUND\(AVG\(height\)::numeric, 2\)/i);
+    expect(sql).toMatch(/ROUND\(AVG\(value\)::numeric, 2\)/i);
   });
 
-  it('uses the polygon height stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
+  it('uses the polygon value stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
     await service.handleRequest(
       buildRequest({
         type: 'Polygon',

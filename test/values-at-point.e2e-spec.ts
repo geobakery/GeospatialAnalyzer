@@ -107,14 +107,14 @@ describe('ValuesAtPointController (e2e)', () => {
     const geojsonArray = await getGeoJSONFeatureFromResponse(result);
     // Land has currently just on item! kreis_f 2 => 1+2=3
     expect(geojsonArray.length === 2);
-    const heightsGeoJSON = geojsonArray[0];
+    const valuesGeoJSON = geojsonArray[0];
     const domGeoJSON = geojsonArray[1];
 
     // test kreis response
-    expect(heightsGeoJSON.geometry === null).toBeTruthy();
-    expect(heightsGeoJSON.type).toBe('Feature');
+    expect(valuesGeoJSON.geometry === null).toBeTruthy();
+    expect(valuesGeoJSON.type).toBe('Feature');
 
-    const props = heightsGeoJSON.properties;
+    const props = valuesGeoJSON.properties;
     expect(props['__name']).toBe('gelaendehoehe_dgm');
     expect(props['__topic']).toBe('hoehe_r');
     expect(props['height']).toBe(248.86);
@@ -163,7 +163,7 @@ describe('ValuesAtPointController (e2e)', () => {
     expect(geoPropsLand['__geometryIdentifier__']).toBeDefined();
   });
 
-  it('/POST valuesAtPoint with a LineString returns a height profile', async () => {
+  it('/POST valuesAtPoint with a LineString returns a value profile', async () => {
     const payload: ValuesAtPointParameterDto = {
       topics: ['hoehe_r'],
       inputGeometries: [
@@ -202,22 +202,22 @@ describe('ValuesAtPointController (e2e)', () => {
       expect(feature.type).toBe('Feature');
       expect(feature.geometry).toBeNull();
 
-      const heights = feature.properties.heights;
-      expect(heights).toBeDefined();
+      const valueProfile = feature.properties.heightProfile;
+      expect(valueProfile).toBeDefined();
 
-      // Validate height statistics.
-      const heightStats = heights.heightStats;
-      expect(heightStats).toBeDefined();
+      // Validate value statistics.
+      const valueStats = valueProfile.heightStats;
+      expect(valueStats).toBeDefined();
 
-      expect(typeof heightStats.min).toBe('number');
-      expect(typeof heightStats.max).toBe('number');
-      expect(typeof heightStats.mean).toBe('number');
+      expect(typeof valueStats.min).toBe('number');
+      expect(typeof valueStats.max).toBe('number');
+      expect(typeof valueStats.mean).toBe('number');
 
-      expect(heightStats.min).toBeLessThanOrEqual(heightStats.mean);
-      expect(heightStats.mean).toBeLessThanOrEqual(heightStats.max);
+      expect(valueStats.min).toBeLessThanOrEqual(valueStats.mean);
+      expect(valueStats.mean).toBeLessThanOrEqual(valueStats.max);
 
-      // Validate the height profile points.
-      const profilePoints = heights.profilePoints;
+      // Validate the value profile points.
+      const profilePoints = valueProfile.profilePoints;
 
       expect(Array.isArray(profilePoints)).toBe(true);
       expect(profilePoints.length).toBeGreaterThanOrEqual(2);
@@ -298,7 +298,7 @@ describe('ValuesAtPointController (e2e)', () => {
       data.find((f) => f.properties?.__name === sourceName)?.properties
         ?.heightStats;
 
-    it('/POST valuesAtPoint with a Polygon returns plausible height statistics for both sources', async () => {
+    it('/POST valuesAtPoint with a Polygon returns plausible value statistics for both sources', async () => {
       const result = await postPolygon(RECTANGLE_RING);
       await testStatus200('/POST valuesAtPoint Polygon', result);
 
@@ -310,7 +310,7 @@ describe('ValuesAtPointController (e2e)', () => {
         expect(feature.geometry).toBeNull();
 
         expect(feature.properties?.height).toBeUndefined();
-        expect(feature.properties?.heights).toBeUndefined();
+        expect(feature.properties?.heightProfile).toBeUndefined();
 
         const stats = feature.properties?.heightStats;
         expect(stats).toBeDefined();
@@ -432,10 +432,10 @@ describe('ValuesAtPointController (e2e)', () => {
       expect(feature.type).toBe('Feature');
       expect(feature.geometry).toBeNull();
 
-      // Point requests continue to use the existing single height value.
+      // Point requests continue to use the existing single value.
       expect(feature.properties?.height).toBeDefined();
 
-      // The height profile is only expected for LineString requests.
+      // The value profile is only expected for LineString requests.
       expect(feature.properties?.heights).toBeUndefined();
     }
   });

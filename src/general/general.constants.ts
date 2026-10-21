@@ -22,7 +22,7 @@ export const DB_FEATURE_ID_NAME = 'id';
 
 export const DB_GEOMETRY_NAME = 'geom';
 
-export const DB_HEIGHT_NAME = 'height';
+export const DB_VALUE_NAME = 'height';
 export const DB_JSON_STRUCTURE_NAME = 'response';
 
 export const SOURCE_NAME_PROPERTY = '__name';
@@ -35,9 +35,9 @@ export const QUERY_BUFFER_INDEX = 'buffer_';
 
 export const LINE_INTERPOLATION_DISTANCE_METERS = 10;
 export const QUERY_INTERPOLATION_DISTANCE_INDEX = 'interpolation_distance_';
-export const DB_HEIGHT_PROFILE_NAME = 'heights';
+export const DB_VALUE_PROFILE_NAME = 'heightProfile';
 
-export const DB_HEIGHT_STATS_NAME = 'heightStats';
+export const DB_VALUE_STATS_NAME = 'heightStats';
 
 /**
  * Choosing an appropriate status code is surprisingly unclear:
