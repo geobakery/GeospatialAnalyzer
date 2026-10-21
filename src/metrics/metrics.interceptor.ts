@@ -4,6 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import { ApplicationConfig } from '@nestjs/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { MetricsService } from './metrics.service';
@@ -13,11 +14,15 @@ import { MetricsService } from './metrics.service';
  */
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
-  constructor(private readonly metricsService: MetricsService) {}
+  constructor(
+    private readonly metricsService: MetricsService,
+    private readonly applicationConfig: ApplicationConfig,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<any>();
-    if (request.url === '/metrics') {
+    const url = this.stripGlobalPrefix(request.url);
+    if (url === '/metrics') {
       return next.handle();
     }
 
@@ -27,7 +32,7 @@ export class MetricsInterceptor implements NestInterceptor {
     this.metricsService.incrementActiveConnections();
 
     const method = request.method;
-    const endpoint = this.extractEndpoint(request.url);
+    const endpoint = this.extractEndpoint(url);
 
     const requestSize = this.getRequestSize(request);
 
@@ -82,6 +87,27 @@ export class MetricsInterceptor implements NestInterceptor {
         }),
       ),
     );
+  }
+
+  /**
+   * Remove the global URL prefix (GEOSPATIAL_ANALYZER_URL_PREFIX), so that
+   * endpoint labels and the /metrics exclusion do not depend on it
+   */
+  private stripGlobalPrefix(url: string): string {
+    const prefix = this.applicationConfig
+      .getGlobalPrefix()
+      .replace(/^\/+|\/+$/g, '');
+    if (!prefix) {
+      return url;
+    }
+
+    const prefixPath = `/${prefix}`;
+    const rest = url.slice(prefixPath.length);
+    const hasPrefix =
+      url.startsWith(prefixPath) &&
+      (rest === '' || rest.startsWith('/') || rest.startsWith('?'));
+
+    return hasPrefix ? rest : url;
   }
 
   /**
