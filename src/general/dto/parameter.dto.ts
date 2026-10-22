@@ -182,8 +182,15 @@ export class NearestNeighbourParameterDto extends ParameterDto {
 
   @ApiProperty({
     required: false,
+    type: Number,
+    minimum: 0,
+    example: 0,
+  })
+  minDistanceToNeighbour?: number;
+
+  @ApiProperty({
+    required: false,
     type: Boolean,
-    default: false,
     example: false,
     description:
       'Only allowed for polygon input geometries. Excludes every feature that has a part inside the polygon. Cannot be combined with polygonExcludesEntirelyInnerFeatures.',
@@ -193,7 +200,6 @@ export class NearestNeighbourParameterDto extends ParameterDto {
   @ApiProperty({
     required: false,
     type: Boolean,
-    default: false,
     example: false,
     description:
       'Only allowed for polygon input geometries. Excludes features that lie entirely inside the polygon. Cannot be combined with PolygonExcludesInnerFeatures.',

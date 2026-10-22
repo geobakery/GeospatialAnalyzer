@@ -34,9 +34,16 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
   ): void {
     const { fieldsToQuery, topic, feature, featureIndex } = logicalRequest;
 
+    this.assertValidDistanceRange(request);
     this.assertPolygonForExclusionOptions(feature, request);
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
+    const distanceExpression = this.getFeatureDistanceString(
+      queryBuilder,
+      topicSource.srid,
+      feature,
+      featureIndex,
+    );
 
     queryBuilder.from((subQuery) => {
       fieldsToQuery.forEach((field) => subQuery.addSelect(field));
@@ -44,15 +51,7 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
         subQuery.addSelect(DB_GEOMETRY_NAME);
       }
       subQuery
-        .addSelect(
-          this.getFeatureDistanceString(
-            queryBuilder,
-            topicSource.srid,
-            feature,
-            featureIndex,
-          ),
-          DB_DIST_NAME,
-        )
+        .addSelect(distanceExpression, DB_DIST_NAME)
         .from(topicSource.source, topic);
 
       const exclusion = this.getExclusionCondition(
@@ -64,6 +63,15 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
       );
       if (exclusion) {
         subQuery.andWhere(exclusion);
+      }
+
+      if (
+        request.minDistanceToNeighbour !== undefined &&
+        request.minDistanceToNeighbour > 0
+      ) {
+        subQuery.andWhere(`${distanceExpression} >= :minDistanceToNeighbour`, {
+          minDistanceToNeighbour: request.minDistanceToNeighbour,
+        });
       }
 
       return subQuery.orderBy(DB_DIST_NAME).limit(request.count);
@@ -114,6 +122,18 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     if (geometryType !== 'Polygon') {
       throw new BadRequestException(
         `polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures can only be used with polygon input geometries, got ${geometryType ?? 'null'}`,
+      );
+    }
+  }
+
+  private assertValidDistanceRange(
+    request: NearestNeighbourParameterDto,
+  ): void {
+    const min = request.minDistanceToNeighbour ?? 0;
+    const max = request.maxDistanceToNeighbour;
+    if (max && min >= max) {
+      throw new BadRequestException(
+        `minDistanceToNeighbour (${min}) must be less than maxDistanceToNeighbour (${max})`,
       );
     }
   }
