@@ -482,7 +482,7 @@ describe('NearestNeighbourController (e2e)', () => {
     );
     await testStatus400('point input', result);
     expect(JSON.parse(result.payload).message).toContain(
-      'polygon input geometries',
+      'Polygon input geometries',
     );
   });
 
@@ -492,5 +492,38 @@ describe('NearestNeighbourController (e2e)', () => {
       { polygonExcludesInnerFeatures: false },
     );
     await testStatus200('false for point', result);
+  });
+
+  it('rejects polygonExcludesInnerFeatures together with minDistanceToNeighbour > 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus400('inner + min', result);
+  });
+
+  it('rejects polygonExcludesEntirelyInnerFeatures together with minDistanceToNeighbour > 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesEntirelyInnerFeatures: true,
+    });
+    await testStatus400('entirely inner + min', result);
+  });
+
+  it('accepts an exclusion option together with minDistanceToNeighbour 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 0,
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus200('inner + min 0', result);
+  });
+
+  it('accepts minDistanceToNeighbour > 0 with both exclusion options false', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesInnerFeatures: false,
+      polygonExcludesEntirelyInnerFeatures: false,
+    });
+    await testStatus200('min + options false', result);
   });
 });

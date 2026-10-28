@@ -11,11 +11,25 @@ describe('NearestNeighbourService', () => {
   let service: NearestNeighbourService;
   let mod: TestingModule;
 
-  const check = (min: number | undefined, max: number) =>
+  const checkValidDistanceRange = (min: number | undefined, max: number) =>
     service['assertValidDistanceRange']({
       minDistanceToNeighbour: min,
       maxDistanceToNeighbour: max,
     } as NearestNeighbourParameterDto);
+
+  const checkExclusionMinDistance = (
+    extra: Partial<NearestNeighbourParameterDto>,
+  ) =>
+    service['assertNoPolygonExclusionWithMinDistance'](
+      extra as NearestNeighbourParameterDto,
+    );
+
+  const checkExclusionExclusion = (
+    extra: Partial<NearestNeighbourParameterDto>,
+  ) =>
+    service['hasAtMostOnePolygonExclusion'](
+      extra as NearestNeighbourParameterDto,
+    );
 
   const polygon = { raw: true as const, value: 'POLY' };
   const other = { raw: true as const, value: 'geom' };
@@ -40,13 +54,13 @@ describe('NearestNeighbourService', () => {
   });
 
   it('rejects a minimum above the maximum', () => {
-    expect(() => check(10, 5)).toThrow(BadRequestException);
+    expect(() => checkValidDistanceRange(10, 5)).toThrow(BadRequestException);
   });
   it('treats a maximum of 0 as no maximum', () => {
-    expect(() => check(10, 0)).not.toThrow();
+    expect(() => checkValidDistanceRange(10, 0)).not.toThrow();
   });
   it('treats a missing minimum as 0', () => {
-    expect(() => check(undefined, 5)).not.toThrow();
+    expect(() => checkValidDistanceRange(undefined, 5)).not.toThrow();
   });
 
   it('hasNoPartInside uses the FF******* pattern', () => {
@@ -61,5 +75,65 @@ describe('NearestNeighbourService', () => {
     expect(sql).toContain("'******T**'");
     expect(sql).toContain("'*******T*'");
     expect(sql.match(/\bOR\b/g)).toHaveLength(2);
+  });
+
+  it('rejects polygonExcludesInnerFeatures with a minimum above 0', () => {
+    expect(() =>
+      checkExclusionMinDistance({
+        minDistanceToNeighbour: 1,
+        polygonExcludesInnerFeatures: true,
+      }),
+    ).toThrow(BadRequestException);
+  });
+
+  it('rejects polygonExcludesEntirelyInnerFeatures with a minimum above 0', () => {
+    expect(() =>
+      checkExclusionMinDistance({
+        minDistanceToNeighbour: 1,
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    ).toThrow(BadRequestException);
+  });
+
+  it('accepts an exclusion option with a minimum of 0', () => {
+    expect(() =>
+      checkExclusionMinDistance({
+        minDistanceToNeighbour: 0,
+        polygonExcludesInnerFeatures: true,
+      }),
+    ).not.toThrow();
+  });
+
+  it('accepts an exclusion option without a minimum', () => {
+    expect(() =>
+      checkExclusionMinDistance({ polygonExcludesInnerFeatures: true }),
+    ).not.toThrow();
+  });
+
+  it('accepts a minimum above 0 without exclusion options', () => {
+    expect(() =>
+      checkExclusionMinDistance({ minDistanceToNeighbour: 5 }),
+    ).not.toThrow();
+  });
+
+  it('rejects both polygon exclusion options when used together', () => {
+    expect(() =>
+      checkExclusionExclusion({
+        polygonExcludesInnerFeatures: true,
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    ).toThrow(BadRequestException);
+  });
+
+  it('accepts polygonExcludesInnerFeatures without the other exclusion option', () => {
+    expect(() =>
+      checkExclusionExclusion({ polygonExcludesInnerFeatures: true }),
+    ).not.toThrow();
+  });
+
+  it('accepts polygonExcludesEntirelyInnerFeatures without the other exclusion option', () => {
+    expect(() =>
+      checkExclusionExclusion({ polygonExcludesEntirelyInnerFeatures: true }),
+    ).not.toThrow();
   });
 });
