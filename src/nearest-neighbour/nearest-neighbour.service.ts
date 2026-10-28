@@ -36,6 +36,8 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
 
     this.assertValidDistanceRange(request);
     this.assertPolygonForExclusionOptions(feature, request);
+    this.hasAtMostOnePolygonExclusion(request);
+    this.assertNoPolygonExclusionWithMinDistance(request);
 
     const topicSource = this.generalService.getSourceForIdentifier(topic);
     const distanceExpression = this.getFeatureDistanceString(
@@ -121,7 +123,7 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     const geometryType: string | undefined = feature.geometry?.type;
     if (geometryType !== 'Polygon') {
       throw new BadRequestException(
-        `polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures can only be used with polygon input geometries, got ${geometryType ?? 'null'}`,
+        `polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures can only be used with Polygon input geometries, got ${geometryType ?? 'null'}`,
       );
     }
   }
@@ -134,6 +136,33 @@ export class NearestNeighbourService extends GeospatialService<NearestNeighbourP
     if (max && min >= max) {
       throw new BadRequestException(
         `minDistanceToNeighbour (${min}) must be less than maxDistanceToNeighbour (${max})`,
+      );
+    }
+  }
+
+  private hasAtMostOnePolygonExclusion(
+    request: NearestNeighbourParameterDto,
+  ): void {
+    if (
+      request.polygonExcludesInnerFeatures &&
+      request.polygonExcludesEntirelyInnerFeatures
+    ) {
+      throw new BadRequestException(
+        'polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures cannot be used together',
+      );
+    }
+  }
+
+  private assertNoPolygonExclusionWithMinDistance(
+    request: NearestNeighbourParameterDto,
+  ): void {
+    if (
+      (request.minDistanceToNeighbour ?? 0) > 0 &&
+      (request.polygonExcludesInnerFeatures ||
+        request.polygonExcludesEntirelyInnerFeatures)
+    ) {
+      throw new BadRequestException(
+        'if minDistanceToNeighbour is greater than 0, polygonExcludesInnerFeatures and polygonExcludesEntirelyInnerFeatures cannot be used',
       );
     }
   }

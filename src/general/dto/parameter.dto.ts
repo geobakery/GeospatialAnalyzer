@@ -166,13 +166,6 @@ export class BufferParameterDto extends ParameterDto {
 
 export class IntersectParameterDto extends BufferParameterDto {}
 
-export const SCHEMA_VALID_POLYGON_EXCLUSIONS: Readonly<SchemaObject> = {
-  anyOf: [
-    { properties: { polygonExcludesInnerFeatures: { enum: [false] } } },
-    { properties: { polygonExcludesEntirelyInnerFeatures: { enum: [false] } } },
-  ],
-};
-
 export class NearestNeighbourParameterDto extends ParameterDto {
   @ApiProperty({ example: 3 })
   count: number;
