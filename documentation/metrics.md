@@ -19,6 +19,7 @@ GEOSPATIAL_ANALYZER_METRICS_ENABLED=false
 **Default:** Metrics are **enabled** by default for backward compatibility.
 
 When disabled:
+
 - The `/metrics` endpoint will not be registered
 - No HTTP request interception occurs
 - No database query tracking is performed
@@ -39,6 +40,7 @@ Add this configuration to your `.env`, `.env.dev`, or `.env.test` files as neede
 The following metrics are available:
 
 **HTTP Metrics:**
+
 - `geospatialanalyzer_http_requests_total` - Total number of HTTP requests (labeled by method, endpoint, status_code, topic)
 - `geospatialanalyzer_http_request_duration_seconds` - HTTP request duration histogram
 - `geospatialanalyzer_http_request_size_bytes` - HTTP request size histogram
@@ -46,13 +48,16 @@ The following metrics are available:
 - `geospatialanalyzer_http_active_connections` - Current number of active HTTP connections
 
 **Database Metrics:**
+
 - `geospatialanalyzer_db_query_duration_seconds` - Database query duration histogram (labeled by query_type, endpoint)
 - `geospatialanalyzer_db_queries_total` - Total number of database queries (labeled by query_type, status, endpoint)
 
 **Application Metrics:**
+
 - `geospatialanalyzer_query_results_returned` - Number of results returned per query (labeled by endpoint, topic)
 
 **System Metrics:**
+
 - `geospatialanalyzer_nodejs_*` - Standard Node.js runtime metrics (heap, CPU, event loop, etc.)
 
 ## Available Metrics
@@ -60,6 +65,7 @@ The following metrics are available:
 ### HTTP Request Metrics
 
 #### `geospatialanalyzer_http_requests_total`
+
 - **Type:** Counter
 - **Description:** Total number of HTTP requests
 - **Labels:**
@@ -71,6 +77,7 @@ The following metrics are available:
 - **Note:** For requests with multiple topics, each topic generates a separate counter increment. For example, a request with `topics: ["kreis", "land"]` will increment both `topic="kreis"` and `topic="land"` counters.
 
 #### `geospatialanalyzer_http_request_duration_seconds`
+
 - **Type:** Histogram
 - **Description:** Duration of HTTP requests in seconds
 - **Labels:**
@@ -80,6 +87,7 @@ The following metrics are available:
 - **Buckets:** 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10, 30 seconds
 
 #### `geospatialanalyzer_http_request_size_bytes`
+
 - **Type:** Histogram
 - **Description:** Size of HTTP request payloads in bytes
 - **Labels:**
@@ -89,6 +97,7 @@ The following metrics are available:
 - **Buckets:** 100, 1000, 10000, 100000, 1000000, 10000000 bytes
 
 #### `geospatialanalyzer_http_response_size_bytes`
+
 - **Type:** Histogram
 - **Description:** Size of HTTP response payloads in bytes
 - **Labels:**
@@ -98,6 +107,7 @@ The following metrics are available:
 - **Buckets:** 100, 1000, 10000, 100000, 1000000, 10000000 bytes
 
 #### `geospatialanalyzer_http_active_connections`
+
 - **Type:** Gauge
 - **Description:** Current number of active HTTP connections
 - **Labels:**
@@ -106,6 +116,7 @@ The following metrics are available:
 ### Database Metrics
 
 #### `geospatialanalyzer_db_query_duration_seconds`
+
 - **Type:** Histogram
 - **Description:** Duration of database queries in seconds
 - **Labels:**
@@ -115,6 +126,7 @@ The following metrics are available:
 - **Buckets:** 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10 seconds
 
 #### `geospatialanalyzer_db_queries_total`
+
 - **Type:** Counter
 - **Description:** Total number of database queries executed
 - **Labels:**
@@ -126,6 +138,7 @@ The following metrics are available:
 ### Application Metrics
 
 #### `geospatialanalyzer_query_results_returned`
+
 - **Type:** Histogram
 - **Description:** Number of results returned per query
 - **Labels:**
@@ -145,7 +158,7 @@ The application also exposes standard Node.js metrics with the `geospatialanalyz
 - `geospatialanalyzer_process_cpu_user_seconds_total`: CPU user time
 - `geospatialanalyzer_process_cpu_system_seconds_total`: CPU system time
 - And more...
-Those default metrics are implemented using the [prom-client core metric](https://github.com/siimon/prom-client/tree/master/lib/metrics).
+  Those default metrics are implemented using the [prom-client core metric](https://github.com/siimon/prom-client/tree/master/lib/metrics).
 
 ## Example Output
 
@@ -197,7 +210,7 @@ scrape_configs:
 
 ### Kubernetes Configuration
 
-For Kubernetes deployments, you can use service discovery and annotations:
+Without the Prometheus Operator, Prometheus usually discovers targets through `prometheus.io/*` annotations. If you use this setup, add the annotations to the Service:
 
 ```yaml
 apiVersion: v1
@@ -205,9 +218,9 @@ kind: Service
 metadata:
   name: geospatialanalyzer
   annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: "/metrics"
-    prometheus.io/port: "3000"
+    prometheus.io/scrape: 'true'
+    prometheus.io/path: '/metrics'
+    prometheus.io/port: '3000'
 spec:
   selector:
     app: geospatialanalyzer
@@ -216,34 +229,67 @@ spec:
       targetPort: 3000
 ```
 
+### Prometheus Operator Configuration
+
+Clusters using the Prometheus Operator do not use these annotations. Instead, Prometheus uses a ServiceMonitor, which selects a Service and one of its ports by name, so the Service needs a named port.
+
+A ready-to-use template for the Service and ServiceMonitor is available at [`kubernetes/servicemonitor.yaml`](kubernetes/servicemonitor.yaml). Apply it in the namespace where GeospatialAnalyzer runs:
+
+```bash
+kubectl apply -f documentation/kubernetes/servicemonitor.yaml
+```
+
+You may need to adjust three things for your cluster:
+
+- **ServiceMonitor selector** (`release` in the template). It must match the Prometheus instance's `serviceMonitorSelector`. Otherwise, Prometheus ignores the ServiceMonitor.
+- **Watched namespaces.** The Prometheus instance needs permissions to access pods, services and endpoints in each monitored namespace.
+- **Scrape path.** If `GEOSPATIAL_ANALYZER_URL_PREFIX` is set, update `path` in the template to include the prefix.
+
+Check the Prometheus targets page to verify that the target was discovered. By default, the `job` label is the name of the selected Service, so `up{job="geospatialanalyzer"}` should return `1` when the target is healthy.
+
+### Securing the Endpoint
+
+The `/metrics` endpoint is not authenticated. It can expose configured topic names, request volumes and error rates.
+
+The endpoint is normally scraped through the cluster-internal Service and does not need to be exposed externally. If GeospatialAnalyzer is published through an Ingress, consider excluding `/metrics` from it unless public access to these metrics is intended. If metrics are not needed, disable the endpoint with:
+
+```bash
+GEOSPATIAL_ANALYZER_METRICS_ENABLED=false
+```
+
 ## Grafana Dashboard
 
 ### Example Queries
 
 #### Request Rate
+
 ```promql
 rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer"}[5m])
 ```
 
 #### Average Response Time
+
 ```promql
-rate(geospatialanalyzer_http_request_duration_seconds_sum{app="geospatialanalyzer"}[5m]) / 
+rate(geospatialanalyzer_http_request_duration_seconds_sum{app="geospatialanalyzer"}[5m]) /
 rate(geospatialanalyzer_http_request_duration_seconds_count{app="geospatialanalyzer"}[5m])
 ```
 
 #### 95th Percentile Response Time
+
 ```promql
-histogram_quantile(0.95, 
+histogram_quantile(0.95,
   rate(geospatialanalyzer_http_request_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Error Rate
+
 ```promql
 rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m])
 ```
 
 #### Request Count by Topic
+
 ```promql
 sum by (topic) (
   rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer"}[5m])
@@ -251,15 +297,17 @@ sum by (topic) (
 ```
 
 #### Database Query Performance
+
 ```promql
-histogram_quantile(0.95, 
+histogram_quantile(0.95,
   rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
 )
 ```
 
 #### Database Query Performance by Endpoint
+
 ```promql
-histogram_quantile(0.95, 
+histogram_quantile(0.95,
   sum by (endpoint, le) (
     rate(geospatialanalyzer_db_query_duration_seconds_bucket{app="geospatialanalyzer"}[5m])
   )
@@ -267,6 +315,7 @@ histogram_quantile(0.95,
 ```
 
 #### Database Query Rate by Type
+
 ```promql
 sum by (query_type) (
   rate(geospatialanalyzer_db_queries_total{app="geospatialanalyzer"}[5m])
@@ -274,6 +323,7 @@ sum by (query_type) (
 ```
 
 #### Database Query Rate by Endpoint
+
 ```promql
 sum by (endpoint) (
   rate(geospatialanalyzer_db_queries_total{app="geospatialanalyzer"}[5m])
@@ -281,12 +331,14 @@ sum by (endpoint) (
 ```
 
 #### Average Results Returned
+
 ```promql
 rate(geospatialanalyzer_query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
 rate(geospatialanalyzer_query_results_returned_count{app="geospatialanalyzer"}[5m])
 ```
 
 #### Results Distribution by Topic
+
 ```promql
 histogram_quantile(0.95,
   sum by (topic, le) (
@@ -310,8 +362,8 @@ groups:
           rate(geospatialanalyzer_http_requests_total{app="geospatialanalyzer",status_code=~"5.."}[5m]) > 0.05
         for: 5m
         annotations:
-          summary: "High error rate detected"
-          
+          summary: 'High error rate detected'
+
       - alert: SlowResponseTime
         expr: |
           histogram_quantile(0.95, 
@@ -319,8 +371,8 @@ groups:
           ) > 5
         for: 5m
         annotations:
-          summary: "95th percentile response time is over 5 seconds"
-          
+          summary: '95th percentile response time is over 5 seconds'
+
       - alert: SlowDatabaseQueries
         expr: |
           histogram_quantile(0.95, 
@@ -328,8 +380,8 @@ groups:
           ) > 2
         for: 5m
         annotations:
-          summary: "Database queries are slow"
-          
+          summary: 'Database queries are slow'
+
       - alert: SlowDatabaseQueriesByEndpoint
         expr: |
           histogram_quantile(0.95, 
@@ -339,15 +391,15 @@ groups:
           ) > 5
         for: 5m
         annotations:
-          summary: "Database queries are slow for {{ $labels.endpoint }}"
-          
+          summary: 'Database queries are slow for {{ $labels.endpoint }}'
+
       - alert: LowResultCounts
         expr: |
           rate(geospatialanalyzer_query_results_returned_sum{app="geospatialanalyzer"}[5m]) /
           rate(geospatialanalyzer_query_results_returned_count{app="geospatialanalyzer"}[5m]) < 1
         for: 10m
         annotations:
-          summary: "Queries are returning very few results"
+          summary: 'Queries are returning very few results'
 ```
 
 ### Dashboard Panels
@@ -406,6 +458,7 @@ To prevent "no data" errors in Prometheus queries, dashboards, and alerts, all m
 - Alert rules can be evaluated without errors
 
 The following label combinations are pre-initialized:
+
 - **HTTP endpoints**: `/within`, `/intersect`, `/nearestNeighbour`, `/valuesAtPoint`, `/transform`, `/health`, `/topics`
 - **HTTP methods**: `GET`, `POST`
 - **Status codes**: `200`, `400`, `404`, `500`
@@ -419,10 +472,10 @@ This follows the [prom-client best practice](https://github.com/siimon/prom-clie
 The metrics system uses Node.js `AsyncLocalStorage` to maintain request context throughout the entire request lifecycle. This enables database metrics to be labeled with the endpoint that initiated them, even though database queries happen deep in the call stack.
 
 **How it works:**
+
 1. HTTP interceptor creates a request context containing endpoint and topics
 2. Context is stored in AsyncLocalStorage when handling the request
 3. Database query interceptor retrieves the context to add endpoint labels
 4. Context is automatically cleaned up when the request completes
 
 This approach ensures accurate attribution of database queries to API endpoints without passing context explicitly through every function call.
-
