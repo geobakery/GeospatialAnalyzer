@@ -27,7 +27,28 @@ export abstract class DbAdapterService {
     other: SqlParameter,
   ): string;
 
-  abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
+  abstract getValueAtFeature(
+    point: SqlParameter,
+    raster: SqlParameter,
+    decimalPlaces?: number,
+  ): string;
+
+  abstract getLineValueProfile(
+    feature: SqlParameter,
+    interpolationDistance: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+    decimalPlaces?: number,
+  ): string;
+
+  abstract getPolygonValueStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+    decimalPlaces?: number,
+  ): string;
 
   abstract bufferFeature(
     feature: SqlParameter,
@@ -58,4 +79,8 @@ export abstract class DbAdapterService {
   abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
 
   abstract unionAll(queries: string[]): string;
+
+  configureClipTouchedSupport(_supported: boolean): void {
+    // no-op by default
+  }
 }

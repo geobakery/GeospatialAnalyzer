@@ -27,20 +27,21 @@ describe('TopicsService', () => {
 
   it('exposes attribution as a de-duplicated list for multi-source topics', () => {
     const topics = service.getTopics();
-    const heights = topics.find((t) => t.identifiers.includes('hoehe_r'));
-    expect(heights).toBeDefined();
-    expect(heights?.attribution).toHaveLength(2);
-    expect(heights?.attribution?.[0].name).toBe('GeoSN');
-    expect(heights?.attribution?.[0].url).toContain('a3dba5b2');
-    expect(heights?.attribution?.[1].name).toBe('GeoSN');
-    expect(heights?.attribution?.[1].url).toContain('587d9a32');
+    const values = topics.find((t) => t.identifiers.includes('hoehe_r'));
+    expect(values).toBeDefined();
+    expect(values?.attribution).toHaveLength(2);
+    expect(values?.attribution?.[0].name).toBe('GeoSN');
+    expect(values?.attribution?.[0].url).toContain('a3dba5b2');
+    expect(values?.attribution?.[1].name).toBe('GeoSN');
+    expect(values?.attribution?.[1].url).toContain('587d9a32');
   });
 
   it('exposes valueMetadata on topics that configure it', () => {
     const topics = service.getTopics();
-    const heights = topics.find((t) => t.identifiers.includes('hoehe_r'));
-    expect(heights?.valueMetadata).toEqual({
+    const values = topics.find((t) => t.identifiers.includes('hoehe_r'));
+    expect(values?.valueMetadata).toEqual({
       unit: 'm',
+      decimalPlaces: 1,
       verticalDatum: 'DHHN2016',
     });
   });

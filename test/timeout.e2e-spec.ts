@@ -31,13 +31,7 @@ describe('SQL timeout handling (e2e)', () => {
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
-      imports: [
-        // 1 ms is below any real query's runtime, so the cancellation is
-        // deterministic instead of the test racing a threshold.
-        ...createTestModules([], { statementTimeout: 1 }),
-        GeneralModule,
-        TransformModule,
-      ],
+      imports: [...createTestModules([]), GeneralModule, TransformModule],
     }).compile();
     await moduleFixture.init();
   });
@@ -49,6 +43,10 @@ describe('SQL timeout handling (e2e)', () => {
   it('maps a statement cancelled by the database to the timeout status', async () => {
     const dataSource = moduleFixture.get(DataSource);
     const generalService = moduleFixture.get(GeneralService);
+
+    // Set the timeout only after all module initialization queries
+    // (especially SELECT PostGIS_Lib_Version()) have completed.
+    await dataSource.query('SET statement_timeout = 1');
 
     const failingQueryBuilder = dataSource
       .createQueryBuilder()

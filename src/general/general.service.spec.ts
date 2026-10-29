@@ -1,6 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
+import { QueryFailedError, SelectQueryBuilder, DataSource } from 'typeorm';
 import { TransformModule } from '../transform/transform.module';
 import {
   GeneralService,
@@ -51,7 +51,13 @@ describe('GeneralService', () => {
 
   async function setup(topicGroupFilterString?: string) {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GeneralService],
+      providers: [
+        GeneralService,
+        {
+          provide: DataSource,
+          useValue: {},
+        },
+      ],
       imports: [
         ConfigModule.forRoot({
           envFilePath: ['.env.test', '.env'],
@@ -67,7 +73,7 @@ describe('GeneralService', () => {
       ],
     }).compile();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
+    // @ts-ignore
     service = module.get<GeneralService>(GeneralService);
     mod = module;
   }
@@ -85,20 +91,11 @@ describe('GeneralService', () => {
       const result = service.getTopics();
       expect(result).toBeDefined();
     });
-
-    // example mock function
-    // We can adjust the output of a service by mocking it. If this service is called by itself or another function
-    // our mocked version will always be executed (In this case it returns 1234, even the real version would return 4326)
-    it('should work with mock', () => {
-      const mockResult = ['test'];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      jest.spyOn(service, 'getTopics').mockImplementation(() => mockResult);
-
-      const result = service.getTopics();
-      expect(result).toEqual(['test']);
-    });
   });
+
+  // example mock function
+  // We can adjust the output of a service by mocking it. If this service is called by itself or another function
+  // our mocked version will always be executed (In this case it returns 1234, even the real version would return 4326)
 
   describe('with empty topic group filtering', () => {
     beforeAll(async () => await setup(''));
@@ -190,7 +187,6 @@ describe('GeneralService', () => {
     });
 
     it('maps an unrelated query failure to a server error even if its message mentions a timeout', async () => {
-      // Mentions a timeout without being one; a loose message match misreports it.
       const driverError = Object.assign(
         new Error('column "timeout" does not exist'),
         { code: '42703' },
@@ -202,6 +198,126 @@ describe('GeneralService', () => {
           queryBuilderRejectingWith(driverError),
         ),
       ).rejects.toMatchObject({ status: HttpStatus.INTERNAL_SERVER_ERROR });
+    });
+  });
+
+  describe('decimalPlaces in topic.json', () => {
+    const modules: TestingModule[] = [];
+
+    afterEach(async () => {
+      await Promise.all(modules.splice(0).map((m) => m.close()));
+    });
+
+    const compileWith = async (topics: unknown[]) => {
+      const module = await Test.createTestingModule({
+        providers: [GeneralService, { provide: DataSource, useValue: {} }],
+        imports: [
+          ConfigModule.forRoot({
+            envFilePath: ['.env.test', '.env'],
+            load: [() => ({ __topicsConfig__: topics })],
+            isGlobal: true,
+          }),
+          TransformModule,
+        ],
+      }).compile();
+      modules.push(module);
+      return module.get<GeneralService>(GeneralService);
+    };
+
+    const topicWithSource = (
+      source: Record<string, unknown> = {},
+      metadata?: unknown,
+    ) => ({
+      identifiers: ['rasterTopic'],
+      title: 'Raster topic',
+      description: 'Topic with value metadata',
+      __attributes__: [],
+      __supports__: [],
+      ...(metadata === undefined ? {} : { __valueMetadata__: metadata }),
+      __source__: {
+        name: 'unused',
+        source: 'schema.table',
+        srid: 25833,
+        ...source,
+      },
+    });
+
+    describe('topic level (__valueMetadata__)', () => {
+      it.each([0, 1, 2, 5])(
+        'accepts the integer %i and keeps it, also 0',
+        async (n) => {
+          const service = await compileWith([
+            topicWithSource({}, { decimalPlaces: n }),
+          ]);
+          expect(
+            service.identifierValueMetadataMap.get('rasterTopic')
+              ?.decimalPlaces,
+          ).toBe(n);
+        },
+      );
+
+      it('accepts a topic without decimalPlaces', async () => {
+        const service = await compileWith([topicWithSource({}, { unit: 'm' })]);
+        expect(
+          service.identifierValueMetadataMap.get('rasterTopic')?.decimalPlaces,
+        ).toBeUndefined();
+      });
+
+      it.each([[-1], [1.5], ['2'], [null], [true]])(
+        'rejects %p',
+        async (value) => {
+          await expect(
+            compileWith([topicWithSource({}, { decimalPlaces: value })]),
+          ).rejects.toThrow(InternalServerErrorException);
+        },
+      );
+
+      it.each([['m'], [null], [[]]])(
+        'rejects %p as __valueMetadata__',
+        async (metadata) => {
+          await expect(
+            compileWith([topicWithSource({}, metadata)]),
+          ).rejects.toThrow(InternalServerErrorException);
+        },
+      );
+    });
+
+    describe('source level (requires the validation of Source.decimalPlaces)', () => {
+      it.each([0, 3])('accepts the integer %i', async (n) => {
+        await expect(
+          compileWith([topicWithSource({ decimalPlaces: n })]),
+        ).resolves.toBeDefined();
+      });
+
+      it.each([[-1], [1.5], ['2'], [null]])('rejects %p', async (value) => {
+        await expect(
+          compileWith([topicWithSource({ decimalPlaces: value })]),
+        ).rejects.toThrow(InternalServerErrorException);
+      });
+    });
+
+    describe('topics output', () => {
+      it('exposes decimalPlaces, a source value overrides the topic value', async () => {
+        const service = await compileWith([
+          topicWithSource(
+            { decimalPlaces: 3 },
+            { unit: 'm', decimalPlaces: 1 },
+          ),
+        ]);
+        const [info] = service.getAllTopicsInformation();
+        expect(info.valueMetadata).toMatchObject({
+          unit: 'm',
+          decimalPlaces: 3,
+        });
+      });
+
+      it('keeps decimalPlaces 0', async () => {
+        const service = await compileWith([
+          topicWithSource({}, { decimalPlaces: 0 }),
+        ]);
+        const [info] = service.getAllTopicsInformation();
+        expect(info.valueMetadata).toMatchObject({ decimalPlaces: 0 });
+      });
     });
   });
 });
