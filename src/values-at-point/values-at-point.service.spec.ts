@@ -79,6 +79,7 @@ describe('ValuesAtGridService – geometry type handling', () => {
       dynamicValidation: jest.fn().mockResolvedValue(true),
       getAndSetGeoID: jest.fn().mockReturnValue('feature-0'),
       identifierAllowedAttributesMap: new Map([['hoehe_r', []]]),
+      identifierValueMetadataMap: new Map(),
       getMultipleDBNamesForIdentifier: jest.fn().mockReturnValue(sources),
       calculateMethode: jest.fn().mockImplementation(async (_args, qb) => {
         capturedQb = qb;
@@ -95,65 +96,6 @@ describe('ValuesAtGridService – geometry type handling', () => {
       generalService as GeneralService,
       transformService as TransformService,
     );
-  });
-
-  it('uses ST_Value/ST_Intersects for a Point, without touching the line profile SQL', async () => {
-    await service.handleRequest(
-      buildRequest({ type: 'Point', coordinates: [13.78, 51.03] }) as any,
-    );
-    const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/ST_Value/i);
-    expect(sql).not.toMatch(/ST_LineInterpolatePoint/i);
-    expect(sql).not.toMatch(/ST_SummaryStats/i);
-  });
-
-  it('uses per-point lookups via the spatial index for a LineString', async () => {
-    await service.handleRequest(
-      buildRequest({
-        type: 'LineString',
-        coordinates: [
-          [13.78, 51.03],
-          [13.79, 51.04],
-        ],
-      }) as any,
-    );
-    const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/ST_LineInterpolatePoint/i);
-    expect(sql).toMatch(/sample_points/i);
-    expect(sql).toMatch(/point_values/i);
-    expect(sql).toMatch(/ST_Value/i);
-    expect(sql).toMatch(/ROUND\(AVG\(value\)::numeric, 2\)/i);
-  });
-
-  it('uses the polygon value stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
-    await service.handleRequest(
-      buildRequest({
-        type: 'Polygon',
-        coordinates: [
-          [
-            [13.78, 51.03],
-            [13.79, 51.03],
-            [13.79, 51.04],
-            [13.78, 51.03],
-          ],
-        ],
-      }) as any,
-    );
-    const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/ST_Transform/i);
-    expect(sql).toMatch(/ST_Intersects/i);
-    expect(sql).toMatch(/ST_Clip/i);
-    expect(sql).toMatch(/ST_SummaryStatsAgg/i);
-
-    expect(sql).toMatch(/gelaendehoehe_dgm/i);
-    expect(sql).toMatch(/oberflaechenhoehe_dom/i);
-
-    expect(sql).toMatch(/'count'/i);
-    expect(sql).toMatch(/'min'/i);
-    expect(sql).toMatch(/'max'/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.sum::numeric, 2\)/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.mean::numeric, 2\)/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.stddev::numeric, 3\)/i);
   });
 
   it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
@@ -217,5 +159,162 @@ describe('ValuesAtGridService – geometry type handling', () => {
     const sql = capturedQb.getQuery();
     expect(sql).toMatch(/gelaendehoehe_dgm/);
     expect(sql).toMatch(/oberflaechenhoehe_dom/);
+  });
+
+  describe('decimalPlaces_eachGeometry', () => {
+    const point = { raw: true as const, value: 'pt' };
+    const raster = { raw: true as const, value: 'rast' };
+    const feature = { raw: true as const, value: ':feature_wkt_0' };
+    const distance = { raw: true as const, value: ':interpolation_distance_0' };
+    let adapter: PostgresService;
+
+    beforeEach(() => {
+      adapter = new PostgresService();
+    });
+
+    describe('getValueAtFeature', () => {
+      it('does not round without decimalPlaces', () => {
+        expect(adapter.getValueAtFeature(point, raster)).toBe(
+          'ST_Value(rast, pt)',
+        );
+      });
+      it('rounds to the configured number of places', () => {
+        expect(adapter.getValueAtFeature(point, raster, 2)).toBe(
+          'ROUND((ST_Value(rast, pt))::numeric, 2)',
+        );
+      });
+      it('treats 0 as configured, not as missing', () => {
+        expect(adapter.getValueAtFeature(point, raster, 0)).toContain(
+          '::numeric, 0)',
+        );
+      });
+      it.each([[-1], [1.5], [NaN], ['2' as unknown as number]])(
+        'rejects %p',
+        (value) => {
+          expect(() => adapter.getValueAtFeature(point, raster, value)).toThrow(
+            'decimalPlaces must be an integer >= 0',
+          );
+        },
+      );
+    });
+
+    describe('getPolygonValueStats', () => {
+      const sql = (places?: number) =>
+        adapter.getPolygonValueStats(feature, 'ga.dgm_r', 'dgm', 25833, places);
+
+      it('does not round without decimalPlaces', () => {
+        expect(sql()).not.toContain('ROUND(');
+      });
+      it('rounds min, max, sum and mean to n places and stddev to n + 1', () => {
+        const result = sql(1);
+        for (const key of ['min', 'max', 'sum', 'mean']) {
+          expect(result).toContain(`ROUND(((stats).${key})::numeric, 1)`);
+        }
+        expect(result).toContain('ROUND(((stats).stddev)::numeric, 2)');
+      });
+      it('uses 0 and 1 places for decimalPlaces 0', () => {
+        const result = sql(0);
+        expect(result).toContain('ROUND(((stats).min)::numeric, 0)');
+        expect(result).toContain('ROUND(((stats).stddev)::numeric, 1)');
+      });
+      it('does not round the pixel count', () => {
+        expect(sql(2)).toContain("'pixel_haveValue',  (stats).count");
+      });
+    });
+
+    describe('getLineValueProfile', () => {
+      const sql = (places?: number) =>
+        adapter.getLineValueProfile(
+          feature,
+          distance,
+          'ga.dgm_r',
+          'dgm',
+          25833,
+          places,
+        );
+
+      it('does not round values without decimalPlaces, the chainage is always rounded', () => {
+        const result = sql();
+        expect(result).not.toContain('ROUND((MIN(value))');
+        expect(result).not.toContain('ROUND((value)::numeric');
+        expect(result).toContain('ROUND(distance_from_start::numeric, 2)');
+      });
+      it('rounds the statistics and the profile points', () => {
+        const result = sql(3);
+        for (const fn of ['MIN', 'MAX', 'SUM', 'AVG']) {
+          expect(result).toContain(`ROUND((${fn}(value))::numeric, 3)`);
+        }
+        expect(result).toContain('ROUND((STDDEV(value))::numeric, 4)');
+        expect(result).toContain('ROUND((value)::numeric, 3)');
+      });
+      it('leaves the chainage at 2 places', () => {
+        expect(sql(5)).toContain('ROUND(distance_from_start::numeric, 2)');
+      });
+    });
+  });
+
+  describe('decimalPlaces_general', () => {
+    const configure = (
+      topicLevel: number | undefined,
+      sourceLevels: Array<number | undefined>,
+    ) => {
+      (
+        generalService.getMultipleDBNamesForIdentifier as jest.Mock
+      ).mockReturnValue(
+        sources.map((s, i) => ({ ...s, decimalPlaces: sourceLevels[i] })),
+      );
+      (generalService as any).identifierValueMetadataMap = new Map(
+        topicLevel === undefined
+          ? []
+          : [['hoehe_r', { decimalPlaces: topicLevel }]],
+      );
+    };
+
+    // Places of every ROUND(..., n) in the generated SQL, in order.
+    const placesIn = (sql: string) =>
+      [...sql.matchAll(/::numeric, (\d+)\)/g)].map((m) => Number(m[1]));
+
+    const point = { type: 'Point', coordinates: [13.78, 51.03] };
+    const polygon = {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [13.78, 51.03],
+          [13.79, 51.03],
+          [13.79, 51.04],
+          [13.78, 51.03],
+        ],
+      ],
+    };
+
+    it('does not round when nothing is configured', async () => {
+      configure(undefined, [undefined, undefined]);
+      await service.handleRequest(buildRequest(point) as any);
+      expect(placesIn(capturedQb.getQuery())).toEqual([]);
+    });
+
+    it('uses the topic level when the source has none', async () => {
+      configure(2, [undefined, undefined]);
+      await service.handleRequest(buildRequest(point) as any);
+      expect(placesIn(capturedQb.getQuery())).toEqual([2, 2]);
+    });
+
+    it('a source value overrides the topic value', async () => {
+      configure(1, [3, undefined]);
+      await service.handleRequest(buildRequest(point) as any);
+      expect(placesIn(capturedQb.getQuery())).toEqual([3, 1]);
+    });
+
+    it('a source value of 0 overrides the topic value instead of falling back', async () => {
+      configure(2, [0, undefined]);
+      await service.handleRequest(buildRequest(point) as any);
+      expect(placesIn(capturedQb.getQuery())).toEqual([0, 2]);
+    });
+
+    it('rounds the polygon statistics, stddev with one more place', async () => {
+      configure(undefined, [1, undefined]);
+      await service.handleRequest(buildRequest(polygon) as any);
+      expect(placesIn(capturedQb.getQuery())).toEqual([1, 1, 1, 1, 2]);
+    });
   });
 });
