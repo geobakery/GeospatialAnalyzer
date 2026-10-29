@@ -194,9 +194,14 @@ export class PostgresService extends DbAdapterService {
       )
       SELECT json_build_object(
         'heightStats', json_build_object(
+          'points_count', COUNT(*),
+          'points_haveValue', COUNT(value),
+          'points_noValue', COUNT(*)-COUNT(value),
           'min', MIN(value),
           'max', MAX(value),
-          'mean', ROUND(AVG(value)::numeric, 2)
+          'sum', SUM(value),
+          'mean', AVG(value),
+          'stddev', STDDEV(value)
         ),
         'profilePoints', json_agg(
           json_build_object(
@@ -242,12 +247,12 @@ export class PostgresService extends DbAdapterService {
         )
       )
       SELECT json_build_object(
-        'count',  (stats).count,
+        'pixel_haveValue',  (stats).count,
         'min',    (stats).min,
         'max',    (stats).max,
-        'sum',    ROUND((stats).sum::numeric, 2),
-        'mean',   ROUND((stats).mean::numeric, 2),
-        'stddev', ROUND((stats).stddev::numeric, 3)
+        'sum',    (stats).sum,
+        'mean',   (stats).mean,
+        'stddev', (stats).stddev,
       )
       FROM stats
     )`;
