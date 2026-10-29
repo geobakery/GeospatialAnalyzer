@@ -54,7 +54,11 @@ export class GeneralService implements OnModuleInit {
   >();
   identifierValueMetadataMap: Map<
     string,
-    { unit?: string; verticalDatum?: string }
+    {
+      unit?: string;
+      decimalPlaces?: number;
+      verticalDatum?: string;
+    }
   > = new Map();
   identifierAttributionMap: Map<
     string,
@@ -171,7 +175,7 @@ export class GeneralService implements OnModuleInit {
    * top and add a sources[] array with one entry per source that carries its
    * own values.
    */
-  private _buildOutputMetadataSection<T extends Record<string, string>>(
+  private _buildOutputMetadataSection<T extends Record<string, unknown>>(
     t: topicDefinition,
     getTopicLevel: (topic: topicDefinition) => Partial<T> | undefined,
     getSourceLevel: (source: Source) => Partial<T> | undefined,
@@ -263,6 +267,26 @@ export class GeneralService implements OnModuleInit {
         }
         if (!(typeof (t as topicDefinition).title === 'string')) {
           return false;
+        }
+
+        const metadata = (t as topicDefinition).__valueMetadata__;
+
+        if (metadata !== undefined) {
+          if (
+            typeof metadata !== 'object' ||
+            metadata === null ||
+            Array.isArray(metadata)
+          ) {
+            return false;
+          }
+
+          if (
+            metadata.decimalPlaces !== undefined &&
+            (!Number.isInteger(metadata.decimalPlaces) ||
+              metadata.decimalPlaces < 0)
+          ) {
+            return false;
+          }
         }
 
         // check source object
@@ -366,6 +390,7 @@ export class GeneralService implements OnModuleInit {
         (topic) => topic.__valueMetadata__,
         (source) => ({
           unit: source.unit,
+          decimalPlaces: source.decimalPlaces,
           verticalDatum: source.verticalDatum,
         }),
       );
