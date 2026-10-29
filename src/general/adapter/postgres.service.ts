@@ -11,7 +11,12 @@ export class PostgresService extends DbAdapterService {
     if (decimalPlaces === undefined) {
       return expression;
     }
-
+    // The value ends up in the SQL text, so only a non-negative integer is allowed.
+    if (!Number.isInteger(decimalPlaces) || decimalPlaces < 0) {
+      throw new Error(
+        `decimalPlaces must be an integer >= 0, got ${decimalPlaces}`,
+      );
+    }
     return `ROUND((${expression})::numeric, ${decimalPlaces})`;
   }
 
