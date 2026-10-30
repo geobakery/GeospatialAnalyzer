@@ -195,7 +195,7 @@ export class NearestNeighbourParameterDto extends ParameterDto {
     type: Boolean,
     example: false,
     description:
-      'Only allowed for polygon input geometries. Excludes features that lie entirely inside the polygon. Cannot be combined with PolygonExcludesInnerFeatures.',
+      'Only allowed for polygon input geometries. Excludes features that lie entirely inside the polygon. Cannot be combined with polygonExcludesInnerFeatures.',
   })
   polygonExcludesEntirelyInnerFeatures?: boolean;
 }

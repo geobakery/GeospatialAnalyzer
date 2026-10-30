@@ -7,8 +7,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
-- `nearestNeighbour` has three optional parameters. At the one hand there is `minDistanceToNeighbour` (distance in meters) which excludes features closer to the input geometry than the given distance. `Count` still limits the features that have a valid distance. At the other hand there are `polygonExcludesInnerFeatures` and `polygonExcludesEntirelyInnerFeatures` which are exclusively for polygons as input geometries. `polygonExcludesInnerFeatures` excludes features that have any part inside the input polygon. `polygonExcludesEntirelyInnerFeatures`excludes features, that are entirely inside the input polygon (geometries that only intersect with the border of the Polygon are not excluded). These parameters are mutually exclusive (only one of them can be enabled at a time) and can only be used, if minDistancetoNeighbour is 0 oder undefined.
 
+- `nearestNeighbour` has three optional parameters. On the one hand there is `minDistanceToNeighbour` (distance in meters) which excludes features closer to the input geometry than the given distance. `Count` still limits the features that have a valid distance. On the other hand there are `polygonExcludesInnerFeatures` and `polygonExcludesEntirelyInnerFeatures` which are exclusively for polygons as input geometries. `polygonExcludesInnerFeatures` excludes features that have any part inside the input polygon. `polygonExcludesEntirelyInnerFeatures` excludes features, that are entirely inside the input polygon (geometries that only intersect with the border of the Polygon are not excluded). These parameters are mutually exclusive (only one of them can be enabled at a time) and can only be used, if `minDistanceToNeighbour` is 0 or undefined.
 
 ### Fixed
 
