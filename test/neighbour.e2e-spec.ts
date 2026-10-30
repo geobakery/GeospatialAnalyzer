@@ -39,6 +39,51 @@ import {
 describe('NearestNeighbourController (e2e)', () => {
   let app: NestFastifyApplication;
 
+  const point = { type: 'Point' as const, coordinates: [15.746, 51.072] };
+
+  const smallPolygonInDresden = {
+    type: 'Polygon' as const,
+    coordinates: [
+      [
+        [13.749, 51.069],
+        [13.751, 51.069],
+        [13.751, 51.071],
+        [13.749, 51.071],
+        [13.749, 51.069],
+      ],
+    ],
+  };
+  // Covers the whole city of Dresden, neighbouring Landkreise are only partly inside.
+  const polygonAroundDresden = {
+    type: 'Polygon' as const,
+    coordinates: [
+      [
+        [13.5, 50.9],
+        [14.1, 50.9],
+        [14.1, 51.25],
+        [13.5, 51.25],
+        [13.5, 50.9],
+      ],
+    ],
+  };
+
+  const post = (geometry: any, extra: Record<string, unknown> = {}) =>
+    app.inject({
+      method: POST,
+      url: URL_START + NEAREST_URL,
+      payload: {
+        ...getGeoJSONFeature({
+          topics: ['kreis_f'],
+          returnGeometry: false,
+          fixGeometry: geometry,
+        }),
+        count: 2,
+        maxDistanceToNeighbour: 0,
+        ...extra,
+      },
+      headers: HEADERS_JSON,
+    });
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [NearestNeighbourController],
@@ -316,5 +361,169 @@ describe('NearestNeighbourController (e2e)', () => {
     });
 
     expect(result.statusCode).toBe(400);
+  });
+
+  it('without option the enclosing Kreis is the nearest neighbour', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(smallPolygonInDresden),
+    );
+    expect(features[0].properties['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(features[0].properties[DB_DIST_NAME]).toBe(0);
+  });
+
+  it('minDistanceToNeighbour behaves like 0 when omitted', async () => {
+    const without = await getGeoJSONFeatureFromResponse(await post(point));
+    const withZero = await getGeoJSONFeatureFromResponse(
+      await post(point, { minDistanceToNeighbour: 0 }),
+    );
+    expect(withZero.map((f) => f.properties['name'])).toEqual(
+      without.map((f) => f.properties['name']),
+    );
+  });
+
+  it('minDistanceToNeighbour excludes closer features before count is applied', async () => {
+    const result = await post(point, { minDistanceToNeighbour: 80000 });
+    await testStatus200('minDistanceToNeighbour', result);
+    const features = await getGeoJSONFeatureFromResponse(result);
+    // Length 2 shows that the filter runs before LIMIT.
+    expect(features).toHaveLength(2);
+    expect(features[0].properties['name']).toBe(
+      'Landkreis Sächsische Schweiz-Osterzgebirge',
+    );
+    for (const f of features) {
+      expect(f.properties[DB_DIST_NAME]).toBeGreaterThanOrEqual(80000);
+    }
+  });
+
+  it('minDistanceToNeighbour returns the no-result feature when no feature is far enough away', async () => {
+    const result = await post(point, { minDistanceToNeighbour: 100000000 });
+    await testStatus200('minDistanceToNeighbour above all', result);
+    const features = await getGeoJSONFeatureFromResponse(result);
+    expect(features).toHaveLength(1);
+    expect(features[0].properties['NO_RESULT']).toBeDefined();
+  });
+
+  it('minDistanceToNeighbour excludes a feature containing the input polygon (distance 0)', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(smallPolygonInDresden, { minDistanceToNeighbour: 1 }),
+    );
+    expect(features).toHaveLength(2);
+    for (const f of features) {
+      expect(f.properties['name']).not.toBe('Kreisfreie Stadt Dresden');
+      expect(f.properties[DB_DIST_NAME]).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('rejects a minDistanceToNeighbour above maxDistanceToNeighbour', async () => {
+    const result = await post(point, {
+      minDistanceToNeighbour: 5000,
+      maxDistanceToNeighbour: 1000,
+    });
+    await testStatus400('min above max', result);
+    expect(JSON.parse(result.payload).message).toContain(
+      'minDistanceToNeighbour',
+    );
+  });
+
+  it('rejects a negative minDistanceToNeighbour', async () => {
+    const result = await post(point, { minDistanceToNeighbour: -1 });
+    await testStatus400('negative minimum', result);
+  });
+
+  it('polygonExcludesInnerFeatures removes the enclosing Kreis and still fills count', async () => {
+    const result = await post(smallPolygonInDresden, {
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus200('polygonExcludesInnerFeatures', result);
+    const features = await getGeoJSONFeatureFromResponse(result);
+    // Length 2 shows that the filter runs before LIMIT.
+    expect(features).toHaveLength(2);
+    for (const f of features) {
+      expect(f.properties['NO_RESULT']).toBeUndefined();
+      expect(f.properties['name']).not.toBe('Kreisfreie Stadt Dresden');
+      expect(f.properties[DB_DIST_NAME]).toBeGreaterThan(0);
+    }
+  });
+
+  it('polygonExcludesEntirelyInnerFeatures keeps the enclosing Kreis', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(smallPolygonInDresden, {
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    );
+    expect(features[0].properties['name']).toBe('Kreisfreie Stadt Dresden');
+    expect(features[0].properties[DB_DIST_NAME]).toBe(0);
+  });
+
+  it('polygonExcludesEntirelyInnerFeatures removes entirely inner features but keeps crossing ones', async () => {
+    const features = await getGeoJSONFeatureFromResponse(
+      await post(polygonAroundDresden, {
+        polygonExcludesEntirelyInnerFeatures: true,
+      }),
+    );
+    expect(features.map((f) => f.properties['name'])).not.toContain(
+      'Kreisfreie Stadt Dresden',
+    );
+    expect(features.some((f) => f.properties[DB_DIST_NAME] === 0)).toBe(true);
+  });
+
+  it('rejects both options set to true', async () => {
+    const result = await post(smallPolygonInDresden, {
+      polygonExcludesInnerFeatures: true,
+      polygonExcludesEntirelyInnerFeatures: true,
+    });
+    await testStatus400('both options', result);
+  });
+
+  it('rejects an option set to true for a point input', async () => {
+    const result = await post(
+      { type: 'Point', coordinates: [13.75, 51.07] },
+      { polygonExcludesInnerFeatures: true },
+    );
+    await testStatus400('point input', result);
+    expect(JSON.parse(result.payload).message).toContain(
+      'Polygon input geometries',
+    );
+  });
+
+  it('accepts false for a point input', async () => {
+    const result = await post(
+      { type: 'Point', coordinates: [13.75, 51.07] },
+      { polygonExcludesInnerFeatures: false },
+    );
+    await testStatus200('false for point', result);
+  });
+
+  it('rejects polygonExcludesInnerFeatures together with minDistanceToNeighbour > 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus400('inner + min', result);
+  });
+
+  it('rejects polygonExcludesEntirelyInnerFeatures together with minDistanceToNeighbour > 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesEntirelyInnerFeatures: true,
+    });
+    await testStatus400('entirely inner + min', result);
+  });
+
+  it('accepts an exclusion option together with minDistanceToNeighbour 0', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 0,
+      polygonExcludesInnerFeatures: true,
+    });
+    await testStatus200('inner + min 0', result);
+  });
+
+  it('accepts minDistanceToNeighbour > 0 with both exclusion options false', async () => {
+    const result = await post(smallPolygonInDresden, {
+      minDistanceToNeighbour: 1,
+      polygonExcludesInnerFeatures: false,
+      polygonExcludesEntirelyInnerFeatures: false,
+    });
+    await testStatus200('min + options false', result);
   });
 });
