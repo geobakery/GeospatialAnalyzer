@@ -24,7 +24,10 @@ import {
   VALUES_AT_POINT_URL,
   WITHIN_URL,
 } from './common/constants';
-import { getGeoJSONFeature } from './common/testDataPreparer';
+import {
+  getGeoJSONFeature,
+  getEsriJSONFeature,
+} from './common/testDataPreparer';
 
 describe('Geometry type validation (e2e)', () => {
   let app: NestFastifyApplication;
@@ -59,7 +62,7 @@ describe('Geometry type validation (e2e)', () => {
     await app.close();
   });
 
-  const geometries = {
+  const GEOJSON_GEOMETRIES = {
     Point: { type: 'Point' as const, coordinates: [13.75, 51.072] },
     LineString: {
       type: 'LineString' as const,
@@ -82,80 +85,143 @@ describe('Geometry type validation (e2e)', () => {
     },
   };
 
+  // UTM 33N, inside the city of Dresden.
+  const ESRI_GEOMETRIES = {
+    Point: { x: 414000, y: 5654500, spatialReference: { wkid: 25833 } },
+    LineString: {
+      paths: [
+        [
+          [412500, 5653000],
+          [415500, 5656000],
+        ],
+      ],
+      spatialReference: { wkid: 25833 },
+    },
+    Polygon: {
+      rings: [
+        [
+          [412500, 5653000],
+          [415500, 5653000],
+          [415500, 5656000],
+          [412500, 5656000],
+          [412500, 5653000],
+        ],
+      ],
+      spatialReference: { wkid: 25833 },
+    },
+  };
+
+  const INPUT_KINDS: InputKind[] = ['GeoJSON', 'EsriJSON'];
+  const GEOMETRY_NAMES: GeometryName[] = ['Point', 'LineString', 'Polygon'];
+  const GENERAL_ENDPOINTS = [
+    ['within', WITHIN_URL],
+    ['intersect', INTERSECT_URL],
+    ['nearestNeighbour', NEAREST_URL],
+  ] as const;
+
   async function postGeometry(
     url: string,
-    geometry: (typeof geometries)[keyof typeof geometries],
+    kind: InputKind,
+    type: GeometryName,
     topic: string,
     nearestNeighbour = false,
   ) {
-    const payload = await getGeoJSONFeature({
-      topics: [topic],
-      returnGeometry: false,
-      fixGeometry: geometry,
-    });
+    const payload =
+      kind === 'GeoJSON'
+        ? await getGeoJSONFeature({
+            topics: [topic],
+            returnGeometry: false,
+            fixGeometry: GEOJSON_GEOMETRIES[type],
+          })
+        : getEsriJSONFeature({
+            topics: [topic],
+            returnGeometry: false,
+            outputFormat: 'esrijson',
+            fixGeometry: [{ geometry: ESRI_GEOMETRIES[type] }],
+          });
 
     return app.inject({
       method: POST,
       url: URL_START + url,
       payload: nearestNeighbour
-        ? {
-            ...payload,
-            count: 1,
-            maxDistanceToNeighbour: 0,
-          }
+        ? { ...payload, count: 1, maxDistanceToNeighbour: 0 }
         : payload,
       headers: HEADERS_JSON,
     });
   }
 
-  it.each(['LineString', 'Polygon'] as const)(
-    'should reject %s for values-at-point',
-    async (type) => {
+  describe.each(INPUT_KINDS)('valuesAtPoint with %s input', (kind) => {
+    it('accepts a Point', async () => {
       const result = await postGeometry(
         VALUES_AT_POINT_URL,
-        geometries[type],
+        kind,
+        'Point',
         'hoehe_r',
       );
+      expect(result.statusCode).toBe(200);
+    });
 
-      expect(result.statusCode).toBe(400);
+    it.each(['LineString', 'Polygon'] as const)(
+      'rejects a %s with the common error shape',
+      async (type) => {
+        const result = await postGeometry(
+          VALUES_AT_POINT_URL,
+          kind,
+          type,
+          'hoehe_r',
+        );
+        expect(result.statusCode).toBe(400);
+        expect(JSON.parse(result.payload)).toEqual({
+          statusCode: 400,
+          message: 'Invalid user input',
+          detailed_errors: [
+            `Unsupported geometry type '${type}' for valuesAtPoint. Supported types: Point.`,
+          ],
+        });
+      },
+    );
+  });
 
-      const body = JSON.parse(result.payload);
-      expect(body.message).toBe('Unsupported geometry type');
-      expect(body.detailed_errors).toContain(
-        `Unsupported geometry type '${type}' for valuesAtPoint. Supported types: Point.`,
-      );
-    },
-  );
-
-  it.each(['within', 'intersect', 'nearestNeighbour'] as const)(
-    'should accept Point, LineString and Polygon for %s',
-    async (endpoint) => {
-      const url = {
-        within: WITHIN_URL,
-        intersect: INTERSECT_URL,
-        nearestNeighbour: NEAREST_URL,
-      }[endpoint];
-
-      for (const type of ['Point', 'LineString', 'Polygon'] as const) {
+  describe.each(GENERAL_ENDPOINTS)('%s', (endpoint, url) => {
+    describe.each(INPUT_KINDS)('with %s input', (kind) => {
+      it.each(GEOMETRY_NAMES)('accepts a %s', async (type) => {
         const result = await postGeometry(
           url,
-          geometries[type],
+          kind,
+          type,
           'kreis_f',
           endpoint === 'nearestNeighbour',
         );
-
         expect(result.statusCode).toBe(200);
-      }
-    },
-  );
+      });
+    });
+  });
 
-  it('should accept Point for values-at-point', async () => {
-    const result = await postGeometry(
-      VALUES_AT_POINT_URL,
-      geometries.Point,
-      'hoehe_r',
+  it('answers with the same error shape as the schema validation', async () => {
+    // MultiPolygon is rejected by the schema, not by validateGeometryTypes.
+    const schemaPayload = await getGeoJSONFeature({
+      topics: ['hoehe_r'],
+      returnGeometry: false,
+      fixGeometry: { type: 'MultiPolygon', coordinates: [] } as any,
+    });
+    const schemaError = JSON.parse(
+      (
+        await app.inject({
+          method: POST,
+          url: URL_START + VALUES_AT_POINT_URL,
+          payload: schemaPayload,
+          headers: HEADERS_JSON,
+        })
+      ).payload,
+    );
+    const typeError = JSON.parse(
+      (await postGeometry(VALUES_AT_POINT_URL, 'GeoJSON', 'Polygon', 'hoehe_r'))
+        .payload,
     );
 
-    expect(result.statusCode).toBe(200);
+    expect(Object.keys(typeError).sort()).toEqual(
+      Object.keys(schemaError).sort(),
+    );
+    expect(typeError.message).toBe(schemaError.message);
   });
 });
