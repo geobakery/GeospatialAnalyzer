@@ -45,11 +45,12 @@ export class TransformService {
             epsgString,
           );
         }
-      } catch (_e) {
-        throw new HttpException(
-          'Coordinates are not valid',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+      } catch (e) {
+        if (e instanceof HttpException) {
+          throw e;
+        }
+
+        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
       try {
@@ -71,11 +72,12 @@ export class TransformService {
         }
 
         esriJsonArray.push(esriJson);
-      } catch (_e) {
-        throw new HttpException(
-          'GeoJSON to EsriJSON conversion failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+      } catch (e) {
+        if (e instanceof HttpException) {
+          throw e;
+        }
+
+        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
     return esriJsonArray;
