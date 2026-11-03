@@ -251,12 +251,6 @@ export class GeneralService implements OnModuleInit {
     }
   }
 
-  private isValidDecimalPlaces(value: unknown): boolean {
-    return (
-      value === undefined || (Number.isInteger(value) && (value as number) >= 0)
-    );
-  }
-
   private checkTopicDefinition(
     topicArray: unknown,
   ): topicArray is topicDefinition[] {
@@ -286,7 +280,11 @@ export class GeneralService implements OnModuleInit {
             return false;
           }
 
-          if (!this.isValidDecimalPlaces(metadata.decimalPlaces)) {
+          if (
+            metadata.decimalPlaces !== undefined &&
+            (!Number.isInteger(metadata.decimalPlaces) ||
+              metadata.decimalPlaces < 0)
+          ) {
             return false;
           }
         }
@@ -296,8 +294,7 @@ export class GeneralService implements OnModuleInit {
           return (
             typeof (s as Source).source == 'string' &&
             typeof (s as Source).name == 'string' &&
-            typeof (s as Source).srid == 'number' &&
-            this.isValidDecimalPlaces((s as Source).decimalPlaces)
+            typeof (s as Source).srid == 'number'
           );
         };
 
