@@ -77,17 +77,11 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     const valueQueries = [];
 
     for (const [sourceIndex, source] of sources.entries()) {
-      const decimalPlaces =
-        source.decimalPlaces ??
-        this.generalService.identifierValueMetadataMap.get(logicalRequest.topic)
-          ?.decimalPlaces;
-
-      const featureValue = this.getValueAtGridString(
+      const featureValue = this.getValueArRasterString(
         queryBuilder,
         source.srid,
         feature,
         featureIndex,
-        decimalPlaces,
       );
       const featureIntersect = this.getFeatureIntersectString(
         queryBuilder,
@@ -144,18 +138,12 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     );
 
     for (const [sourceIndex, source] of sources.entries()) {
-      const decimalPlaces =
-        source.decimalPlaces ??
-        this.generalService.identifierValueMetadataMap.get(logicalRequest.topic)
-          ?.decimalPlaces;
-
       const profileExpr = this.adapter.getLineValueProfile(
         { raw: true, value: `:${featureParam}` },
         { raw: true, value: `:${interpolationDistanceParam}` },
         source.source,
         source.name,
         source.srid,
-        decimalPlaces,
       );
 
       const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
@@ -199,17 +187,11 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     );
 
     for (const [sourceIndex, source] of sources.entries()) {
-      const decimalPlaces =
-        source.decimalPlaces ??
-        this.generalService.identifierValueMetadataMap.get(logicalRequest.topic)
-          ?.decimalPlaces;
-
       const statsExpr = this.adapter.getPolygonValueStats(
         { raw: true, value: `:${featureParam}` },
         source.source,
         source.name,
         source.srid,
-        decimalPlaces,
       );
 
       const topicSourceParameterName = `topic_${topicIndex}_source_name_${sourceIndex}`;
@@ -233,12 +215,11 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     );
   }
 
-  private getValueAtGridString(
+  private getValueArRasterString(
     queryStart: SelectQueryBuilder<unknown>,
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
-    decimalPlaces?: number,
   ): string {
     // setup for left and right side of intersect
     queryStart.setParameter(
@@ -253,7 +234,6 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     return this.adapter.getValueAtFeature(
       { raw: true, value: queryFeature },
       { raw: true, value: DB_RASTER_DATA_NAME },
-      decimalPlaces,
     );
   }
 

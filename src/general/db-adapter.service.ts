@@ -27,28 +27,7 @@ export abstract class DbAdapterService {
     other: SqlParameter,
   ): string;
 
-  abstract getValueAtFeature(
-    point: SqlParameter,
-    raster: SqlParameter,
-    decimalPlaces?: number,
-  ): string;
-
-  abstract getLineValueProfile(
-    feature: SqlParameter,
-    interpolationDistance: SqlParameter,
-    sourceTable: string,
-    sourceAlias: string,
-    srid: number,
-    decimalPlaces?: number,
-  ): string;
-
-  abstract getPolygonValueStats(
-    feature: SqlParameter,
-    sourceTable: string,
-    sourceAlias: string,
-    srid: number,
-    decimalPlaces?: number,
-  ): string;
+  abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
 
   abstract bufferFeature(
     feature: SqlParameter,
@@ -60,6 +39,21 @@ export abstract class DbAdapterService {
   abstract getBufferJsonStructure(
     bufferGeometry: string,
     bufferDistance: string,
+  ): string;
+
+  abstract getLineValueProfile(
+    feature: SqlParameter,
+    interpolationDistance: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
+  abstract getPolygonValueStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
   ): string;
 
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;

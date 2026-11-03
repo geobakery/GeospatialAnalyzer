@@ -7,14 +7,6 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 export class PostgresService extends DbAdapterService {
   private clipTouchedArg = '';
 
-  private roundValue(expression: string, decimalPlaces?: number): string {
-    if (decimalPlaces === undefined) {
-      return expression;
-    }
-
-    return `ROUND((${expression})::numeric, ${decimalPlaces})`;
-  }
-
   override configureClipTouchedSupport(supported: boolean): void {
     this.clipTouchedArg = supported ? ', true' : '';
   }
@@ -40,12 +32,8 @@ export class PostgresService extends DbAdapterService {
   override getValueAtFeature(
     point: SqlParameter,
     raster: SqlParameter,
-    decimalPlaces?: number,
   ): string {
-    return this.roundValue(
-      `ST_Value(${raster.value}, ${point.value})`,
-      decimalPlaces,
-    );
+    return `ST_value(${raster.value}, ${point.value})`;
   }
 
   /**
@@ -63,7 +51,6 @@ export class PostgresService extends DbAdapterService {
     sourceTable: string,
     sourceAlias: string,
     srid: number,
-    decimalPlaces?: number,
   ): string {
     const lineGeometry = `ST_LineMerge(${feature.value}::geometry)`;
 
@@ -210,16 +197,16 @@ export class PostgresService extends DbAdapterService {
           'points_count', COUNT(*),
           'points_haveValue', COUNT(value),
           'points_noValue', COUNT(*)-COUNT(value),
-          'min', ${this.roundValue('MIN(value)', decimalPlaces)},
-          'max', ${this.roundValue('MAX(value)', decimalPlaces)},
-          'sum', ${this.roundValue('SUM(value)', decimalPlaces)},
-          'mean', ${this.roundValue('AVG(value)', decimalPlaces)},
-          'stddev', ${this.roundValue('STDDEV(value)', decimalPlaces === undefined ? undefined : decimalPlaces + 1)}
+          'min', MIN(value),
+          'max', MAX(value),
+          'sum', SUM(value),
+          'mean', AVG(value),
+          'stddev', STDDEV(value)
         ),
         'profilePoints', json_agg(
           json_build_object(
             'index', idx,
-            'height', ${this.roundValue('value', decimalPlaces)},
+            'height', value,
             'isVertex', is_vertex,
             'chainageMeters', ROUND(distance_from_start::numeric, 2)
           )
@@ -235,7 +222,6 @@ export class PostgresService extends DbAdapterService {
     sourceTable: string,
     sourceAlias: string,
     srid: number,
-    decimalPlaces?: number,
   ): string {
     const polygon = `ST_Transform(${feature.value}::text, ${srid})`;
 
@@ -262,11 +248,11 @@ export class PostgresService extends DbAdapterService {
       )
       SELECT json_build_object(
         'pixel_haveValue',  (stats).count,
-        'min', ${this.roundValue('(stats).min', decimalPlaces)},
-        'max', ${this.roundValue('(stats).max', decimalPlaces)},
-        'sum', ${this.roundValue('(stats).sum', decimalPlaces)},
-        'mean', ${this.roundValue('(stats).mean', decimalPlaces)},
-        'stddev', ${this.roundValue('(stats).stddev', decimalPlaces === undefined ? undefined : decimalPlaces + 1)}
+        'min',    (stats).min,
+        'max',    (stats).max,
+        'sum',    (stats).sum,
+        'mean',   (stats).mean,
+        'stddev', (stats).stddev,
       )
       FROM stats
     )`;
