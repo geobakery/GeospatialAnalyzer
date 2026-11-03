@@ -35,9 +35,9 @@ export const QUERY_BUFFER_INDEX = 'buffer_';
 
 export const LINE_INTERPOLATION_DISTANCE_METERS = 10;
 export const QUERY_INTERPOLATION_DISTANCE_INDEX = 'interpolation_distance_';
-export const DB_VALUE_PROFILE_NAME = 'heightProfile';
+export const DB_VALUE_PROFILE_NAME = 'valueProfile';
 
-export const DB_VALUE_STATS_NAME = 'heightStats';
+export const DB_VALUE_STATS_NAME = 'valueStats';
 
 /**
  * Choosing an appropriate status code is surprisingly unclear:

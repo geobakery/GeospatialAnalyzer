@@ -156,7 +156,7 @@ describe('ValuesAtGridController (e2e)', () => {
         const properties = feature.properties;
 
         expect(properties.__topic).toBe('hoehe_r');
-        expect(properties.height).toBeDefined();
+        expect(properties.value).toBeDefined();
         expect(properties.__unit).toBe('m');
         expect(properties.__verticalDatum).toBe('DHHN2016');
         expect(properties.__attribution).toEqual([expected.attribution]);
@@ -203,9 +203,9 @@ describe('ValuesAtGridController (e2e)', () => {
 
       for (const feature of features) {
         expectFeatureWithoutGeometry(feature);
-        expect(feature.properties?.height).toBeDefined();
-        expect(feature.properties?.heightProfile).toBeUndefined();
-        expect(feature.properties?.heightStats).toBeUndefined();
+        expect(feature.properties?.value).toBeDefined();
+        expect(feature.properties?.valueProfile).toBeUndefined();
+        expect(feature.properties?.valueStats).toBeUndefined();
       }
     });
   });
@@ -243,14 +243,14 @@ describe('ValuesAtGridController (e2e)', () => {
       for (const feature of features) {
         expectFeatureWithoutGeometry(feature);
 
-        const profile = feature.properties?.heightProfile;
+        const profile = feature.properties?.valueProfile;
 
         expect(profile).toBeDefined();
-        expect(profile.heightStats).toBeDefined();
+        expect(profile.valueStats).toBeDefined();
         expect(Array.isArray(profile.profilePoints)).toBe(true);
         expect(profile.profilePoints.length).toBeGreaterThanOrEqual(2);
 
-        const stats = profile.heightStats;
+        const stats = profile.valueStats;
         const points = profile.profilePoints;
 
         expect(stats.points_count).toBe(points.length);
