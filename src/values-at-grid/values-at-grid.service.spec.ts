@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { ValuesAtGridService } from './values-at-point.service';
+import { ValuesAtGridService } from './values-at-grid.service';
 import { GeneralService } from '../general/general.service';
 import { TransformService } from '../transform/transform.service';
 import { PostgresService } from '../general/adapter/postgres.service';

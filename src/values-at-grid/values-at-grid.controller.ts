@@ -16,9 +16,9 @@ import {
 import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outside.dto';
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
-import { ValuesAtGridService } from './values-at-point.service';
+import { ValuesAtGridService } from './values-at-grid.service';
 
-@ApiTags('ValuesAtPoint')
+@ApiTags('ValuesAtGrid')
 @Controller({
   version: '2',
   path: 'valuesAtPoint',
@@ -34,7 +34,7 @@ export class ValuesAtGridController {
     isArray: true,
   })
   @ApiOperation({
-    summary: 'Output all the possible valuesAtPoint topics',
+    summary: 'Output all the possible valuesAtGrid topics',
   })
   @Get('topics')
   topic(): topicDefinitionOutside[] {
@@ -76,7 +76,7 @@ export class ValuesAtGridController {
     summary: 'Return the values at the transferred point',
   })
   @Post('/')
-  async valuesAtPoint(
+  async valuesAtGrid(
     @Body() args: ValuesAtGridParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
     return await this.valuesAtGridService.handleRequest(args);

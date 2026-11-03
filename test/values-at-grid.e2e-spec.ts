@@ -7,8 +7,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import { GeneralModule } from '../src/general/general.module';
 import { TransformModule } from '../src/transform/transform.module';
-import { ValuesAtGridController } from '../src/values-at-point/values-at-point.controller';
-import { ValuesAtGridService } from '../src/values-at-point/values-at-point.service';
+import { ValuesAtGridController } from '../src/values-at-grid/values-at-grid.controller';
+import { ValuesAtGridService } from '../src/values-at-grid/values-at-grid.service';
 import {
   GET,
   HEADERS_JSON,
@@ -93,7 +93,7 @@ describe('ValuesAtGridController (e2e)', () => {
         headers: HEADERS_JSON,
       });
 
-      await testStatus200('/POST ValuesAtPoint without geometry', result);
+      await testStatus200('/POST ValuesAtGrid without geometry', result);
 
       const features = await getGeoJSONFeatureFromResponse(result);
 
@@ -156,7 +156,7 @@ describe('ValuesAtGridController (e2e)', () => {
         const properties = feature.properties;
 
         expect(properties.__topic).toBe('hoehe_r');
-        expect(properties.value).toBeDefined();
+        expect(properties.height).toBeDefined();
         expect(properties.__unit).toBe('m');
         expect(properties.__verticalDatum).toBe('DHHN2016');
         expect(properties.__attribution).toEqual([expected.attribution]);
@@ -195,7 +195,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
       const result = await postGeoJSON(payload);
 
-      await testStatus200('/POST valuesAtPoint Point regression', result);
+      await testStatus200('/POST valuesAtGrid Point regression', result);
 
       const features = JSON.parse(result.payload) as any[];
 
@@ -203,7 +203,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
       for (const feature of features) {
         expectFeatureWithoutGeometry(feature);
-        expect(feature.properties?.value).toBeDefined();
+        expect(feature.properties?.height).toBeDefined();
         expect(feature.properties?.valueProfile).toBeUndefined();
         expect(feature.properties?.valueStats).toBeUndefined();
       }

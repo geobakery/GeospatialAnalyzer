@@ -8,7 +8,7 @@ import { IntersectModule } from './intersect/intersect.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { NearestNeighbourModule } from './nearest-neighbour/nearest-neighbour.module';
 import { TransformModule } from './transform/transform.module';
-import { ValuesAtGridModule } from './values-at-point/values-at-point.module';
+import { ValuesAtGridModule } from './values-at-grid/values-at-grid.module';
 import { WithinModule } from './within/within.module';
 import { TopicsModule } from './topics/topics.module';
 

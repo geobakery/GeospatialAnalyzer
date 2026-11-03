@@ -56,7 +56,7 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
 
     if (geometryType !== 'Point') {
       throw new BadRequestException(
-        `valuesAtPoint currently supports Point, LineString and Polygon geometries, got "${geometryType}"`,
+        `valuesAtGrid currently supports Point, LineString and Polygon geometries, got "${geometryType}"`,
       );
     }
 

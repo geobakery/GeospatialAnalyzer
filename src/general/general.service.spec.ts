@@ -31,7 +31,7 @@ const TOPIC_CONFIG_EXAMPLE: topicDefinition[] = [
     description: 'Description of the second topic',
     __source__: { name: 'unused', source: 'schemaB.tableB', srid: 4326 },
     __attributes__: ['id', 'title', 'adress', 'description'],
-    __supports__: ['nearestNeighbour', 'valuesAtPoint'],
+    __supports__: ['nearestNeighbour', 'valuesAtGrid'],
     __filterGroups__: ['topicGroupThree', 'topicGroupTwo'],
   },
   {

@@ -14,7 +14,7 @@ Get-call http://localhost:3000/v2/topics
 
 Topics may carry two optional blocks that appear in the `/topics` response when configured in `topic.json`:
 
-- `valueMetadata` — unit and vertical datum for topic values. Topic-wide defaults at the top with per-source overrides in an optional `sources[]`. Shape: `{ unit?, verticalDatum?, sources?: [{ sourceName, unit?, verticalDatum? }] }`. See [valuesAtPoint.md](./valuesAtPoint.md#value-metadata-in-responses).
+- `valueMetadata` — unit and vertical datum for topic values. Topic-wide defaults at the top with per-source overrides in an optional `sources[]`. Shape: `{ unit?, verticalDatum?, sources?: [{ sourceName, unit?, verticalDatum? }] }`. See [valuesAtGrid.md](./valuesAtGrid.md#value-metadata-in-responses).
 - `attribution` — list of data providers for the dataset(s). Each entry has optional `name` and `url`. For multi-source topics the response is the de-duplicated union of what each source contributes (with topic-level fallback for sources that have no own attribution). Omitted entirely when nothing is configured. Source-specific attribution is available on feature responses via `__attribution`.
 
   ```json

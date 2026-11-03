@@ -71,7 +71,7 @@ export const TOPIC_URL = '/topics';
 
 export const INTERSECT: string = 'Intersect';
 export const WITHIN: string = 'Within';
-export const VAlUES_AT_GRID: string = 'Values-at-point';
+export const VAlUES_AT_GRID: string = 'Values-at-grid';
 export interface testDataParameterGeoJSONFeature {
   returnGeometry?: boolean;
   geometryType?: string;
