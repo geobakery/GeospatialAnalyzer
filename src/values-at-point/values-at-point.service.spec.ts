@@ -122,7 +122,7 @@ describe('ValuesAtGridService – geometry type handling', () => {
     expect(sql).toMatch(/sample_points/i);
     expect(sql).toMatch(/point_values/i);
     expect(sql).toMatch(/ST_Value/i);
-    expect(sql).toMatch(/ROUND\(AVG\(value\)::numeric, 2\)/i);
+    expect(sql).toMatch(/'mean',\s*AVG\(value\)/i);
   });
 
   it('uses the polygon value stats (ST_Union, ST_Clip, ST_SummaryStats) for a Polygon', async () => {
@@ -148,12 +148,12 @@ describe('ValuesAtGridService – geometry type handling', () => {
     expect(sql).toMatch(/gelaendehoehe_dgm/i);
     expect(sql).toMatch(/oberflaechenhoehe_dom/i);
 
-    expect(sql).toMatch(/'count'/i);
+    expect(sql).toMatch(/'pixel_haveValue',\s*\(stats\)\.count/i);
     expect(sql).toMatch(/'min'/i);
     expect(sql).toMatch(/'max'/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.sum::numeric, 2\)/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.mean::numeric, 2\)/i);
-    expect(sql).toMatch(/ROUND\(\(stats\)\.stddev::numeric, 3\)/i);
+    expect(sql).toMatch(/'sum',\s*\(stats\)\.sum/i);
+    expect(sql).toMatch(/'mean',\s*\(stats\)\.mean/i);
+    expect(sql).toMatch(/'stddev',\s*\(stats\)\.stddev/i);
   });
 
   it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
