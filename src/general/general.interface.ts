@@ -28,6 +28,7 @@ export type topicDefinition = {
   /** Optional per-topic value metadata */
   __valueMetadata__?: {
     unit?: string;
+    decimalPlaces?: number;
     verticalDatum?: string;
   };
   /** Optional per-topic attribution (list of data providers) */
@@ -42,10 +43,12 @@ export interface topicDefinitionOutside {
   attributes?: string[];
   valueMetadata?: {
     unit?: string;
+    decimalPlaces?: number;
     verticalDatum?: string;
     sources?: Array<{
       sourceName: string;
       unit?: string;
+      decimalPlaces?: number;
       verticalDatum?: string;
     }>;
   };
@@ -88,6 +91,8 @@ export interface Source {
   srid: number;
   /** Optional per-source unit for value responses (e.g. "m") */
   unit?: string;
+  /** Optional per-source decimal places for value rounding (e.g. "2") */
+  decimalPlaces?: number;
   /** Optional per-source vertical datum (e.g. "DHHN2016") */
   verticalDatum?: string;
   /** Optional per-source attribution (replaces topic-level list for this source) */

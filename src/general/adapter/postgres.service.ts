@@ -5,6 +5,20 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
+
+  private roundValue(expression: string, decimalPlaces?: number): string {
+    if (decimalPlaces === undefined) {
+      return expression;
+    }
+    // The value ends up in the SQL text, so only a non-negative integer is allowed.
+    if (!Number.isInteger(decimalPlaces) || decimalPlaces < 0) {
+      throw new Error(
+        `decimalPlaces must be an integer >= 0, got ${decimalPlaces}`,
+      );
+    }
+    return `ROUND((${expression})::numeric, ${decimalPlaces})`;
+  }
+
   override areFeaturesIntersecting(
     feature: SqlParameter,
     other: SqlParameter,
@@ -26,8 +40,12 @@ export class PostgresService extends DbAdapterService {
   override getValueAtFeature(
     point: SqlParameter,
     raster: SqlParameter,
+    decimalPlaces?: number,
   ): string {
-    return `ST_value(${raster.value}, ${point.value})`;
+    return this.roundValue(
+      `ST_Value(${raster.value}, ${point.value})`,
+      decimalPlaces,
+    );
   }
 
   override transformFeature(featureWkt: SqlParameter, toCrs: number): string {

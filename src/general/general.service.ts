@@ -53,7 +53,11 @@ export class GeneralService {
   >();
   identifierValueMetadataMap: Map<
     string,
-    { unit?: string; verticalDatum?: string }
+    {
+      unit?: string;
+      decimalPlaces?: number;
+      verticalDatum?: string;
+    }
   > = new Map();
   identifierAttributionMap: Map<
     string,
@@ -126,7 +130,7 @@ export class GeneralService {
    * top and add a sources[] array with one entry per source that carries its
    * own values.
    */
-  private _buildOutputMetadataSection<T extends Record<string, string>>(
+  private _buildOutputMetadataSection<T extends Record<string, unknown>>(
     t: topicDefinition,
     getTopicLevel: (topic: topicDefinition) => Partial<T> | undefined,
     getSourceLevel: (source: Source) => Partial<T> | undefined,
@@ -202,6 +206,12 @@ export class GeneralService {
     }
   }
 
+  private isValidDecimalPlaces(value: unknown): boolean {
+    return (
+      value === undefined || (Number.isInteger(value) && (value as number) >= 0)
+    );
+  }
+
   private checkTopicDefinition(
     topicArray: unknown,
   ): topicArray is topicDefinition[] {
@@ -220,12 +230,29 @@ export class GeneralService {
           return false;
         }
 
+        const metadata = (t as topicDefinition).__valueMetadata__;
+
+        if (metadata !== undefined) {
+          if (
+            typeof metadata !== 'object' ||
+            metadata === null ||
+            Array.isArray(metadata)
+          ) {
+            return false;
+          }
+
+          if (!this.isValidDecimalPlaces(metadata.decimalPlaces)) {
+            return false;
+          }
+        }
+
         // check source object
         const checkSource = (s: unknown): s is Source => {
           return (
             typeof (s as Source).source == 'string' &&
             typeof (s as Source).name == 'string' &&
-            typeof (s as Source).srid == 'number'
+            typeof (s as Source).srid == 'number' &&
+            this.isValidDecimalPlaces((s as Source).decimalPlaces)
           );
         };
 
@@ -314,6 +341,7 @@ export class GeneralService {
         (topic) => topic.__valueMetadata__,
         (source) => ({
           unit: source.unit,
+          decimalPlaces: source.decimalPlaces,
           verticalDatum: source.verticalDatum,
         }),
       );
