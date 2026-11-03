@@ -5,7 +5,6 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
-
   private roundValue(expression: string, decimalPlaces?: number): string {
     if (decimalPlaces === undefined) {
       return expression;
