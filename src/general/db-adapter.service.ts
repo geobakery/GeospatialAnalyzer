@@ -58,4 +58,13 @@ export abstract class DbAdapterService {
   abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
 
   abstract unionAll(queries: string[]): string;
+
+  /** True if other geometry has no point in the interior of polygon (DE-9IM 'FF*******'). */
+  abstract hasNoPartInside(polygon: SqlParameter, other: SqlParameter): string;
+
+  /** True unless other geometry lies entirely inside polygon (DE-9IM 'FF*******') or (DE-9IM '******T**') or (DE-9IM '*******T*'). */
+  abstract isNotEntirelyInside(
+    polygon: SqlParameter,
+    other: SqlParameter,
+  ): string;
 }

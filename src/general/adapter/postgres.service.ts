@@ -107,4 +107,19 @@ export class PostgresService extends DbAdapterService {
   override unionAll(queries: string[]): string {
     return '((' + queries.join(') UNION ALL (') + '))';
   }
+
+  override hasNoPartInside(polygon: SqlParameter, other: SqlParameter): string {
+    return `ST_Relate(${polygon.value}, ${other.value}, 'FF*******')`;
+  }
+
+  override isNotEntirelyInside(
+    polygon: SqlParameter,
+    other: SqlParameter,
+  ): string {
+    return `(
+      ST_Relate(${polygon.value}, ${other.value}, 'FF*******')
+      OR ST_Relate(${polygon.value}, ${other.value}, '******T**')
+      OR ST_Relate(${polygon.value}, ${other.value}, '*******T*')
+    )`;
+  }
 }
