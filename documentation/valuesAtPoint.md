@@ -5,6 +5,8 @@ In this document we will describe important and good-to-know facts about the val
 ## Functionality
 
 Returns the values at the transferred point.
+Each value is rounded to a count of decimal places provided as optional parameter `decimalPlaces` in __valueMetadata__ for each topic.
+In accordance with scientific standards the standard deviation (in the statistics) is rounded to one more decimal place.
 
 ## Examples
 
@@ -75,6 +77,7 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
           ...
           "__valueMetadata__": {
             "unit": "m",
+            "decimalPlaces": 1,
             "verticalDatum": "DHHN2016"
           }
           ...
@@ -95,6 +98,7 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
             "name": "gelaendehoehe_dgm",
             ...
             "unit": "m",
+            "decimalPlaces": 1,
             "verticalDatum": "DHHN2016"
           }
           ...
