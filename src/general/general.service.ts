@@ -23,6 +23,7 @@ import {
   SOURCE_NAME_PROPERTY,
   SQLSTATE_QUERY_CANCELED,
   supportedDatabase,
+  DB_FIXED_DECIMAL_KEY,
 } from './general.constants';
 import {
   DBResponse,
@@ -491,6 +492,49 @@ export class GeneralService {
     return geo.properties.__geometryIdentifier__;
   }
 
+  /*
+   * Restore numeric values encoded as fixed-decimal markers by PostgreSQL.
+   * JSON.rawJSON preserves their original decimal representation during
+   * JSON serialization, e.g. 1.0 remains 1.0 instead of becoming 1.
+   */
+
+  private resolveFixedDecimals(value: unknown): unknown {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.resolveFixedDecimals(item));
+    }
+
+    if (typeof value !== 'object' || value === null) {
+      return value;
+    }
+
+    const object = value as Record<string, unknown>;
+
+    if (DB_FIXED_DECIMAL_KEY in object) {
+      const numberText = object[DB_FIXED_DECIMAL_KEY];
+
+      if (
+        typeof numberText === 'string' &&
+        /^-?\d+(\.\d+)?$/.test(numberText)
+      ) {
+        return (
+          JSON as unknown as {
+            rawJSON(text: string): unknown;
+          }
+        ).rawJSON(numberText);
+      }
+
+      return numberText ?? null;
+    }
+
+    const result: Record<string, unknown> = {};
+
+    for (const [key, entry] of Object.entries(object)) {
+      result[key] = this.resolveFixedDecimals(entry);
+    }
+
+    return result;
+  }
+
   /**
    * Explanation:
    * Prepares response features by adding request parameters, geometry properties,
@@ -529,6 +573,11 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
+          // Resolve fixed decimal markers from PostgreSQL
+          feature.properties = this.resolveFixedDecimals(
+            feature.properties,
+          ) as typeof feature.properties;
+
           feature.properties.__requestParams = requestParams;
 
           const isBufferFeature = feature.properties.__buffer === true;
@@ -550,6 +599,13 @@ export class GeneralService {
           // merge per field: source override wins, topic-level is fallback
           const topicValueMetadata =
             this.identifierValueMetadataMap.get(result.topic) ?? {};
+
+          const decimalPlaces =
+            source?.decimalPlaces ?? topicValueMetadata.decimalPlaces;
+
+          if (decimalPlaces !== undefined) {
+            (feature.properties as any).__decimalPlaces = decimalPlaces;
+          }
 
           const unit = source?.unit ?? topicValueMetadata.unit;
 

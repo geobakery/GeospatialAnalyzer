@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 import { DbAdapterService, SqlParameter } from '../db-adapter.service';
-import { DB_GEOMETRY_NAME } from '../general.constants';
+import { DB_GEOMETRY_NAME, DB_FIXED_DECIMAL_KEY } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
@@ -15,7 +15,11 @@ export class PostgresService extends DbAdapterService {
         `decimalPlaces must be an integer >= 0, got ${decimalPlaces}`,
       );
     }
-    return `ROUND((${expression})::numeric, ${decimalPlaces})`;
+    //marks rounded values with a key, so that the frontend can display them with the correct number of decimal places (e.g. 1.0 instead of 1)
+    return `json_build_object(
+      '${DB_FIXED_DECIMAL_KEY}',
+      ROUND((${expression})::numeric, ${decimalPlaces})::text
+    )`;
   }
 
   override areFeaturesIntersecting(
@@ -41,10 +45,17 @@ export class PostgresService extends DbAdapterService {
     raster: SqlParameter,
     decimalPlaces?: number,
   ): string {
-    return this.roundValue(
-      `ST_Value(${raster.value}, ${point.value})`,
-      decimalPlaces,
-    );
+    /**
+     * If no decimal precision is specified, convert the value directly to JSON.
+     * Otherwise, round it to the requested number of decimal places while
+     * preserving its decimal representation in the JSON response.
+     */
+
+    const value = `ST_Value(${raster.value}, ${point.value})`;
+
+    return decimalPlaces === undefined
+      ? `to_json(${value})`
+      : this.roundValue(value, decimalPlaces);
   }
 
   override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
