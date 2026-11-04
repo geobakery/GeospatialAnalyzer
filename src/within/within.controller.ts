@@ -18,6 +18,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { WithinService } from './within.service';
+import { validateGeometryTypes } from '../general/geometry-type-validation';
 
 @ApiTags('Within')
 @Controller({
@@ -82,6 +83,8 @@ export class WithinController {
   async within(
     @Body() args: WithinParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
+    validateGeometryTypes('within', args.inputGeometries);
+
     return await this.withinService.handleRequest(args);
   }
 }
