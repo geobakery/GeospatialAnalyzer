@@ -33,6 +33,8 @@ export const DB_TOPIC_NAME = 'topic';
 export const QUERY_FEATURE_INDEX = 'feature_wkt_';
 export const QUERY_BUFFER_INDEX = 'buffer_';
 
+export const DB_FIXED_DECIMAL_KEY = '__fixedDecimal';
+
 /**
  * Choosing an appropriate status code is surprisingly unclear:
  * - "408 Request Timeout" is the most prominent option, but should be
