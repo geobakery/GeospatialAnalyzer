@@ -5,7 +5,8 @@ In this document we will describe important and good-to-know facts about the val
 ## Functionality
 
 Returns the values at the transferred point.
-Each value is rounded to a count of decimal places provided as optional parameter `decimalPlaces` in __valueMetadata__ for each topic.
+Each value is rounded to a count of decimal places provided as optional parameter `decimalPlaces` in __valueMetadata__ for each topic
+(trailing zeros are still responded).
 In accordance with scientific standards the standard deviation (in the statistics) is rounded to one more decimal place.
 
 ## Examples
