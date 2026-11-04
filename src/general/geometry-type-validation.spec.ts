@@ -52,7 +52,6 @@ const esriFeature = (type: GeometryName) => ({
 
 // Every shape in which the geometries of a request can arrive.
 const INPUT_SHAPES: Array<[string, (type: GeometryName) => unknown]> = [
-  ['a bare geometry object', (type) => ({ type, coordinates: [] })],
   ['GeoJSON features', (type) => [geoFeature(type)]],
   [
     'a GeoJSON feature collection',

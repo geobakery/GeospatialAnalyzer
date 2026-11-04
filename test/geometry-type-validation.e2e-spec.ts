@@ -29,6 +29,9 @@ import {
   getEsriJSONFeature,
 } from './common/testDataPreparer';
 
+type InputKind = 'GeoJSON' | 'EsriJSON';
+type GeometryName = 'Point' | 'LineString' | 'Polygon';
+
 describe('Geometry type validation (e2e)', () => {
   let app: NestFastifyApplication;
 

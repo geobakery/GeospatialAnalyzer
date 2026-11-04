@@ -19,7 +19,7 @@ interface GeometryLike {
   y?: unknown;
 }
 
-//Collects the geometry types of the request's input geometries.
+// Collects the geometry types of the request's input geometries.
 
 function extractGeometryTypes(input: unknown): string[] {
   const items = Array.isArray(input) ? input : input ? [input] : [];
