@@ -45,7 +45,10 @@ const expectRounded = (value: unknown, decimals: number | undefined) => {
   if (decimals === undefined) return;
 
   expect(typeof value).toBe('number');
-  expect(hasAtMostDecimals(value as number, decimals)).toBe(true);
+
+  const formatted = (value as number).toFixed(decimals);
+
+  expect(Number(formatted)).toBe(value);
 };
 
 const run = async (expression: string, from = '') => {
@@ -53,7 +56,18 @@ const run = async (expression: string, from = '') => {
     `SELECT ${expression} AS result ${from}`,
   );
 
-  return row.result;
+  const result = row.result;
+
+  // Handle JSON-based fixed decimal results.
+  if (
+    result !== null &&
+    typeof result === 'object' &&
+    '__fixedDecimal' in result
+  ) {
+    return result.__fixedDecimal;
+  }
+
+  return result;
 };
 
 const valueAtPointRaw = async (places?: number) => {
@@ -492,6 +506,75 @@ describe('ValuesAtPointController (e2e)', () => {
 
         expectRawRounded(value, decimalPlaces);
       }
+    });
+  });
+
+  describe('decimalPlaces precision', () => {
+    it.each([
+      [114, 0, '114'],
+      [114, 1, '114.0'],
+      [114, 2, '114.00'],
+      [114, 3, '114.000'],
+      [114.5, 2, '114.50'],
+      [114.56, 3, '114.560'],
+    ])(
+      'formats %s with exactly %i decimal places',
+      async (value, places, expected) => {
+        const result = await run(`
+          TO_CHAR(
+            ${value}::numeric,
+            'FM999999999999990.${'0'.repeat(places)}'
+          )
+        `);
+
+        expect(result).toBe(expected);
+      },
+    );
+
+    it.each([
+      ['1.2355', 3, 1.236, '1.236'],
+      ['1.2344', 3, 1.234, '1.234'],
+      ['2.5', 0, 3, '3'],
+      ['-2.5', 0, -3, '-3'],
+      ['0.05', 1, 0.1, '0.1'],
+      ['0.04', 1, 0, '0.0'],
+      ['248.86::float8', 1, 248.9, '248.9'],
+      ['248.86::float8', 0, 249, '249'],
+      ['114', 1, 114, '114.0'],
+      ['114', 2, 114, '114.00'],
+      ['114', 3, 114, '114.000'],
+      ['114.5', 2, 114.5, '114.50'],
+      ['114.56', 3, 114.56, '114.560'],
+    ])(
+      'rounds %s to %i places',
+      async (literal, places, expected, expectedFormatted) => {
+        const expression = adapter.roundValue(literal, places);
+
+        const result = await run(`
+          (
+            (${expression})::jsonb ->> '__fixedDecimal'
+          )
+        `);
+
+        expect(Number(result)).toBe(expected);
+        expect(result).toBe(expectedFormatted);
+      },
+    );
+
+    it('leaves the expression untouched without decimalPlaces', async () => {
+      const result = await run(adapter.roundValue('1.23456789::float8'));
+
+      expect(Number(result)).toBe(1.23456789);
+    });
+
+    it('accepts zero decimal places', async () => {
+      const expression = adapter.roundValue('2.5', 0);
+
+      const result = await run(`
+        (${expression})::jsonb ->> '__fixedDecimal'
+      `);
+
+      expect(result).toBe('3');
     });
   });
 
