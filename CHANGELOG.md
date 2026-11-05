@@ -6,6 +6,13 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Added
+- `valuesAtPoint` now supports LineString and Polygon geometries. A LineString request responses a profile (interpolated Points each 10m) and its statistics. A Polygon request responses the statistics of all pixels of the grid covered by the Polygon. Its accuracy depends on the used PostGIS version (if parameter `touched` of ST_Clip is supported). A PostGIS version less than 3.5 excludes pixels where the center of the pixel is not covered by the Polygon (less accurate).
+- configuration of `decimalPlaces` is supported now. It can be specified in topic.json to control the rounding of raster values and their statistics.
+
+### Changed
+- Values for `hoehe_r` are now rounded according to the `decimalPlaces` setting in topic.json. This also affects existing point responses for this topic.
+
 ### Fixed
 
 - With `GEOSPATIAL_ANALYZER_URL_PREFIX` set, `/metrics` scrapes are no longer counted as HTTP requests, and the `endpoint` label no longer contains the prefix and API version (e.g. `/ga/v2/intersect` -> `/intersect`) (#249).

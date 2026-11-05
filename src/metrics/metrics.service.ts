@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { AsyncLocalStorage } from 'async_hooks';
 import * as client from 'prom-client';
 
@@ -18,6 +18,7 @@ export interface RequestContext {
 export class MetricsService implements OnModuleInit {
   private readonly registry: client.Registry;
   private readonly asyncLocalStorage = new AsyncLocalStorage<RequestContext>();
+  private readonly logger = new Logger(MetricsService.name);
 
   // HTTP Metrics
   public readonly httpRequestsTotal: client.Counter<string>;
@@ -121,7 +122,7 @@ export class MetricsService implements OnModuleInit {
       '/within',
       '/intersect',
       '/nearestNeighbour',
-      '/valuesAtPoint',
+      '/valuesAtGrid',
       '/transform',
       '/health',
       '/topics',
@@ -194,6 +195,9 @@ export class MetricsService implements OnModuleInit {
     responseSize: number,
     topics?: string[],
   ): void {
+    this.logger.log(
+      `${method} ${endpoint} -> ${statusCode} | Duration: ${(duration * 1000).toFixed(2)} ms`,
+    );
     // If no topics provided, record once with 'none'
     const topicsToRecord = topics && topics.length > 0 ? topics : ['none'];
 

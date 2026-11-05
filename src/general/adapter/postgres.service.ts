@@ -5,6 +5,12 @@ import { DB_GEOMETRY_NAME } from '../general.constants';
 
 @Injectable()
 export class PostgresService extends DbAdapterService {
+  private clipTouchedArg = '';
+
+  override configureClipTouchedSupport(supported: boolean): void {
+    this.clipTouchedArg = supported ? ', true' : '';
+  }
+
   override areFeaturesIntersecting(
     feature: SqlParameter,
     other: SqlParameter,
@@ -28,6 +34,259 @@ export class PostgresService extends DbAdapterService {
     raster: SqlParameter,
   ): string {
     return `ST_value(${raster.value}, ${point.value})`;
+  }
+
+  /**
+   * The line is interpolated into evenly spaced sample points
+   * (`interpolationDistance` meters apart, measured geodetically, always
+   * including start and end). For each point the value is read from the tile
+   * that contains it, found via the spatial index of the source table.
+   *
+   * Points without raster coverage yield `value: null`.
+   */
+
+  override getLineValueProfile(
+    feature: SqlParameter,
+    interpolationDistance: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string {
+    const lineGeometry = `ST_LineMerge(${feature.value}::geometry)`;
+
+    return `(
+      WITH line AS MATERIALIZED (
+        SELECT ${lineGeometry} AS geom
+      ),
+      line_parts AS MATERIALIZED (
+        SELECT
+          d.path AS part_path,
+          d.geom AS geom
+        FROM line
+        CROSS JOIN LATERAL ST_Dump(line.geom) AS d
+      ),
+      vertices AS MATERIALIZED (
+        SELECT
+          lp.part_path,
+          (p).path[1] AS vertex_idx,
+          (p).geom AS pt
+        FROM line_parts lp
+        CROSS JOIN LATERAL ST_DumpPoints(lp.geom) AS p
+      ),
+      segment_vertices AS MATERIALIZED (
+        SELECT
+          part_path,
+          vertex_idx,
+          pt AS start_pt,
+          LEAD(pt) OVER (
+            PARTITION BY part_path
+            ORDER BY vertex_idx
+          ) AS end_pt
+        FROM vertices
+      ),
+      segments_base AS MATERIALIZED (
+        SELECT
+          part_path,
+          vertex_idx,
+          ST_MakeLine(start_pt, end_pt) AS geom,
+          ST_Length(
+            ST_MakeLine(start_pt, end_pt)::geography
+          ) AS length
+        FROM segment_vertices
+        WHERE end_pt IS NOT NULL
+      ),
+      segments AS MATERIALIZED (
+        SELECT
+          part_path,
+          ROW_NUMBER() OVER (
+            PARTITION BY part_path
+            ORDER BY vertex_idx
+          ) AS segment_idx,
+          vertex_idx,
+          geom,
+          length,
+          COALESCE(
+            SUM(length) OVER (
+              PARTITION BY part_path
+              ORDER BY vertex_idx
+              ROWS BETWEEN UNBOUNDED PRECEDING
+                AND 1 PRECEDING
+            ),
+            0
+          ) AS distance_before
+        FROM segments_base
+        WHERE length > 0
+      ),
+      segment_samples AS MATERIALIZED (
+        SELECT
+          s.part_path,
+          s.vertex_idx,
+          points.i AS sample_idx,
+          (
+            points.i = 0
+            OR points.i = points.point_count
+          ) AS is_vertex,
+          s.distance_before
+            + CASE
+                WHEN points.i = points.point_count
+                  THEN s.length
+                ELSE points.i::double precision
+                  * ${interpolationDistance.value}
+              END AS distance_from_start,
+          ST_Transform(
+            ST_LineInterpolatePoint(
+              s.geom,
+              CASE
+                WHEN points.i = points.point_count
+                  THEN 1.0
+                ELSE
+                  (
+                    points.i::double precision
+                    * ${interpolationDistance.value}
+                  ) / s.length
+              END
+            ),
+            ${srid}
+          ) AS pt
+        FROM segments s
+        CROSS JOIN LATERAL (
+          SELECT
+            i,
+            CEIL(
+              s.length / ${interpolationDistance.value}
+            )::int AS point_count
+          FROM generate_series(
+            0,
+            CEIL(
+              s.length / ${interpolationDistance.value}
+            )::int
+          ) AS i
+        ) points
+        WHERE
+          s.length > 0
+          AND (
+            points.i > 0
+            OR s.segment_idx = 1
+          )
+      ),
+      sample_points AS MATERIALIZED (
+        SELECT
+          ROW_NUMBER() OVER (
+            ORDER BY part_path, vertex_idx, sample_idx
+          ) - 1 AS idx,
+          is_vertex,
+          distance_from_start,
+          pt
+        FROM segment_samples
+      ),
+      point_values AS MATERIALIZED (
+        SELECT
+          sp.idx,
+          sp.is_vertex,
+          sp.distance_from_start,
+          sp.pt AS geom,
+          raster_value.value AS value
+        FROM sample_points sp
+        LEFT JOIN LATERAL (
+          SELECT
+            ST_Value(rast, sp.pt) AS value
+          FROM ${sourceTable}
+          WHERE ST_Intersects(rast, sp.pt)
+          LIMIT 1
+        ) raster_value ON TRUE
+      )
+      SELECT json_build_object(
+        'valueStats', json_build_object(
+          'min', MIN(value),
+          'max', MAX(value),
+          'sum', SUM(value),
+          'mean', AVG(value),
+          'stddev', STDDEV_POP(value),
+          'count', COUNT(*),
+          'countWithValue', COUNT(value),
+          'countNoValue', COUNT(*) - COUNT(value)
+        ),
+        'valueProfile', json_agg(
+          json_build_object(
+            'index', idx,
+            'value', value,
+            'isVertex', is_vertex,
+            'chainageMeters', ROUND(distance_from_start::numeric, 2)
+          )
+          ORDER BY idx
+        )
+      )
+      FROM point_values
+    )`;
+  }
+
+  override getGeometryValidation(): string {
+    return `
+      SELECT
+        ST_IsValid(geom) AS is_valid,
+        ST_IsValidReason(geom) AS reason
+      FROM (
+        SELECT ST_GeomFromEWKT($1) AS geom
+      ) input
+    `;
+  }
+
+  override getPolygonValueStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string {
+    const polygon = `ST_Transform(${feature.value}::text, ${srid})`;
+
+    return `(
+      WITH polygon AS (
+        SELECT ${polygon} AS geom
+      ),
+      clipped_rast AS (
+        SELECT
+          ST_Clip(
+            "${sourceAlias}".rast,
+            polygon.geom,
+            true${this.clipTouchedArg}
+          ) AS rast,
+          ST_Clip(
+            ST_AddBand(
+              ST_MakeEmptyRaster("${sourceAlias}".rast),
+              '8BUI'::text, 1, 0
+            ),
+            polygon.geom,
+            true${this.clipTouchedArg}
+          ) AS pixel_count_mask
+        FROM ${sourceTable} "${sourceAlias}"
+        CROSS JOIN polygon
+        WHERE ST_Intersects("${sourceAlias}".rast, polygon.geom)
+      ),
+      stats AS (
+        SELECT
+          ST_SummaryStatsAgg(rast, 1, true) AS stats,
+          SUM(ST_Count(pixel_count_mask, 1, true))      AS total_count
+        FROM clipped_rast
+      ),
+      counts AS (
+        SELECT
+          stats,
+          COALESCE(total_count, 0) AS total_count,
+          COALESCE((stats).count, 0) AS count_with_value
+        FROM stats
+      )
+      SELECT json_build_object(
+        'min',            (stats).min,
+        'max',            (stats).max,
+        'sum',            (stats).sum,
+        'mean',           (stats).mean,
+        'stddev',         (stats).stddev,
+        'count',          total_count,
+        'countWithValue', count_with_value,
+        'countNoValue',   total_count - count_with_value
+      )
+      FROM counts
+    )`;
   }
 
   override transformFeature(featureWkt: SqlParameter, toCrs: number): string {
