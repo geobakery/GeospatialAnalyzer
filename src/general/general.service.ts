@@ -23,6 +23,7 @@ import {
   STANDARD_CRS,
   SOURCE_NAME_PROPERTY,
   SQLSTATE_QUERY_CANCELED,
+  STATS_KEY_ORDER,
   supportedDatabase,
 } from './general.constants';
 import {
@@ -293,6 +294,27 @@ export class GeneralService implements OnModuleInit {
     );
   }
 
+  private _sortStatsKeys(
+    stats: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const orderedStats: Record<string, unknown> = {};
+
+    for (const key of STATS_KEY_ORDER) {
+      if (Object.prototype.hasOwnProperty.call(stats, key)) {
+        orderedStats[key] = stats[key];
+      }
+    }
+
+    // Preserve additional keys that are not part of the predefined order.
+    for (const [key, value] of Object.entries(stats)) {
+      if (!STATS_KEY_ORDER.includes(key)) {
+        orderedStats[key] = value;
+      }
+    }
+
+    return orderedStats;
+  }
+
   getDbAdapter(): DbAdapterService {
     if (this.adapter) {
       return this.adapter;
@@ -553,6 +575,11 @@ export class GeneralService implements OnModuleInit {
         return;
       } else {
         features.forEach((feature) => {
+          if (feature.properties?.valueStats) {
+            feature.properties.valueStats = this._sortStatsKeys(
+              feature.properties.valueStats as Record<string, unknown>,
+            );
+          }
           feature.properties.__requestParams = requestParams;
 
           const isBufferFeature = feature.properties.__buffer === true;

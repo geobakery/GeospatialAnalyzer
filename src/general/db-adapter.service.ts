@@ -49,6 +49,8 @@ export abstract class DbAdapterService {
     srid: number,
   ): string;
 
+  abstract getGeometryValidation(feature: SqlParameter): string;
+
   abstract getPolygonValueStats(
     feature: SqlParameter,
     sourceTable: string,

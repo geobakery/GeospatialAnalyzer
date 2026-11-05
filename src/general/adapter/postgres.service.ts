@@ -98,6 +98,10 @@ export class PostgresService extends DbAdapterService {
       segments AS MATERIALIZED (
         SELECT
           part_path,
+          ROW_NUMBER() OVER (
+            PARTITION BY part_path
+            ORDER BY vertex_idx
+          ) AS segment_idx,
           vertex_idx,
           geom,
           length,
@@ -162,7 +166,7 @@ export class PostgresService extends DbAdapterService {
           s.length > 0
           AND (
             points.i > 0
-            OR s.vertex_idx = 1
+            OR s.segment_idx = 1
           )
       ),
       sample_points AS MATERIALIZED (
@@ -181,29 +185,28 @@ export class PostgresService extends DbAdapterService {
           sp.is_vertex,
           sp.distance_from_start,
           sp.pt AS geom,
-          ST_Value(
-            "${sourceAlias}".rast,
-            sp.pt
-          ) AS value
+          raster_value.value AS value
         FROM sample_points sp
-        LEFT JOIN ${sourceTable} "${sourceAlias}"
-          ON ST_Intersects(
-            "${sourceAlias}".rast,
-            sp.pt
-          )
+        LEFT JOIN LATERAL (
+          SELECT
+            ST_Value(rast, sp.pt) AS value
+          FROM ${sourceTable}
+          WHERE ST_Intersects(rast, sp.pt)
+          LIMIT 1
+        ) raster_value ON TRUE
       )
       SELECT json_build_object(
         'valueStats', json_build_object(
-          'points_count', COUNT(*),
-          'points_haveValue', COUNT(value),
-          'points_noValue', COUNT(*)-COUNT(value),
           'min', MIN(value),
           'max', MAX(value),
           'sum', SUM(value),
           'mean', AVG(value),
-          'stddev', STDDEV(value)
+          'stddev', STDDEV_POP(value),
+          'count', COUNT(*),
+          'countWithValue', COUNT(value),
+          'countNoValue', COUNT(*) - COUNT(value)
         ),
-        'profilePoints', json_agg(
+        'valueProfile', json_agg(
           json_build_object(
             'index', idx,
             'value', value,
@@ -215,6 +218,17 @@ export class PostgresService extends DbAdapterService {
       )
       FROM point_values
     )`;
+  }
+
+  override getGeometryValidation(): string {
+    return `
+      SELECT
+        ST_IsValid(geom) AS is_valid,
+        ST_IsValidReason(geom) AS reason
+      FROM (
+        SELECT ST_GeomFromEWKT($1) AS geom
+      ) input
+    `;
   }
 
   override getPolygonValueStats(
@@ -229,32 +243,49 @@ export class PostgresService extends DbAdapterService {
       WITH polygon AS (
         SELECT ${polygon} AS geom
       ),
-      stats AS (
-        SELECT ST_SummaryStatsAgg(
+      clipped_rast AS (
+        SELECT
           ST_Clip(
             "${sourceAlias}".rast,
             polygon.geom,
             true${this.clipTouchedArg}
-          ),
-          1,
-          true
-        ) AS stats
+          ) AS rast,
+          ST_Clip(
+            ST_AddBand(
+              ST_MakeEmptyRaster("${sourceAlias}".rast),
+              '8BUI'::text, 1, 0
+            ),
+            polygon.geom,
+            true${this.clipTouchedArg}
+          ) AS pixel_count_mask
         FROM ${sourceTable} "${sourceAlias}"
         CROSS JOIN polygon
-        WHERE ST_Intersects(
-          "${sourceAlias}".rast,
-          polygon.geom
-        )
+        WHERE ST_Intersects("${sourceAlias}".rast, polygon.geom)
+      ),
+      stats AS (
+        SELECT
+          ST_SummaryStatsAgg(rast, 1, true) AS stats,
+          SUM(ST_Count(pixel_count_mask, 1, true))      AS total_count
+        FROM clipped_rast
+      ),
+      counts AS (
+        SELECT
+          stats,
+          COALESCE(total_count, 0) AS total_count,
+          COALESCE((stats).count, 0) AS count_with_value
+        FROM stats
       )
       SELECT json_build_object(
-        'pixel_haveValue',  (stats).count,
-        'min',    (stats).min,
-        'max',    (stats).max,
-        'sum',    (stats).sum,
-        'mean',   (stats).mean,
-        'stddev', (stats).stddev,
+        'min',            (stats).min,
+        'max',            (stats).max,
+        'sum',            (stats).sum,
+        'mean',           (stats).mean,
+        'stddev',         (stats).stddev,
+        'count',          total_count,
+        'countWithValue', count_with_value,
+        'countNoValue',   total_count - count_with_value
       )
-      FROM stats
+      FROM counts
     )`;
   }
 

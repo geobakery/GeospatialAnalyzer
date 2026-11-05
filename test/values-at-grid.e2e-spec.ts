@@ -244,19 +244,19 @@ describe('ValuesAtGridController (e2e)', () => {
         expectFeatureWithoutGeometry(feature);
 
         const profile = feature.properties?.valueProfile;
+        const stats = feature.properties?.valueStats;
 
         expect(profile).toBeDefined();
-        expect(profile.valueStats).toBeDefined();
-        expect(Array.isArray(profile.profilePoints)).toBe(true);
-        expect(profile.profilePoints.length).toBeGreaterThanOrEqual(2);
+        expect(stats).toBeDefined();
 
-        const stats = profile.valueStats;
-        const points = profile.profilePoints;
+        expect(Array.isArray(profile)).toBe(true);
+        expect(profile.length).toBeGreaterThanOrEqual(2);
 
-        expect(stats.points_count).toBe(points.length);
-        expect(stats.points_haveValue + stats.points_noValue).toBe(
-          stats.points_count,
-        );
+        const points = profile;
+
+        expect(stats.count).toBe(points.length);
+
+        expect(stats.countWithValue + stats.countNoValue).toBe(stats.count);
 
         for (const key of ['min', 'max', 'mean', 'sum']) {
           expect(typeof stats[key]).toBe('number');

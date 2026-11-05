@@ -5,8 +5,8 @@ import { GeoJSONFeatureDto } from '../general/dto/geo-json.dto';
 import { ValuesAtGridParameterDto } from '../general/dto/parameter.dto';
 import {
   DB_VALUE_NAME,
-  DB_VALUE_PROFILE_NAME,
   DB_VALUE_STATS_NAME,
+  DB_VALUE_PROFILE_NAME,
   SOURCE_NAME_PROPERTY,
   DB_RASTER_DATA_NAME,
   LINE_INTERPOLATION_DISTANCE_METERS,
@@ -38,10 +38,10 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     );
   }
 
-  protected override handleLogicalRequest(
+  protected override async handleLogicalRequest(
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
-  ): void {
+  ): Promise<void> {
     const geometryType = logicalRequest.feature.geometry?.type;
 
     if (geometryType === 'LineString') {
@@ -50,7 +50,7 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     }
 
     if (geometryType === 'Polygon') {
-      this.handlePolygonRequest(queryBuilder, logicalRequest);
+      await this.handlePolygonRequest(queryBuilder, logicalRequest);
       return;
     }
 
@@ -152,7 +152,8 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
         .from('(SELECT 1)', 'line_value_profile_source')
         .setParameter(topicSourceParameterName, source.name)
         .addSelect(`:${topicSourceParameterName}`, SOURCE_NAME_PROPERTY)
-        .addSelect(profileExpr, DB_VALUE_PROFILE_NAME);
+        .addSelect(`(${profileExpr})->'valueStats'`, DB_VALUE_STATS_NAME)
+        .addSelect(`(${profileExpr})->'valueProfile'`, DB_VALUE_PROFILE_NAME);
 
       this.adapter.injectGeometryField(profileQueryBuilder);
       fieldsToQuery.forEach((field) => profileQueryBuilder.addSelect(field));
@@ -167,10 +168,10 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
     );
   }
 
-  private handlePolygonRequest(
+  private async handlePolygonRequest(
     queryBuilder: SelectQueryBuilder<unknown>,
     logicalRequest: GeospatialLogicalRequest,
-  ): void {
+  ): Promise<void> {
     const { fieldsToQuery, topicIndex, feature, featureIndex } = logicalRequest;
 
     const sources = this.generalService.getMultipleDBNamesForIdentifier(
@@ -185,6 +186,26 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
       featureParam,
       STANDARD_SRID + geojsonToWKT(feature.geometry),
     );
+
+    // Validate polygon before executing the statistics query
+    const featureEwkt = STANDARD_SRID + geojsonToWKT(feature.geometry);
+
+    queryBuilder.setParameter(featureParam, featureEwkt);
+
+    const validationQuery = this.adapter.getGeometryValidation({
+      raw: true,
+      value: `:${featureParam}`,
+    });
+
+    const validationResult = await this.dataSource.query(validationQuery, [
+      featureEwkt,
+    ]);
+
+    if (!validationResult[0].is_valid) {
+      throw new BadRequestException(
+        `The provided Polygon geometry is invalid: ${validationResult[0].reason}`,
+      );
+    }
 
     for (const [sourceIndex, source] of sources.entries()) {
       const statsExpr = this.adapter.getPolygonValueStats(

@@ -18,7 +18,12 @@ function makeFakeQueryBuilder() {
       return qb;
     }),
     from: jest.fn().mockImplementation((source: any, alias?: string) => {
-      sql += ` FROM (${typeof source === 'string' ? source : '<subquery>'}) ${alias ?? ''}`;
+      const subQuery =
+        typeof source === 'string'
+          ? source
+          : (source?.getQuery?.() ?? '<subquery>');
+
+      sql += ` FROM (${subQuery}) ${alias ?? ''}`;
       return qb;
     }),
     andWhere: jest.fn().mockImplementation((e: string) => {
@@ -72,6 +77,13 @@ describe('ValuesAtGridService – geometry type handling', () => {
       createQueryBuilder: jest
         .fn()
         .mockImplementation(() => makeFakeQueryBuilder()),
+
+      query: jest.fn().mockResolvedValue([
+        {
+          is_valid: true,
+          reason: 'Valid Geometry',
+        },
+      ]),
     } as unknown as DataSource;
 
     generalService = {
@@ -145,15 +157,28 @@ describe('ValuesAtGridService – geometry type handling', () => {
     expect(sql).toMatch(/ST_Clip/i);
     expect(sql).toMatch(/ST_SummaryStatsAgg/i);
 
-    expect(sql).toMatch(/gelaendehoehe_dgm/i);
-    expect(sql).toMatch(/oberflaechenhoehe_dom/i);
+    expect(sql).toMatch(/ga\.dgm_r/i);
+    expect(sql).toMatch(/ga\.dom_r/i);
 
-    expect(sql).toMatch(/'pixel_haveValue',\s*\(stats\)\.count/i);
-    expect(sql).toMatch(/'min'/i);
-    expect(sql).toMatch(/'max'/i);
+    expect(sql).toMatch(/'min',\s*\(stats\)\.min/i);
+    expect(sql).toMatch(/'max',\s*\(stats\)\.max/i);
     expect(sql).toMatch(/'sum',\s*\(stats\)\.sum/i);
     expect(sql).toMatch(/'mean',\s*\(stats\)\.mean/i);
     expect(sql).toMatch(/'stddev',\s*\(stats\)\.stddev/i);
+
+    expect(sql).toMatch(/'count',\s*total_count/i);
+    expect(sql).toMatch(/'countWithValue',\s*count_with_value/i);
+    expect(sql).toMatch(
+      /'countNoValue',\s*total_count\s*-\s*count_with_value/i,
+    );
+
+    expect(sql).toMatch(/ST_Count\(pixel_count_mask,\s*1,\s*true\)/i);
+    expect(sql).toMatch(/ST_SummaryStatsAgg\(rast,\s*1,\s*true\)/i);
+
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.stringMatching(/ST_IsValid/i),
+      expect.any(Array),
+    );
   });
 
   it('rejects unsupported geometry types (e.g. MultiPolygon) with a 400 error', async () => {
@@ -181,8 +206,8 @@ describe('ValuesAtGridService – geometry type handling', () => {
       }) as any,
     );
     const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/gelaendehoehe_dgm/);
-    expect(sql).toMatch(/oberflaechenhoehe_dom/);
+    expect(sql).toMatch(/ga\.dgm_r/i);
+    expect(sql).toMatch(/ga\.dom_r/i);
   });
 
   it('builds one sub-query per source (dgm + dom) for a LineString request', async () => {
@@ -196,8 +221,8 @@ describe('ValuesAtGridService – geometry type handling', () => {
       }) as any,
     );
     const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/gelaendehoehe_dgm/);
-    expect(sql).toMatch(/oberflaechenhoehe_dom/);
+    expect(sql).toMatch(/ga\.dgm_r/i);
+    expect(sql).toMatch(/ga\.dom_r/i);
   });
 
   it('builds one sub-query per source (dgm + dom) for a Polygon request', async () => {
@@ -215,7 +240,7 @@ describe('ValuesAtGridService – geometry type handling', () => {
       }) as any,
     );
     const sql = capturedQb.getQuery();
-    expect(sql).toMatch(/gelaendehoehe_dgm/);
-    expect(sql).toMatch(/oberflaechenhoehe_dom/);
+    expect(sql).toMatch(/ga\.dgm_r/i);
+    expect(sql).toMatch(/ga\.dom_r/i);
   });
 });
