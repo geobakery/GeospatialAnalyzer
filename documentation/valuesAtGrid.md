@@ -121,12 +121,20 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
                     "index": 0,
                     "value": 371.94775390625,
                     "isVertex": true,
+                    "location": [
+                        425975.81727102626,
+                        5656520.40224206
+                    ],
                     "chainageMeters": 0
                 },
                 {
                     "index": 1,
                     "value": null,
                     "isVertex": false,
+                    "location": [
+                        425984.64500116976,
+                        5656525.094209471
+                    ],
                     "chainageMeters": 10
                 },
                 ...
@@ -154,12 +162,20 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
                     "index": 0,
                     "value": 395.2237548828125,
                     "isVertex": true,
+                    "location": [
+                        435975.81727102626,
+                        5656520.40224206
+                    ],
                     "chainageMeters": 0
                 },
                 {
                     "index": 1,
                     "value": null,
                     "isVertex": false,
+                    "location": [
+                        435975.81727102626,
+                        5656520.40224206
+                    ],
                     "chainageMeters": 10
                 },
                 ...
@@ -220,7 +236,25 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
                 "stddev": 7.874672024958552,
                 "count": 24096,
                 "countWithValue": 12038,
-                "countNoValue": 12058
+                "countNoValue": 12058,
+                "maxLocations": [
+                  {
+                      "type": "Point",
+                      "coordinates": [
+                          13.944565527507706,
+                          51.054653470232495
+                      ]
+                  }
+                ],
+                "minLocations": [
+                  {
+                      "type": "Point",
+                      "coordinates": [
+                          13.954115412394572,
+                          51.05699649430381
+                      ]
+                  }
+                ]
             },
             ...
         }
@@ -238,7 +272,25 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
                 "stddev": 14.894816949577747,
                 "count": 24096,
                 "countWithValue": 12063,
-                "countNoValue": 12033
+                "countNoValue": 12033,
+                "maxLocations": [
+                  {
+                      "type": "Point",
+                      "coordinates": [
+                          13.844565527507706,
+                          51.054653470232495
+                      ]
+                  }
+                ],
+                "minLocations": [
+                  {
+                      "type": "Point",
+                      "coordinates": [
+                          13.854115412394572,
+                          51.05699649430381
+                      ]
+                  }
+                ]
             },
             ...
         }
@@ -348,12 +400,20 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
           "index": 0,
           "value": 371.94775390625,
           "isVertex": true,
+          "location": [
+                        425975.81727102626,
+                        5656520.40224206
+                    ],
           "chainageMeters": 0
         },
         {
           "index": 1,
           "value": null,
           "isVertex": false,
+          "location": [
+                        425984.64500116976,
+                        5656525.094209471
+                    ],
           "chainageMeters": 10
         },
         ...
@@ -379,12 +439,20 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
           "index": 0,
           "value": 395.2237548828125,
           "isVertex": true,
+          "location": [
+                        435975.81727102626,
+                        5656520.40224206
+                    ],
           "chainageMeters": 0
         },
         {
           "index": 1,
           "value": null,
           "isVertex": false,
+          "location": [
+                        435984.64500116976,
+                        5656525.094209471
+                    ],
           "chainageMeters": 10
         },
         ...
@@ -444,7 +512,25 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
         "stddev": 7.874672024958552,
         "count": 24096,
         "countWithValue": 12038,
-        "countNoValue": 12058
+        "countNoValue": 12058,
+        "maxLocations": [
+          {
+              "type": "Point",
+              "coordinates": [
+                  13.944565527507706,
+                  51.054653470232495
+              ]
+          }
+        ],
+        "minLocations": [
+          {
+              "type": "Point",
+              "coordinates": [
+                  13.954115412394572,
+                  51.05699649430381
+              ]
+          }
+        ]
       },
       ...
     }
@@ -460,7 +546,25 @@ Post-call http://localhost:3000/v2/valuesAtPoint with JSON body:
         "stddev": 14.894816949577747,
         "count": 24096,
         "countWithValue": 12063,
-        "countNoValue": 12033
+        "countNoValue": 12033,
+        "maxLocations": [
+          {
+              "type": "Point",
+              "coordinates": [
+                  13.844565527507706,
+                  51.054653470232495
+              ]
+          }
+        ],
+        "minLocations": [
+          {
+              "type": "Point",
+              "coordinates": [
+                  13.854115412394572,
+                  51.05699649430381
+              ]
+          }
+        ]
       },
       ...
     }
