@@ -185,7 +185,9 @@ export class PostgresService extends DbAdapterService {
           sp.is_vertex,
           sp.distance_from_start,
           sp.pt AS geom,
-          raster_value.value AS value
+          raster_value.value AS value,
+          ST_X(sp.pt) AS x,
+          ST_Y(sp.pt) AS y
         FROM sample_points sp
         LEFT JOIN LATERAL (
           SELECT
@@ -211,7 +213,8 @@ export class PostgresService extends DbAdapterService {
             'index', idx,
             'value', value,
             'isVertex', is_vertex,
-            'chainageMeters', ROUND(distance_from_start::numeric, 2)
+            'chainageMeters', ROUND(distance_from_start::numeric, 2),
+            'location', json_build_array(x, y)
           )
           ORDER BY idx
         )
@@ -240,34 +243,104 @@ export class PostgresService extends DbAdapterService {
     const polygon = `ST_Transform(${feature.value}::text, ${srid})`;
 
     return `(
-      WITH polygon AS (
+      WITH polygon AS MATERIALIZED (
         SELECT ${polygon} AS geom
       ),
-      clipped_rast AS (
+
+      clipped_rast AS MATERIALIZED (
         SELECT
-          ST_Clip(
-            "${sourceAlias}".rast,
-            polygon.geom,
-            true${this.clipTouchedArg}
-          ) AS rast,
-          ST_Clip(
-            ST_AddBand(
-              ST_MakeEmptyRaster("${sourceAlias}".rast),
-              '8BUI'::text, 1, 0
-            ),
-            polygon.geom,
-            true${this.clipTouchedArg}
-          ) AS pixel_count_mask
+          CASE
+            WHEN w.inside THEN "${sourceAlias}".rast
+            ELSE ST_Clip(
+              "${sourceAlias}".rast,
+              polygon.geom,
+              true${this.clipTouchedArg}
+            )
+          END AS rast,
+
+          CASE
+            WHEN w.inside THEN
+              ST_Width("${sourceAlias}".rast)::bigint
+                * ST_Height("${sourceAlias}".rast)
+            ELSE ST_Count(
+              ST_Clip(
+                ST_AddBand(
+                  ST_MakeEmptyRaster("${sourceAlias}".rast),
+                  '8BUI'::text, 1, 0
+                ),
+                polygon.geom,
+                true${this.clipTouchedArg}
+              ),
+              1,
+              true
+            )::bigint
+          END AS pixel_count
+
         FROM ${sourceTable} "${sourceAlias}"
         CROSS JOIN polygon
+        CROSS JOIN LATERAL (
+          SELECT ST_Within(
+            ST_ConvexHull("${sourceAlias}".rast),
+            polygon.geom
+          ) AS inside
+        ) w
         WHERE ST_Intersects("${sourceAlias}".rast, polygon.geom)
       ),
-      stats AS (
+
+      stats AS MATERIALIZED (
         SELECT
           ST_SummaryStatsAgg(rast, 1, true) AS stats,
-          SUM(ST_Count(pixel_count_mask, 1, true))      AS total_count
+          SUM(pixel_count) AS total_count
         FROM clipped_rast
       ),
+
+      tile_ext AS (
+        SELECT
+          rast,
+          (s).min AS tmin,
+          (s).max AS tmax
+        FROM (
+          SELECT rast, ST_SummaryStats(rast, 1, true) AS s
+          FROM clipped_rast
+        ) t
+        WHERE (s).count > 0
+      ),
+
+      candidates AS MATERIALIZED (
+        SELECT
+          t.rast,
+          (t.tmin = (st.stats).min) AS has_min,
+          (t.tmax = (st.stats).max) AS has_max
+        FROM tile_ext t
+        CROSS JOIN stats st
+        WHERE t.tmin = (st.stats).min
+          OR t.tmax = (st.stats).max
+      ),
+
+      extreme_pixels AS (
+        SELECT
+          c.has_min,
+          c.has_max,
+          p.val AS value,
+          ST_Transform(p.geom, 4326) AS geom
+        FROM candidates c
+        CROSS JOIN LATERAL ST_PixelAsCentroids(c.rast, 1, true) p
+      ),
+
+      min_locations AS (
+        SELECT ep.geom
+        FROM extreme_pixels ep
+        CROSS JOIN stats st
+        WHERE ep.has_min AND ep.value = (st.stats).min
+      ),
+
+      max_locations AS (
+        SELECT ep.geom
+        FROM extreme_pixels ep
+        CROSS JOIN stats st
+        WHERE ep.has_max AND ep.value = (st.stats).max
+      ),
+
       counts AS (
         SELECT
           stats,
@@ -275,15 +348,49 @@ export class PostgresService extends DbAdapterService {
           COALESCE((stats).count, 0) AS count_with_value
         FROM stats
       )
+
       SELECT json_build_object(
-        'min',            (stats).min,
-        'max',            (stats).max,
-        'sum',            (stats).sum,
-        'mean',           (stats).mean,
-        'stddev',         (stats).stddev,
-        'count',          total_count,
+        'min', (stats).min,
+        'max', (stats).max,
+        'sum', (stats).sum,
+        'mean', (stats).mean,
+        'stddev', (stats).stddev,
+
+        'count', total_count,
         'countWithValue', count_with_value,
-        'countNoValue',   total_count - count_with_value
+        'countNoValue', total_count - count_with_value,
+
+        'minLocations', (
+          SELECT COALESCE(
+            json_agg(
+              json_build_object(
+                'type', 'Point',
+                'coordinates', json_build_array(
+                  ST_X(geom),
+                  ST_Y(geom)
+                )
+              )
+            ),
+            '[]'::json
+          )
+          FROM min_locations
+        ),
+
+        'maxLocations', (
+          SELECT COALESCE(
+            json_agg(
+              json_build_object(
+                'type', 'Point',
+                'coordinates', json_build_array(
+                  ST_X(geom),
+                  ST_Y(geom)
+                )
+              )
+            ),
+            '[]'::json
+          )
+          FROM max_locations
+        )
       )
       FROM counts
     )`;
