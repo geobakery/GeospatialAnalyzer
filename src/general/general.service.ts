@@ -3,9 +3,10 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
+import { QueryFailedError, SelectQueryBuilder, DataSource } from 'typeorm';
 import { TransformService } from '../transform/transform.service';
 import { PostgresService } from './adapter/postgres.service';
 import { DbAdapterService } from './db-adapter.service';
@@ -22,6 +23,7 @@ import {
   STANDARD_CRS,
   SOURCE_NAME_PROPERTY,
   SQLSTATE_QUERY_CANCELED,
+  STATS_KEY_ORDER,
   supportedDatabase,
 } from './general.constants';
 import {
@@ -35,7 +37,7 @@ import {
 } from './general.interface';
 
 @Injectable()
-export class GeneralService {
+export class GeneralService implements OnModuleInit {
   private uniqueTopicsMap: Map<string, topicDefinitionOutside> = new Map();
 
   private topicGroupsToFilterFor?: string[];
@@ -69,6 +71,7 @@ export class GeneralService {
   constructor(
     private configService: ConfigService,
     private transformService: TransformService,
+    private dataSource: DataSource,
   ) {
     /**
      * Explanation:
@@ -88,6 +91,49 @@ export class GeneralService {
       );
     }
     this._setDynamicTopicsConfigurations(configurationFromTopicJson);
+  }
+
+  /**
+   * Runs once during application startup, after Nest has fully constructed
+   * this provider, but before the app starts accepting requests. Determines
+   * the actually installed PostGIS version and configures the adapter's
+   * version-specific SQL generation accordingly (currently: whether
+   * ST_Clip's `touched` parameter, added in PostGIS 3.5, may be used).
+   *
+   * This must live here rather than on PostgresService itself: Nest only
+   * invokes lifecycle hooks (like OnModuleInit) on instances it manages via
+   * its own DI container. PostgresService is created manually (`new
+   * PostgresService()`) inside getDbAdapter(), so it never receives such a
+   * hook. GeneralService, by contrast, is a regular DI-managed provider.
+   */
+  async onModuleInit(): Promise<void> {
+    if (this.adapter instanceof PostgresService) {
+      const result = await this.dataSource.query(
+        'SELECT PostGIS_Lib_Version() AS version',
+      );
+      const version = result[0]?.version;
+
+      if (!version) {
+        throw new Error('Could not determine PostGIS version');
+      }
+
+      this.adapter.configureClipTouchedSupport(
+        this.supportsClipTouched(version),
+      );
+    }
+  }
+
+  private supportsClipTouched(version: string): boolean {
+    const match = version.match(/^(\d+)\.(\d+)/);
+
+    if (!match) {
+      throw new Error(`Invalid PostGIS version: ${version}`);
+    }
+
+    const major = Number(match[1]);
+    const minor = Number(match[2]);
+
+    return major > 3 || (major === 3 && minor >= 5);
   }
 
   private _initializeTopicGroupFilter(topicGroupFilterString: string) {
@@ -248,6 +294,27 @@ export class GeneralService {
     );
   }
 
+  private _sortStatsKeys(
+    stats: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const orderedStats: Record<string, unknown> = {};
+
+    for (const key of STATS_KEY_ORDER) {
+      if (Object.prototype.hasOwnProperty.call(stats, key)) {
+        orderedStats[key] = stats[key];
+      }
+    }
+
+    // Preserve additional keys that are not part of the predefined order.
+    for (const [key, value] of Object.entries(stats)) {
+      if (!STATS_KEY_ORDER.includes(key)) {
+        orderedStats[key] = value;
+      }
+    }
+
+    return orderedStats;
+  }
+
   getDbAdapter(): DbAdapterService {
     if (this.adapter) {
       return this.adapter;
@@ -256,6 +323,12 @@ export class GeneralService {
     if (dbtype) {
       switch (dbtype) {
         case supportedDatabase.postgres: {
+          /*
+           * Version-specific configuration (e.g. ST_Clip's `touched`
+           * parameter, PostGIS >= 3.5) is applied later, in onModuleInit(),
+           * once the real PostGIS version has been determined. PostgresService
+           * therefore needs no DataSource here.
+           */
           return new PostgresService();
         }
         default: {
@@ -263,6 +336,7 @@ export class GeneralService {
         }
       }
     }
+    throw new Error('No database type configured');
   }
 
   getAllTopicsInformation(): topicDefinitionOutside[] {
@@ -501,6 +575,11 @@ export class GeneralService {
         return;
       } else {
         features.forEach((feature) => {
+          if (feature.properties?.valueStats) {
+            feature.properties.valueStats = this._sortStatsKeys(
+              feature.properties.valueStats as Record<string, unknown>,
+            );
+          }
           feature.properties.__requestParams = requestParams;
 
           const isBufferFeature = feature.properties.__buffer === true;

@@ -61,7 +61,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
           feature,
         );
 
-        this.handleLogicalRequest(
+        await this.handleLogicalRequest(
           queryBuilder,
           {
             feature,
@@ -146,7 +146,7 @@ export abstract class GeospatialService<T extends GeospatialRequest> {
     queryBuilder: SelectQueryBuilder<GeospatialResultEntity>,
     logicalRequest: GeospatialLogicalRequest,
     request: T,
-  ): void;
+  ): Promise<void> | void;
 
   /**
    * Creates the static SELECT ID as id, TOPIC as topic Part of the query

@@ -110,7 +110,7 @@ The following metrics are available:
 - **Description:** Duration of database queries in seconds
 - **Labels:**
   - `query_type`: Type of SQL query (SELECT - the API is read-only)
-  - `endpoint`: The API endpoint that initiated the query (e.g., `/intersect`, `/within`, `/nearestNeighbour`, `/valuesAtPoint`)
+  - `endpoint`: The API endpoint that initiated the query (e.g., `/intersect`, `/within`, `/nearestNeighbour`, `/valuesAtGrid`)
   - `app`: Application name
 - **Buckets:** 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10 seconds
 
@@ -406,7 +406,7 @@ To prevent "no data" errors in Prometheus queries, dashboards, and alerts, all m
 - Alert rules can be evaluated without errors
 
 The following label combinations are pre-initialized:
-- **HTTP endpoints**: `/within`, `/intersect`, `/nearestNeighbour`, `/valuesAtPoint`, `/transform`, `/health`, `/topics`
+- **HTTP endpoints**: `/within`, `/intersect`, `/nearestNeighbour`, `/valuesAtGrid`, `/transform`, `/health`, `/topics`
 - **HTTP methods**: `GET`, `POST`
 - **Status codes**: `200`, `400`, `404`, `500`
 - **Database query types**: `SELECT` (the API is read-only and only performs SELECT queries)
