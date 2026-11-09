@@ -8,10 +8,10 @@ Returns values of a grid that is covered by the transferred geometry.
 
 For a **Point**, the service returns the value at the given location.
 
-For a **LineString**, the service samples points along the line at 10-meter intervals between the vertices. The value is retrieved at each point's location (vertices and interpolated). The results are returned as a profile, consisting of these points in order along the line. Each point includes its grid value, an indicator of whether it is a vertex, and its chainage (distance along the line) in meters. In addition, the response provides statistics of the grid values (minimum, maximum, sum, mean, standard deviation, count of points, and the count of points with and without a value).
+For a **LineString**, the service samples points along the line at 10-meter intervals between the vertices. The value is retrieved at each point's location (vertices and interpolated). The results are returned as a profile, consisting of these points in order along the line. Each point includes its grid value, an indicator of whether it is a vertex, its location and its chainage (distance along the line) in meters. In addition, the response provides statistics of the grid values (minimum, maximum, sum, mean, standard deviation, count of points, and the count of points with and without a value).
 
 For a **Polygon**, the service calculates statistics of the cells, that are covered by the polygon.
-It returns the minimum, maximum, sum, mean, standard deviation, count of cells, and the count of cells with and without a value.
+It returns the minimum, maximum (and the locations where they occur), sum, mean, standard deviation, count of cells, and the count of cells with and without a value.
 The Polygon must not be complex (self-crossing).
 The accuracy depends on the used PostGIS version (if parameter `touched` of ST_Clip is supported). A PostGIS version less than 3.5 excludes pixels where the center of the pixel is not covered by the Polygon (less accurate).
 
