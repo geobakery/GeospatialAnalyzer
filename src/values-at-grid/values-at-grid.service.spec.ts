@@ -172,7 +172,9 @@ describe('ValuesAtGridService – geometry type handling', () => {
       /'countNoValue',\s*total_count\s*-\s*count_with_value/i,
     );
 
-    expect(sql).toMatch(/ST_Count\(pixel_count_mask,\s*1,\s*true\)/i);
+    expect(sql).toMatch(
+      /ST_Count\(\s*ST_Clip\(\s*ST_AddBand\(\s*ST_MakeEmptyRaster\(/i,
+    );
     expect(sql).toMatch(/ST_SummaryStatsAgg\(rast,\s*1,\s*true\)/i);
 
     expect(dataSource.query).toHaveBeenCalledWith(
