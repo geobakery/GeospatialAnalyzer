@@ -59,10 +59,10 @@ export abstract class DbAdapterService {
 
   abstract unionAll(queries: string[]): string;
 
-  /** True if other geometry has no point in the interior of polygon (DE-9IM 'FF*******'). */
+  /** True if the other geometry does not intersect the polygon's interior. */
   abstract hasNoPartInside(polygon: SqlParameter, other: SqlParameter): string;
 
-  /** True unless other geometry lies entirely inside polygon (DE-9IM 'FF*******') or (DE-9IM '******T**') or (DE-9IM '*******T*'). */
+  /** True if the other geometry is not entirely contained within the polygon. */
   abstract isNotEntirelyInside(
     polygon: SqlParameter,
     other: SqlParameter,

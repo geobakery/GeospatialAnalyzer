@@ -109,17 +109,13 @@ export class PostgresService extends DbAdapterService {
   }
 
   override hasNoPartInside(polygon: SqlParameter, other: SqlParameter): string {
-    return `ST_Relate(${polygon.value}, ${other.value}, 'FF*******')`;
+    return `(ST_Disjoint(${polygon.value}, ${other.value}) OR ST_Touches(${polygon.value}, ${other.value}))`;
   }
 
   override isNotEntirelyInside(
     polygon: SqlParameter,
     other: SqlParameter,
   ): string {
-    return `(
-      ST_Relate(${polygon.value}, ${other.value}, 'FF*******')
-      OR ST_Relate(${polygon.value}, ${other.value}, '******T**')
-      OR ST_Relate(${polygon.value}, ${other.value}, '*******T*')
-    )`;
+    return `NOT ST_Contains(${polygon.value}, ${other.value})`;
   }
 }

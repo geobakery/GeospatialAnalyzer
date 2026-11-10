@@ -63,18 +63,16 @@ describe('NearestNeighbourService', () => {
     expect(() => checkValidDistanceRange(undefined, 5)).not.toThrow();
   });
 
-  it('hasNoPartInside uses the FF******* pattern', () => {
+  it('hasNoPartInside uses NOT ST_Intersects OR ST_Touches', () => {
     expect(new PostgresService().hasNoPartInside(polygon, other)).toBe(
-      "ST_Relate(POLY, geom, 'FF*******')",
+      '(ST_Disjoint(POLY, geom) OR ST_Touches(POLY, geom))',
     );
   });
 
-  it('isNotEntirelyInside combines the three patterns with OR', () => {
-    const sql = new PostgresService().isNotEntirelyInside(polygon, other);
-    expect(sql).toContain("'FF*******'");
-    expect(sql).toContain("'******T**'");
-    expect(sql).toContain("'*******T*'");
-    expect(sql.match(/\bOR\b/g)).toHaveLength(2);
+  it('isNotEntirelyInside uses NOT ST_Contains', () => {
+    expect(new PostgresService().isNotEntirelyInside(polygon, other)).toBe(
+      'NOT ST_Contains(POLY, geom)',
+    );
   });
 
   it('rejects polygonExcludesInnerFeatures with a minimum above 0', () => {
