@@ -27,7 +27,11 @@ export abstract class DbAdapterService {
     other: SqlParameter,
   ): string;
 
-  abstract getValueAtFeature(point: SqlParameter, raster: SqlParameter): string;
+  abstract getValueAtFeature(
+    point: SqlParameter,
+    raster: SqlParameter,
+    decimalPlaces?: number,
+  ): string;
 
   abstract bufferFeature(
     feature: SqlParameter,
