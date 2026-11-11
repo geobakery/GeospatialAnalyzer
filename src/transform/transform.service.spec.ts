@@ -96,8 +96,6 @@ describe('TransformService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [TransformService],
     }).compile();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
     service = module.get<TransformService>(TransformService);
     mod = module;
   });
@@ -358,7 +356,7 @@ describe('TransformService', () => {
     it('rejects an unknown WKID with 400', () => {
       const error = errorOf(() => toGeo(esriPoint(1, 2, 999999)));
       expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-      expect(error.message).toBe('Coordinates are not valid');
+      expect(error.message).toBe('EPSG code "EPSG:999999" not found');
     });
   });
 

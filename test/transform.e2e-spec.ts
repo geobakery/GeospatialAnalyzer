@@ -168,6 +168,8 @@ describe('TransformController (e2e)', () => {
         epsg: 999999,
       });
       expect(result.statusCode).toBe(400);
+      const body = JSON.parse(result.payload);
+      expect(body.message).toBe('EPSG code "EPSG:999999" not found');
     });
 
     it('rejects a request without input with 400', async () => {
