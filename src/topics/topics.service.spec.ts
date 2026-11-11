@@ -41,7 +41,7 @@ describe('TopicsService', () => {
     const values = topics.find((t) => t.identifiers.includes('hoehe_r'));
     expect(values?.valueMetadata).toEqual({
       unit: 'm',
-      decimalPlaces: 1,
+      decimalPlaces: 2,
       verticalDatum: 'DHHN2016',
     });
   });
