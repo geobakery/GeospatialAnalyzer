@@ -39,7 +39,7 @@ importers:
         version: 11.4.6(@fastify/static@9.3.0)(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(class-transformer@0.5.1)(reflect-metadata@0.2.2)
       '@nestjs/typeorm':
         specifier: ^12.0.3
-        version: 12.0.3(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@1.1.2(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)))
+        version: 12.0.3(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@1.1.3(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)))
       '@terraformer/arcgis':
         specifier: ^2.2.2
         version: 2.2.2
@@ -62,8 +62,8 @@ importers:
         specifier: ^8.23.1
         version: 8.23.1
       proj4:
-        specifier: ^2.22.0
-        version: 2.22.0
+        specifier: ^2.23.0
+        version: 2.23.0
       proj4-list:
         specifier: ^1.0.4
         version: 1.0.4
@@ -77,8 +77,8 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
       typeorm:
-        specifier: ^1.1.2
-        version: 1.1.2(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3))
+        specifier: ^1.1.3
+        version: 1.1.3(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3))
     devDependencies:
       '@eslint/js':
         specifier: 10.0.1
@@ -1765,10 +1765,6 @@ packages:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
 
-  ansis@4.4.0:
-    resolution: {integrity: sha512-9k3v7xcHwgdO/DruxGIg4HtjvlAZlcnsX/mzqUb1t3NkYnl9kK2UJ+Gq0io+vQf7iT//BD/HB/NBkUR1LWxoeA==}
-    engines: {node: '>=14'}
-
   ansis@4.5.0:
     resolution: {integrity: sha512-KwIVkfFfJSSzBmZhDGuTmkhWqTdyB5oNVzzznBJbBZ5bZtHiqSrcugRF0RKJKT4Ss3d7ZrcjnlFVDlQNmtWfWw==}
     engines: {node: '>=14'}
@@ -1888,8 +1884,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  baseline-browser-mapping@2.11.35:
-    resolution: {integrity: sha512-GNk8KX52CHqeNKGk8+7tZnQab/2k1t/BgrUHPKNdijzpEhF1saPQZHVKb6m5loSAxB39gyrTYw34Qf9CQ3u1qQ==}
+  baseline-browser-mapping@2.11.37:
+    resolution: {integrity: sha512-QYph+vfurmaxhNwi9FprfmtkT5cx2Keg8FzZ0vnjO8ukscIybVyZGMFwdllKGlTI6qyU8ck43OM9UXh+IFJihQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -1991,8 +1987,8 @@ packages:
   caniuse-lite@1.0.30001814:
     resolution: {integrity: sha512-/Uaf1lAzr59XcMpW0o96WoEfr+VXK2OX4U9AgFoiSHsVJ4HppnIFUjtYzsyDH2+tgANaQb2/oxYGwCPapN1FpA==}
 
-  caniuse-lite@1.0.30001823:
-    resolution: {integrity: sha512-TQ5s/djDjNk1axreUW+4rULH+BmdCMLiJkhaXnO5wqivG7tITkSUj4ItIdzqdZHKaXcHAV8dhH3JxOM7/7bwqw==}
+  caniuse-lite@1.0.30001826:
+    resolution: {integrity: sha512-wTB+9tIbLro/BCXwLuNV1meHE4L9dS6dArMDwgYfNBPMYScqClHyGunhkCSDtHhe/69Xl0sHlKgBVZ+fNsYtWA==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2273,8 +2269,8 @@ packages:
   electron-to-chromium@1.5.443:
     resolution: {integrity: sha512-TDJG36L9A3CWWwZ97HKaE+Iz1sW80pNp6sAU0owzCIV3Zc9eVyRqZK8Vz6NKuMIU8WjP0pIkoqCa0VRf/yFD0Q==}
 
-  electron-to-chromium@1.5.479:
-    resolution: {integrity: sha512-uAJdJQ7vHa4TvPfzt1TOqoRgHmav5gwmqHMPLxBH6m8Cbj5R9/z/rygTOQiZ8pe5g0ZAEogga1bP6HoKcOzx/Q==}
+  electron-to-chromium@1.5.484:
+    resolution: {integrity: sha512-KmdOHJp6UlPUWoZ5O+X+qASnncYQm/F8wpCN7Jpbg4PJfP+l7SRhrSuFIuZlVshZvj4YUONgJAI944wmv5fIFg==}
 
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
@@ -2296,8 +2292,8 @@ packages:
     resolution: {integrity: sha512-Ev/hIyePLZtpL98x562lvPtenrUfGr0lfaf44HFZ+hDEwso7ccV9QAZrEVLg0hxNAzygaAFxy2dYaAKKM0G06A==}
     engines: {node: '>= 0.8'}
 
-  enhanced-resolve@5.26.1:
-    resolution: {integrity: sha512-PPnnSJq3azKOIewXR/uppBV/6h98dprBJ/WaQ9Qgj10xX1lJLNfg+XShpbsrSqcDSy2yYYyhfXM1wWhftqgyzw==}
+  enhanced-resolve@5.27.0:
+    resolution: {integrity: sha512-Do6BB2xzlcc/odFg+XEYyneAx4T/WfywO71yw9ePS2tVfRsf7JVR4mUeELadIeHzixkzbG5DpluiEFPi2WGfYQ==}
     engines: {node: '>=10.13.0'}
 
   error-ex@1.3.4:
@@ -2675,6 +2671,9 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  graceful-fs@4.2.12:
+    resolution: {integrity: sha512-iuyGF2E4oafQfPsRrG2wtY2ILupMhvtdrhzrxB+0VcjsPpSPttpfYdjnGFGsTi5MaJFjI1jOKHPQ6UTbTj9TAw==}
 
   handlebars@4.7.10:
     resolution: {integrity: sha512-P5VJMVM7qgBn6vjXMw8WG9uVI+ncf2pi72j4de4yz5ZULLj2RGqLYaKOYGsgyrViQ0tePOVlN1tDCCXXtFqXKg==}
@@ -3674,8 +3673,8 @@ packages:
   proj4-list@1.0.4:
     resolution: {integrity: sha512-BMU39s6xU/bIi3ro9unYo94HauD4bO1u1qXVtoqtc+8qdAKtXXe2FV9zGxEVM/tyNeQUdxX8QHPUtGCktFPwAg==}
 
-  proj4@2.22.0:
-    resolution: {integrity: sha512-MVvH09QrYm3A235rcX39WDiCKanrBiblu28l0KYIn/B2DofmYhvP/LLS43kE66jNDfx/P1l/nah3JmsAq8UgbQ==}
+  proj4@2.23.0:
+    resolution: {integrity: sha512-vb1Z/dOztEyXg5JC2LgKc2ye+md4qUdwH/RLS0EUUMKzoIsAC2PT1IGKPIDv9qg51p7uONn93qTh9gtfh+GmOQ==}
     peerDependencies:
       geotiff: '*'
     peerDependenciesMeta:
@@ -4302,8 +4301,8 @@ packages:
     resolution: {integrity: sha512-q7QNVDGTdl702bVFiI5eY4l/HkgCM6at9KhcFbgUAzezHFbOVy4+0O/lCjsABEQwbZPravVfBIiBVGo89yzHFg==}
     engines: {node: '>= 0.4'}
 
-  typeorm@1.1.2:
-    resolution: {integrity: sha512-UDQ8++2oFCK4fETiRKEC0eCES/i+/1SB4NBqXWeJNosI1i2SVFCDPhqIsXHWpFzFHTBOA553upQZj0NKVbNdUQ==}
+  typeorm@1.1.3:
+    resolution: {integrity: sha512-zpBWklzlWjoPFKZ5Frf1TWT9OzXqtJaej7HvdGGvx0TQLsKgSoG2HeKVbORXZhJNWhJ8BNFK+WqsogyuMGN2dQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.11.0}
     hasBin: true
     peerDependencies:
@@ -4475,8 +4474,8 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
-  wkt-parser@1.5.6:
-    resolution: {integrity: sha512-cqHU3lzGt/gt2OqIORP0uVy5yeOX43WABmgFkmJsmcqH3HhQo9PiJG6ftytwGKmpQUbegeX7+pQc2BuNCRfcrw==}
+  wkt-parser@1.9.0:
+    resolution: {integrity: sha512-0muBykCBpbUgMPqmH+2rlvFlFwwH1kdgIMa0YbaQ/JZAlyWCv8Fa4HFSbEvZs2gYRaqJP/0D8xSI1G7Z4tn0vw==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -5558,13 +5557,13 @@ snapshots:
     optionalDependencies:
       '@nestjs/platform-express': 11.2.8(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)
 
-  '@nestjs/typeorm@12.0.3(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@1.1.2(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)))':
+  '@nestjs/typeorm@12.0.3(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@1.1.3(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)))':
     dependencies:
       '@nestjs/common': 11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.28(@nestjs/common@11.1.28(class-transformer@0.5.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.2.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
-      typeorm: 1.1.2(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3))
+      typeorm: 1.1.3(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3))
 
   '@noble/hashes@1.8.0': {}
 
@@ -6290,8 +6289,6 @@ snapshots:
 
   ansi-styles@6.2.3: {}
 
-  ansis@4.4.0: {}
-
   ansis@4.5.0: {}
 
   anymatch@3.1.3:
@@ -6424,7 +6421,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.27: {}
 
-  baseline-browser-mapping@2.11.35: {}
+  baseline-browser-mapping@2.11.37: {}
 
   binary-version-check@6.1.0:
     dependencies:
@@ -6471,9 +6468,9 @@ snapshots:
 
   browserslist@4.29.5:
     dependencies:
-      baseline-browser-mapping: 2.11.35
-      caniuse-lite: 1.0.30001823
-      electron-to-chromium: 1.5.479
+      baseline-browser-mapping: 2.11.37
+      caniuse-lite: 1.0.30001826
+      electron-to-chromium: 1.5.484
       node-releases: 2.0.63
       update-browserslist-db: 1.3.4(browserslist@4.29.5)
 
@@ -6547,7 +6544,7 @@ snapshots:
 
   caniuse-lite@1.0.30001814: {}
 
-  caniuse-lite@1.0.30001823: {}
+  caniuse-lite@1.0.30001826: {}
 
   chalk@4.1.2:
     dependencies:
@@ -6764,7 +6761,7 @@ snapshots:
 
   electron-to-chromium@1.5.443: {}
 
-  electron-to-chromium@1.5.479: {}
+  electron-to-chromium@1.5.484: {}
 
   emittery@0.13.1: {}
 
@@ -6778,9 +6775,9 @@ snapshots:
 
   encodeurl@2.0.1: {}
 
-  enhanced-resolve@5.26.1:
+  enhanced-resolve@5.27.0:
     dependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.12
       tapable: 2.3.3
 
   error-ex@1.3.4:
@@ -7315,6 +7312,8 @@ snapshots:
       type-fest: 4.41.0
 
   graceful-fs@4.2.11: {}
+
+  graceful-fs@4.2.12: {}
 
   handlebars@4.7.10:
     dependencies:
@@ -8443,10 +8442,10 @@ snapshots:
 
   proj4-list@1.0.4: {}
 
-  proj4@2.22.0:
+  proj4@2.23.0:
     dependencies:
       mgrs: 1.0.0
-      wkt-parser: 1.5.6
+      wkt-parser: 1.9.0
 
   prom-client@15.1.3:
     dependencies:
@@ -9099,10 +9098,10 @@ snapshots:
       typed-array-buffer: 1.0.3
       typed-array-byte-offset: 1.0.4
 
-  typeorm@1.1.2(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)):
+  typeorm@1.1.3(pg@8.23.1)(ts-node@10.9.2(@swc/core@1.16.22)(@types/node@24.19.2)(typescript@6.0.3)):
     dependencies:
       '@sqltools/formatter': 1.2.5
-      ansis: 4.4.0
+      ansis: 4.5.0
       dayjs: 1.11.23
       debug: 4.4.3
       dedent: 1.7.2
@@ -9217,7 +9216,7 @@ snapshots:
 
   watchpack@2.6.4:
     dependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.12
 
   web-worker@1.5.0: {}
 
@@ -9235,12 +9234,12 @@ snapshots:
       acorn-import-phases: 1.0.4(acorn@8.19.0)
       browserslist: 4.29.5
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.26.1
+      enhanced-resolve: 5.27.0
       es-module-lexer: 2.3.2
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.12
       loader-runner: 4.3.2
       mime-db: 1.54.0
       neo-async: 2.6.2
@@ -9308,7 +9307,7 @@ snapshots:
     dependencies:
       isexe: 2.0.0
 
-  wkt-parser@1.5.6: {}
+  wkt-parser@1.9.0: {}
 
   word-wrap@1.2.5: {}
 
