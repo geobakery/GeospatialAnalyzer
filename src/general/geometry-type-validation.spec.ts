@@ -14,7 +14,7 @@ const catchError = (fn: () => void): unknown => {
 
 const geoFeature = (type: string) => ({
   type: 'Feature',
-  geometry: { type, coordinates: [] },
+  geometry: { type, coordinates: [] as unknown[] },
   properties: {},
 });
 const featureCollection = (features: unknown[]) => ({

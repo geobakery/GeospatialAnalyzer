@@ -67,7 +67,7 @@ export class EsriPolylineDto extends EsriGeometryDto {
     type: 'array',
     maxLength: 1, // More than one ring would correspond to a GeoJSON MultiLineString, which we do not support.
   })
-  paths: EsriJSONPosition[];
+  paths: EsriJSONPosition[][];
 }
 
 export class EsriPolygonDto extends EsriGeometryDto {

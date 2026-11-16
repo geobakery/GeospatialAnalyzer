@@ -28,6 +28,12 @@ import {
   getGeoJSONFeature,
   getEsriJSONFeature,
 } from './common/testDataPreparer';
+import {
+  GeoJSONLineString,
+  GeoJSONPoint,
+  GeoJSONPolygon,
+} from '../src/general/dto/geo-geometry.dto';
+import { EsriJsonDto } from '../src/general/dto/esri-json.dto';
 
 type InputKind = 'GeoJSON' | 'EsriJSON';
 type GeometryName = 'Point' | 'LineString' | 'Polygon';
@@ -65,17 +71,21 @@ describe('Geometry type validation (e2e)', () => {
     await app.close();
   });
 
-  const GEOJSON_GEOMETRIES = {
-    Point: { type: 'Point' as const, coordinates: [13.75, 51.072] },
+  const GEOJSON_GEOMETRIES: {
+    Point: GeoJSONPoint;
+    LineString: GeoJSONLineString;
+    Polygon: GeoJSONPolygon;
+  } = {
+    Point: { type: 'Point', coordinates: [13.75, 51.072] },
     LineString: {
-      type: 'LineString' as const,
+      type: 'LineString',
       coordinates: [
         [13.74, 51.06],
         [13.76, 51.08],
       ],
     },
     Polygon: {
-      type: 'Polygon' as const,
+      type: 'Polygon',
       coordinates: [
         [
           [13.74, 51.06],
@@ -89,7 +99,10 @@ describe('Geometry type validation (e2e)', () => {
   };
 
   // UTM 33N, inside the city of Dresden.
-  const ESRI_GEOMETRIES = {
+  const ESRI_GEOMETRIES: Record<
+    GeometryName,
+    NonNullable<EsriJsonDto['geometry']>
+  > = {
     Point: { x: 414000, y: 5654500, spatialReference: { wkid: 25833 } },
     LineString: {
       paths: [
