@@ -41,6 +41,23 @@ export abstract class DbAdapterService {
     bufferDistance: string,
   ): string;
 
+  abstract getLineValueProfile(
+    feature: SqlParameter,
+    interpolationDistance: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
+  abstract getGeometryValidation(feature: SqlParameter): string;
+
+  abstract getPolygonValueStats(
+    feature: SqlParameter,
+    sourceTable: string,
+    sourceAlias: string,
+    srid: number,
+  ): string;
+
   abstract transformFeature(featureWkt: SqlParameter, toCrs: number): string;
 
   abstract getJsonStructure(returnGeometry: boolean): string;
@@ -58,4 +75,8 @@ export abstract class DbAdapterService {
   abstract injectGeometryField(qb: SelectQueryBuilder<unknown>): void;
 
   abstract unionAll(queries: string[]): string;
+
+  configureClipTouchedSupport(_supported: boolean): void {
+    // no-op by default
+  }
 }

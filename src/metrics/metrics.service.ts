@@ -121,7 +121,7 @@ export class MetricsService implements OnModuleInit {
       '/within',
       '/intersect',
       '/nearestNeighbour',
-      '/valuesAtPoint',
+      '/valuesAtGrid',
       '/transform',
       '/health',
       '/topics',
