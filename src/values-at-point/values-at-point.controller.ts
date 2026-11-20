@@ -17,6 +17,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { ValuesAtPointService } from './values-at-point.service';
+import { validateGeometryTypes } from '../general/geometry-type-validation';
 
 @ApiTags('ValuesAtPoint')
 @Controller({
@@ -79,6 +80,8 @@ export class ValuesAtPointController {
   async valuesAtPoint(
     @Body() args: ValuesAtPointParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
+    validateGeometryTypes('valuesAtPoint', args.inputGeometries);
+
     return await this.valuesAtPointService.handleRequest(args);
   }
 }

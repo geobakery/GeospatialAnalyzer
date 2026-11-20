@@ -18,6 +18,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { IntersectService } from './intersect.service';
+import { validateGeometryTypes } from '../general/geometry-type-validation';
 
 @ApiTags('Intersect')
 @Controller({
@@ -80,6 +81,8 @@ export class IntersectController {
   async intersect(
     @Body() args: IntersectParameterDto,
   ): Promise<GeoJSONFeatureDto[] | EsriJsonDto[]> {
+    validateGeometryTypes('intersect', args.inputGeometries);
+
     return await this.intersectService.handleRequest(args);
   }
 }
