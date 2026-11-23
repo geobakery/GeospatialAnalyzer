@@ -7,35 +7,14 @@ import { setUpOpenAPIAndValidation } from '../src/app-init';
 import { TransformModule } from '../src/transform/transform.module';
 import { HEADERS_JSON, POST, URL_START } from './common/constants';
 import { testStatus200, testStatus400 } from './common/test';
-
-const LON = 13.75;
-const LAT = 51.07;
-
-// Closed-form Web Mercator (EPSG:3857), independent of proj4.
-const EARTH_RADIUS = 6378137;
-const mercatorX = (lon: number) => (lon * Math.PI * EARTH_RADIUS) / 180;
-const mercatorY = (lat: number) =>
-  EARTH_RADIUS * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
-
-const expectClose = (actual: number, expected: number, tolerance: number) => {
-  expect(Math.abs(actual - expected)).toBeLessThan(tolerance);
-};
-
-const flatten = (c: unknown): number[][] =>
-  Array.isArray(c) && typeof c[0] === 'number'
-    ? [c as number[]]
-    : (c as unknown[]).flatMap(flatten);
-
-const bboxOf = (c: unknown) =>
-  flatten(c).reduce(
-    (box, [x, y]) => ({
-      minX: Math.min(box.minX, x),
-      maxX: Math.max(box.maxX, x),
-      minY: Math.min(box.minY, y),
-      maxY: Math.max(box.maxY, y),
-    }),
-    { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
-  );
+import {
+  bboxOf,
+  expectClose,
+  LAT,
+  LON,
+  mercatorX,
+  mercatorY,
+} from './common/geo-helpers';
 
 const GEOJSON_TO_ESRI = 'transformGeoJSONToEsriJSON';
 const ESRI_TO_GEOJSON = 'transformEsriJSONToGeoJSON';
@@ -209,6 +188,8 @@ describe('TransformController (e2e)', () => {
         ],
       });
       expect(result.statusCode).toBe(400);
+      const body = JSON.parse(result.payload);
+      expect(body.message).toBe('EPSG code "EPSG:999999" not found');
     });
 
     it('rejects a request without input with 400', async () => {

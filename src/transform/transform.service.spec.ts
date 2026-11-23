@@ -13,20 +13,14 @@ import {
 } from '../general/dto/geo-json.dto';
 import { TransformGeoToEsriDto } from '../general/dto/transform-geo-to-esri.dto';
 import { TransformService } from './transform.service';
-
-// A location inside the city of Dresden.
-const LON = 13.75;
-const LAT = 51.07;
-
-// Closed-form Web Mercator (EPSG:3857), independent of proj4.
-const EARTH_RADIUS = 6378137;
-const mercatorX = (lon: number) => (lon * Math.PI * EARTH_RADIUS) / 180;
-const mercatorY = (lat: number) =>
-  EARTH_RADIUS * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
-
-const expectClose = (actual: number, expected: number, tolerance: number) => {
-  expect(Math.abs(actual - expected)).toBeLessThan(tolerance);
-};
+import {
+  bboxOf,
+  expectClose,
+  LAT,
+  LON,
+  mercatorX,
+  mercatorY,
+} from '../../test/common/geo-helpers';
 
 const errorOf = (fn: () => unknown): HttpException => {
   try {
@@ -35,23 +29,6 @@ const errorOf = (fn: () => unknown): HttpException => {
     return e as HttpException;
   }
   throw new Error('expected the function to throw');
-};
-
-const flatten = (c: unknown): number[][] =>
-  Array.isArray(c) && typeof c[0] === 'number'
-    ? [c as number[]]
-    : (c as unknown[]).flatMap(flatten);
-
-const bboxOf = (c: unknown) => {
-  const points = flatten(c);
-  const xs = points.map((p) => p[0]);
-  const ys = points.map((p) => p[1]);
-  return {
-    minX: Math.min(...xs),
-    maxX: Math.max(...xs),
-    minY: Math.min(...ys),
-    maxY: Math.max(...ys),
-  };
 };
 
 const feature = (
@@ -104,6 +81,10 @@ describe('TransformService', () => {
     await mod.close();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   const project = (lon: number, lat: number, epsg: number) =>
     service.transformSimpleCoordinates(
       [lon, lat, 0, 0],
@@ -117,8 +98,9 @@ describe('TransformService', () => {
 
   describe('registerCRS', () => {
     it('registers a known EPSG code for proj4', () => {
-      service.registerCRS('EPSG:25833');
-      expect(proj4.defs('EPSG:25833')).toBeDefined();
+      expect(proj4.defs('EPSG:31469')).toBeUndefined();
+      service.registerCRS('EPSG:31469');
+      expect(proj4.defs('EPSG:31469')).toBeDefined();
     });
 
     it('rejects an unknown EPSG code with 400', () => {
@@ -357,6 +339,30 @@ describe('TransformService', () => {
       const error = errorOf(() => toGeo(esriPoint(1, 2, 999999)));
       expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
       expect(error.message).toBe('EPSG code "EPSG:999999" not found');
+    });
+
+    it('maps an unexpected error to 500 with a fixed message and logs it', () => {
+      const [x, y] = project(LON, LAT, 25833);
+      const input = esriPoint(x, y, 25833);
+
+      const loggerSpy = jest
+        .spyOn((service as any).logger, 'error')
+        .mockImplementation(() => undefined);
+      jest
+        .spyOn(service, 'transformSimpleCoordinates')
+        .mockImplementation(() => {
+          throw new Error('boom: internal detail');
+        });
+
+      const error = errorOf(() => toGeo(input));
+
+      expect(error.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(error.message).toBe('Coordinate transformation failed');
+      expect(error.message).not.toContain('boom');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Coordinate transformation failed',
+        expect.any(String),
+      );
     });
   });
 
