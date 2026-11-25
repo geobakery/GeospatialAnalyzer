@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 const supportedTypesByEndpoint = {
-  valuesAtPoint: ['Point'],
+  valuesAtPoint: ['Point', 'LineString', 'Polygon'],
   within: ['Point', 'LineString', 'Polygon'],
   intersect: ['Point', 'LineString', 'Polygon'],
   nearestNeighbour: ['Point', 'LineString', 'Polygon'],

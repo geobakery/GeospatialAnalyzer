@@ -64,27 +64,18 @@ const INPUT_SHAPES: Array<[string, (type: GeometryName) => unknown]> = [
   ['EsriJSON features', (type) => [esriFeature(type)]],
 ];
 
-const GENERAL_ENDPOINTS = ['within', 'intersect', 'nearestNeighbour'] as const;
+const ENDPOINTS = [
+  'valuesAtPoint',
+  'within',
+  'intersect',
+  'nearestNeighbour',
+] as const;
 const GEOMETRY_NAMES: GeometryName[] = ['Point', 'LineString', 'Polygon'];
+const UNSUPPORTED_TYPES = ['MultiPoint', 'MultiLineString', 'MultiPolygon'];
 
 describe('validateGeometryTypes', () => {
   describe.each(INPUT_SHAPES)('with %s', (_shape, build) => {
-    it('accepts a Point for valuesAtGrid', () => {
-      expect(() =>
-        validateGeometryTypes('valuesAtPoint', build('Point')),
-      ).not.toThrow();
-    });
-
-    it.each(['LineString', 'Polygon'] as const)(
-      'rejects a %s for valuesAtGrid',
-      (type) => {
-        expect(() =>
-          validateGeometryTypes('valuesAtPoint', build(type)),
-        ).toThrow(BadRequestException);
-      },
-    );
-
-    describe.each(GENERAL_ENDPOINTS)('for %s', (endpoint) => {
+    describe.each(ENDPOINTS)('for %s', (endpoint) => {
       it.each(GEOMETRY_NAMES)('accepts a %s', (type) => {
         expect(() =>
           validateGeometryTypes(endpoint, build(type)),
@@ -93,89 +84,82 @@ describe('validateGeometryTypes', () => {
     });
   });
 
-  describe('error', () => {
-    it('has the same shape as the schema validation errors and names the type', () => {
+  describe.each(ENDPOINTS)('%s with types outside the schema', (endpoint) => {
+    it.each(UNSUPPORTED_TYPES)('reports %s as unsupported', (type) => {
       const error = catchError(() =>
-        validateGeometryTypes('valuesAtPoint', [esriFeature('Polygon')]),
+        validateGeometryTypes(endpoint, [geoFeature(type)]),
       );
       expect(error).toBeInstanceOf(BadRequestException);
       expect((error as BadRequestException).getResponse()).toEqual({
         statusCode: 400,
         message: 'Invalid user input',
         detailed_errors: [
-          "Unsupported geometry type 'Polygon' for valuesAtGrid. Supported types: Point.",
+          `Unsupported geometry type '${type}' for ${endpoint}. Supported types: Point, LineString, Polygon.`,
+        ],
+      });
+    });
+  });
+
+  describe('error', () => {
+    it('has the same shape as the schema validation errors and names the type', () => {
+      const error = catchError(() =>
+        validateGeometryTypes('within', [geoFeature('MultiPolygon')]),
+      );
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect((error as BadRequestException).getResponse()).toEqual({
+        statusCode: 400,
+        message: 'Invalid user input',
+        detailed_errors: [
+          "Unsupported geometry type 'MultiPolygon' for within. Supported types: Point, LineString, Polygon.",
         ],
       });
     });
 
     it('is thrown if only one of several geometries is unsupported', () => {
       expect(() =>
-        validateGeometryTypes('valuesAtPoint', [
+        validateGeometryTypes('within', [
           geoFeature('Point'),
-          geoFeature('Polygon'),
+          geoFeature('MultiPolygon'),
         ]),
       ).toThrow(BadRequestException);
     });
 
     it('reports every unsupported type once, in order of appearance', () => {
       const error = catchError(() =>
-        validateGeometryTypes('valuesAtPoint', [
-          geoFeature('Polygon'),
+        validateGeometryTypes('intersect', [
+          geoFeature('MultiPoint'),
           geoFeature('Point'),
-          geoFeature('LineString'),
-          geoFeature('Polygon'),
+          geoFeature('GeometryCollection'),
+          geoFeature('MultiPoint'),
         ]),
       );
       expect((error as BadRequestException).getResponse()).toEqual({
         statusCode: 400,
         message: 'Invalid user input',
         detailed_errors: [
-          "Unsupported geometry type 'Polygon' for valuesAtGrid. Supported types: Point.",
-          "Unsupported geometry type 'LineString' for valuesAtGrid. Supported types: Point.",
+          "Unsupported geometry type 'MultiPoint' for intersect. Supported types: Point, LineString, Polygon.",
+          "Unsupported geometry type 'GeometryCollection' for intersect. Supported types: Point, LineString, Polygon.",
         ],
       });
     });
   });
 
-  // The schema rejects these before the function is reached, but the function
-  // must not let them pass if the schema is ever relaxed.
-  describe.each(['valuesAtPoint', ...GENERAL_ENDPOINTS] as const)(
-    '%s with types outside the schema',
+  // Missing geometries are not this function's business, the services handle them.
+  describe.each(ENDPOINTS)(
+    '%s with input without a geometry type',
     (endpoint) => {
       it.each([
-        'MultiPoint',
-        'MultiLineString',
-        'MultiPolygon',
-        'GeometryCollection',
-      ])('reports %s as unsupported', (type) => {
-        const error = catchError(() =>
-          validateGeometryTypes(endpoint, [geoFeature(type)]),
-        );
-        expect(error).toBeInstanceOf(BadRequestException);
-        expect(
-          (error as BadRequestException).getResponse() as {
-            detailed_errors: string[];
-          },
-        ).toMatchObject({
-          detailed_errors: [expect.stringContaining(`'${type}'`)],
-        });
+        ['undefined', undefined],
+        ['an empty array', []],
+        ['an empty feature collection', featureCollection([])],
+        [
+          'a feature without geometry',
+          [{ type: 'Feature', geometry: null, properties: {} }],
+        ],
+        ['an EsriJSON feature without geometry', [{ attributes: {} }]],
+      ])('is not rejected: %s', (_name, input) => {
+        expect(() => validateGeometryTypes(endpoint, input)).not.toThrow();
       });
     },
   );
-
-  // Missing geometries are not this function's business, the services handle them.
-  describe('input without a geometry type', () => {
-    it.each([
-      ['undefined', undefined],
-      ['an empty array', []],
-      ['an empty feature collection', featureCollection([])],
-      [
-        'a feature without geometry',
-        [{ type: 'Feature', geometry: null, properties: {} }],
-      ],
-      ['an EsriJSON feature without geometry', [{ attributes: {} }]],
-    ])('is not rejected: %s', (_name, input) => {
-      expect(() => validateGeometryTypes('valuesAtPoint', input)).not.toThrow();
-    });
-  });
 });
