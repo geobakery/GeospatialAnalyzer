@@ -42,6 +42,26 @@ updates:
       # Otherwise Dependabot can't resolve the update and closes the PR.
       - dependency-name: "typescript"
         versions: [">=7"]
+      # NestJS 12 is ESM-only and the core packages depend on each other via
+      # peer dependencies, so single-package major PRs cannot pass CI. The
+      # migration is tracked as a separate issue. Only the core set is
+      # listed; @nestjs/config and @nestjs/typeorm stay unrestricted.
+      - dependency-name: "@nestjs/cli"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/common"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/core"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/platform-express"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/platform-fastify"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/schematics"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/swagger"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nestjs/testing"
+        update-types: ["version-update:semver-major"]
 
   # Container base images (Dockerfile)
   - package-ecosystem: "docker"

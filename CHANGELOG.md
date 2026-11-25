@@ -10,6 +10,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 - With `GEOSPATIAL_ANALYZER_URL_PREFIX` set, `/metrics` scrapes are no longer counted as HTTP requests, and the `endpoint` label no longer contains the prefix and API version (e.g. `/ga/v2/intersect` -> `/intersect`) (#249).
 - `valuesAtPoint` now answers HTTP 400 instead of HTTP 500 for LineString and Polygon input geometries (GeoJSON and EsriJSON). The error has the same shape as other input validation errors: `message` is `"Invalid user input"` and the unsupported geometry types are listed in `detailed_errors` (#286).
+- An unknown EPSG code on `transformGeoJSONToEsriJSON` now answers 400 instead of 500, and an unknown WKID on `transformEsriJSONToGeoJSON` returns the specific message `EPSG code "EPSG:<code>" not found` instead of the generic `Coordinates are not valid` (#289).
 
 ## [2.1.0] - 2026-10-12
 

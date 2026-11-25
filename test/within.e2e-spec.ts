@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import { createE2eTestModules } from './helpers/database.helper';
 import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
+import { GeoJSONPoint } from '../src/general/dto/geo-geometry.dto';
 import { WithinParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { TransformModule } from '../src/transform/transform.module';
@@ -328,7 +329,7 @@ describe('WithinController (e2e)', () => {
   });
 
   it('/POST within: a buffer around a point can push it outside a small Kreis', async () => {
-    const point = { type: 'Point' as const, coordinates: [13.75, 51.072] };
+    const point: GeoJSONPoint = { type: 'Point', coordinates: [13.75, 51.072] };
 
     const inputWithoutBuffer = await getGeoJSONFeature({
       topics: ['kreis_f'],
