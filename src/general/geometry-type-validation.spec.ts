@@ -69,14 +69,14 @@ const GEOMETRY_NAMES: GeometryName[] = ['Point', 'LineString', 'Polygon'];
 
 describe('validateGeometryTypes', () => {
   describe.each(INPUT_SHAPES)('with %s', (_shape, build) => {
-    it('accepts a Point for valuesAtPoint', () => {
+    it('accepts a Point for valuesAtGrid', () => {
       expect(() =>
         validateGeometryTypes('valuesAtPoint', build('Point')),
       ).not.toThrow();
     });
 
     it.each(['LineString', 'Polygon'] as const)(
-      'rejects a %s for valuesAtPoint',
+      'rejects a %s for valuesAtGrid',
       (type) => {
         expect(() =>
           validateGeometryTypes('valuesAtPoint', build(type)),
@@ -103,7 +103,7 @@ describe('validateGeometryTypes', () => {
         statusCode: 400,
         message: 'Invalid user input',
         detailed_errors: [
-          "Unsupported geometry type 'Polygon' for valuesAtPoint. Supported types: Point.",
+          "Unsupported geometry type 'Polygon' for valuesAtGrid. Supported types: Point.",
         ],
       });
     });
@@ -130,8 +130,8 @@ describe('validateGeometryTypes', () => {
         statusCode: 400,
         message: 'Invalid user input',
         detailed_errors: [
-          "Unsupported geometry type 'Polygon' for valuesAtPoint. Supported types: Point.",
-          "Unsupported geometry type 'LineString' for valuesAtPoint. Supported types: Point.",
+          "Unsupported geometry type 'Polygon' for valuesAtGrid. Supported types: Point.",
+          "Unsupported geometry type 'LineString' for valuesAtGrid. Supported types: Point.",
         ],
       });
     });

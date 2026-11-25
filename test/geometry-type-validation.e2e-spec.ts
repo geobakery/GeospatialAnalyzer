@@ -11,8 +11,8 @@ import { IntersectController } from '../src/intersect/intersect.controller';
 import { IntersectService } from '../src/intersect/intersect.service';
 import { NearestNeighbourController } from '../src/nearest-neighbour/nearest-neighbour.controller';
 import { NearestNeighbourService } from '../src/nearest-neighbour/nearest-neighbour.service';
-import { ValuesAtPointController } from '../src/values-at-point/values-at-point.controller';
-import { ValuesAtPointService } from '../src/values-at-point/values-at-point.service';
+import { ValuesAtGridController } from '../src/values-at-grid/values-at-grid.controller';
+import { ValuesAtGridService } from '../src/values-at-grid/values-at-grid.service';
 import { WithinController } from '../src/within/within.controller';
 import { WithinService } from '../src/within/within.service';
 import {
@@ -21,7 +21,7 @@ import {
   NEAREST_URL,
   POST,
   URL_START,
-  VALUES_AT_POINT_URL,
+  VALUES_AT_GRID_URL,
   WITHIN_URL,
 } from './common/constants';
 import {
@@ -44,14 +44,14 @@ describe('Geometry type validation (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [
-        ValuesAtPointController,
+        ValuesAtGridController,
         WithinController,
         IntersectController,
         NearestNeighbourController,
       ],
       imports: [...createE2eTestModules(), GeneralModule, TransformModule],
       providers: [
-        ValuesAtPointService,
+        ValuesAtGridService,
         WithinService,
         IntersectService,
         NearestNeighbourService,
@@ -166,10 +166,10 @@ describe('Geometry type validation (e2e)', () => {
     });
   }
 
-  describe.each(INPUT_KINDS)('valuesAtPoint with %s input', (kind) => {
+  describe.each(INPUT_KINDS)('valuesAtGrid with %s input', (kind) => {
     it('accepts a Point', async () => {
       const result = await postGeometry(
-        VALUES_AT_POINT_URL,
+        VALUES_AT_GRID_URL,
         kind,
         'Point',
         'hoehe_r',
@@ -181,7 +181,7 @@ describe('Geometry type validation (e2e)', () => {
       'rejects a %s with the common error shape',
       async (type) => {
         const result = await postGeometry(
-          VALUES_AT_POINT_URL,
+          VALUES_AT_GRID_URL,
           kind,
           type,
           'hoehe_r',
@@ -191,7 +191,7 @@ describe('Geometry type validation (e2e)', () => {
           statusCode: 400,
           message: 'Invalid user input',
           detailed_errors: [
-            `Unsupported geometry type '${type}' for valuesAtPoint. Supported types: Point.`,
+            `Unsupported geometry type '${type}' for valuesAtGrid. Supported types: Point.`,
           ],
         });
       },
@@ -224,14 +224,14 @@ describe('Geometry type validation (e2e)', () => {
       (
         await app.inject({
           method: POST,
-          url: URL_START + VALUES_AT_POINT_URL,
+          url: URL_START + VALUES_AT_GRID_URL,
           payload: schemaPayload,
           headers: HEADERS_JSON,
         })
       ).payload,
     );
     const typeError = JSON.parse(
-      (await postGeometry(VALUES_AT_POINT_URL, 'GeoJSON', 'Polygon', 'hoehe_r'))
+      (await postGeometry(VALUES_AT_GRID_URL, 'GeoJSON', 'Polygon', 'hoehe_r'))
         .payload,
     );
 

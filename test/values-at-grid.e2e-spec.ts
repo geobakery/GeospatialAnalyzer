@@ -234,7 +234,7 @@ describe('ValuesAtGridController (e2e)', () => {
 
       const result = await postGeoJSON(payload);
 
-      await testStatus200('/POST valuesAtPoint LineString', result);
+      await testStatus200('/POST valuesAtGrid LineString', result);
 
       const features = JSON.parse(result.payload) as any[];
 
