@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { setUpOpenAPIAndValidation } from '../src/app-init';
 import { createE2eTestModules } from './helpers/database.helper';
 import { EsriPolygonDto } from '../src/general/dto/esri-geometry.dto';
+import { GeoJSONPoint } from '../src/general/dto/geo-geometry.dto';
 import { IntersectParameterDto } from '../src/general/dto/parameter.dto';
 import { GeneralModule } from '../src/general/general.module';
 import { IntersectController } from '../src/intersect/intersect.controller';
@@ -390,7 +391,10 @@ describe('IntersectController (e2e)', () => {
   });
 
   it('/POST Intersect: a 100m buffer intersects more Flurstücke than no buffer', async () => {
-    const point = { type: 'Point' as const, coordinates: [13.756, 51.029] };
+    const point: GeoJSONPoint = {
+      type: 'Point',
+      coordinates: [13.756, 51.029],
+    };
 
     const inputWithoutBuffer = await getGeoJSONFeature({
       topics: ['flurstueck_f'],

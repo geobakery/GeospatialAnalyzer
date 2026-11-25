@@ -17,6 +17,7 @@ import { TopicDefinitionOutsideDto } from '../general/dto/topic-definition-outsi
 import { HTTP_STATUS_SQL_TIMEOUT } from '../general/general.constants';
 import { topicDefinitionOutside } from '../general/general.interface';
 import { ValuesAtGridService } from './values-at-grid.service';
+import { validateGeometryTypes } from '../general/geometry-type-validation';
 
 @ApiTags('ValuesAtGrid')
 @Controller({
@@ -79,6 +80,8 @@ export class ValuesAtGridController {
   async valuesAtGrid(
     @Body() args: ValuesAtGridParameterDto,
   ): Promise<EsriJsonDto[] | GeoJSONFeatureDto[]> {
+    validateGeometryTypes('valuesAtPoint', args.inputGeometries);
+
     return await this.valuesAtGridService.handleRequest(args);
   }
 }
