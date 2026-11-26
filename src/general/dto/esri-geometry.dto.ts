@@ -62,8 +62,10 @@ export class EsriPolylineDto extends EsriGeometryDto {
   @ApiProperty({
     items: {
       items: EsriJSONPositionSchemaObject,
+      minItems: 1,
       type: 'array',
     },
+    minItems: 1,
     type: 'array',
     maxLength: 1, // More than one ring would correspond to a GeoJSON MultiLineString, which we do not support.
   })
@@ -80,8 +82,10 @@ export class EsriPolygonDto extends EsriGeometryDto {
   @ApiProperty({
     items: {
       items: EsriJSONPositionSchemaObject,
+      minItems: 1,
       type: 'array',
     },
+    minItems: 1,
     type: 'array',
     maxLength: 1, // More than one ring would correspond to a GeoJSON MultiPolygon, which we do not support.
   })
