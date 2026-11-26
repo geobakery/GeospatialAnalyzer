@@ -55,6 +55,7 @@ export class GeoJSONPolygon extends GeoJSONObject {
   @ApiProperty({
     items: {
       items: GeoJSONPositionSchemaObject,
+      minItems: 1,
       type: 'array',
     },
     type: 'array',

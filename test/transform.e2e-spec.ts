@@ -155,6 +155,15 @@ describe('TransformController (e2e)', () => {
       const result = await post(GEOJSON_TO_ESRI, { epsg: 25833 });
       await testStatus400('missing input', result);
     });
+
+    it('rejects a polygon with an empty ring with 400', async () => {
+      const result = await post(GEOJSON_TO_ESRI, {
+        input: [geoFeature({ type: 'Polygon', coordinates: [[]] })],
+        epsg: 25833,
+      });
+      expect(result.statusCode).toBe(400);
+      expect(JSON.parse(result.payload).message).toBe('Invalid user input');
+    });
   });
 
   describe(`POST ${ESRI_TO_GEOJSON}`, () => {
@@ -195,6 +204,24 @@ describe('TransformController (e2e)', () => {
     it('rejects a request without input with 400', async () => {
       const result = await post(ESRI_TO_GEOJSON, {});
       await testStatus400('missing input', result);
+    });
+
+    it.each([
+      ['no rings', { rings: [] }],
+      ['an empty ring', { rings: [[]] }],
+      ['no paths', { paths: [] }],
+      ['an empty path', { paths: [[]] }],
+    ])('rejects a geometry with %s with 400', async (_name, geometry) => {
+      const result = await post(ESRI_TO_GEOJSON, {
+        input: [
+          {
+            geometry: { ...geometry, spatialReference: { wkid: 25833 } },
+            attributes: {},
+          },
+        ],
+      });
+      expect(result.statusCode).toBe(400);
+      expect(JSON.parse(result.payload).message).toBe('Invalid user input');
     });
   });
 
