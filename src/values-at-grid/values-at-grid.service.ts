@@ -142,7 +142,6 @@ export class ValuesAtGridService extends GeospatialService<ValuesAtGridParameter
         { raw: true, value: `:${featureParam}` },
         { raw: true, value: `:${interpolationDistanceParam}` },
         source.source,
-        source.name,
         source.srid,
       );
 
