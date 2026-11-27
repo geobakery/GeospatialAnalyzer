@@ -49,7 +49,6 @@ export class PostgresService extends DbAdapterService {
     feature: SqlParameter,
     interpolationDistance: SqlParameter,
     sourceTable: string,
-    sourceAlias: string,
     srid: number,
   ): string {
     const lineGeometry = `ST_LineMerge(${feature.value}::geometry)`;
@@ -191,10 +190,9 @@ export class PostgresService extends DbAdapterService {
         FROM sample_points sp
         LEFT JOIN LATERAL (
           SELECT
-            ST_Value(rast, sp.pt) AS value
+            MAX(ST_Value(rast, sp.pt)) AS value
           FROM ${sourceTable}
           WHERE ST_Intersects(rast, sp.pt)
-          LIMIT 1
         ) raster_value ON TRUE
       )
       SELECT json_build_object(

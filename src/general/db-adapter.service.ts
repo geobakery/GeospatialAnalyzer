@@ -45,7 +45,6 @@ export abstract class DbAdapterService {
     feature: SqlParameter,
     interpolationDistance: SqlParameter,
     sourceTable: string,
-    sourceAlias: string,
     srid: number,
   ): string;
 
