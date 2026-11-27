@@ -47,11 +47,17 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     const heightQueries = [];
 
     for (const [sourceIndex, source] of sources.entries()) {
+      const decimalPlaces =
+        source.decimalPlaces ??
+        this.generalService.identifierValueMetadataMap.get(logicalRequest.topic)
+          ?.decimalPlaces;
+
       const featureValue = this.getValueArRasterString(
         queryBuilder,
         source.srid,
         feature,
         featureIndex,
+        decimalPlaces,
       );
       const featureIntersect = this.getFeatureIntersectString(
         queryBuilder,
@@ -87,6 +93,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     srid: number,
     feature: GeoJSONFeatureDto,
     featureIndex: number,
+    decimalPlaces?: number,
   ): string {
     // setup for left and right side of intersect
     queryStart.setParameter(
@@ -101,6 +108,7 @@ export class ValuesAtPointService extends GeospatialService<ValuesAtPointParamet
     return this.adapter.getValueAtFeature(
       { raw: true, value: queryFeature },
       { raw: true, value: DB_RASTER_DATA_NAME },
+      decimalPlaces,
     );
   }
 

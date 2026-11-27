@@ -104,6 +104,110 @@ async function createFromDefaultFile(
     });
 }
 
+/**
+ * Customize Swagger UI's response body rendering to pretty-print JSON while preserving trailing decimal places.
+ * For example, JSON.parse/stringify would turn 1.0 into 1, whereas this formatter keeps the original representation.
+ */
+
+const rawJsonResponsePlugin = (system: any) => {
+  const formatJsonPreservingNumbers = (json: string): string => {
+    let result = '';
+    let indent = 0;
+    let inString = false;
+    let escaped = false;
+
+    const newline = () => {
+      result += '\n' + '  '.repeat(indent);
+    };
+
+    for (let i = 0; i < json.length; i++) {
+      const char = json[i];
+
+      if (inString) {
+        result += char;
+
+        if (escaped) {
+          escaped = false;
+        } else if (char === '\\') {
+          escaped = true;
+        } else if (char === '"') {
+          inString = false;
+        }
+
+        continue;
+      }
+
+      switch (char) {
+        case '"':
+          inString = true;
+          result += char;
+          break;
+
+        case '{':
+        case '[':
+          result += char;
+          indent++;
+          newline();
+          break;
+
+        case '}':
+        case ']':
+          indent--;
+          result = result.trimEnd();
+          newline();
+          result += char;
+          break;
+
+        case ',':
+          result += char;
+          newline();
+          break;
+
+        case ':':
+          result += ': ';
+          break;
+
+        default:
+          if (!/\s/.test(char)) {
+            result += char;
+          }
+      }
+    }
+
+    return result;
+  };
+
+  return {
+    wrapComponents: {
+      responseBody: (Original: any) => (props: any) => {
+        const isJson = /json/i.test(props.contentType ?? '');
+
+        if (!isJson || typeof props.content !== 'string') {
+          return system.React.createElement(Original, props);
+        }
+
+        const HighlightCode = props.getComponent('HighlightCode', true);
+
+        return system.React.createElement(
+          'div',
+          null,
+          system.React.createElement('h5', null, 'Response body'),
+          system.React.createElement(
+            HighlightCode,
+            {
+              language: 'json',
+              downloadable: true,
+              fileName: 'response.json',
+              canCopy: true,
+            },
+            formatJsonPreservingNumbers(props.content),
+          ),
+        );
+      },
+    },
+  };
+};
+
 export async function setUpOpenAPIAndValidation(
   app: NestFastifyApplication,
   urlPrefix: string = '',
@@ -137,7 +241,12 @@ export async function setUpOpenAPIAndValidation(
       schema.additionalProperties = schemaName.includes('Esri');
     });
 
-  SwaggerModule.setup('api', app, document, { useGlobalPrefix: true });
+  SwaggerModule.setup('api', app, document, {
+    useGlobalPrefix: true,
+    swaggerOptions: {
+      plugins: [rawJsonResponsePlugin],
+    } as any,
+  });
 
   // Set beautifyErrors to false for schemaPath information
   inputValidation.init(document, {
